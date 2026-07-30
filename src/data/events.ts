@@ -1,18 +1,18 @@
 import data from "../events.json";
 const API_BASE = "http://localhost:3001";
 
-import QRCode from "qrcode";
-import nodemailer from "nodemailer";
+// import QRCode from "qrcode";
+// import nodemailer from "nodemailer";
 
-const transporter = nodemailer.createTransport({
-    host:"smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-    },
-});
+// const transporter = nodemailer.createTransport({
+//     host:"smtp.gmail.com",
+//     port: 465,
+//     secure: true,
+//     auth: {
+//         user: process.env.SMTP_USER,
+//         pass: process.env.SMTP_PASS,
+//     },
+// });
 
 // type InviteEmail = {
 //     to: string;
