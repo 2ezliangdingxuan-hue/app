@@ -1,0 +1,16 @@
+import { type RouteConfig, index, route } from "@react-router/dev/routes";
+
+export default [
+    index("routes/home.tsx"),
+    route("scanner", "routes/scanner.tsx"),
+    route("events/:eventId", "routes/event.tsx",[
+        //index("events/guestList.tsx"),
+        route("invite", "events/invite.tsx"),
+        route("guestList", "events/guestList.tsx"),
+        route("activities", "events/activities.tsx"),
+        route("gifts", "events/gifts.tsx"),
+        route("ratings", "events/ratings.tsx"),
+        route("edit", "events/edit.tsx"),
+        route("rsvp", "events/rsvp.tsx")
+    ]),
+] satisfies RouteConfig;
