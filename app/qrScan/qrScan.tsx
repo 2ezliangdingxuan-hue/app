@@ -36,7 +36,6 @@ export function QrScan() {
     return(
         
         <main>
-            <script src="https://unpkg.com/html5-qrcode" type="text/javascript"/>
             <div className="p-8">
                 <h1 className="mb-4">Scan Qr Code :</h1>
                 <div id="reader"/>

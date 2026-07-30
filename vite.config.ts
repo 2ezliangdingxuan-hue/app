@@ -10,6 +10,9 @@ export default defineConfig({
   resolve: {
     tsconfigPaths: true,
   },
+  optimizeDeps: {
+    include: ["html5-qrcode"],
+  },
   server:{
     host: true,
     https: true,
