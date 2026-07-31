@@ -81,6 +81,7 @@ app.post("/api/events/:eventId/newguest", (req, res) => {
         guestName: guest.name, 
         guestId: newGuestId, 
         eventTitle: event.title,
+        eventId: eventId,
     })
     }
     catch (e){

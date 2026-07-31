@@ -13,8 +13,8 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-async function sendGuestInviteEmail({to, guestName, guestId, eventTitle}) {
-    const qrCodeBuffer = await QRCode.toBuffer(guestId,{
+async function sendGuestInviteEmail({to, guestName, guestId, eventTitle, eventId}) {
+    const qrCodeBuffer = await QRCode.toBuffer((eventId + ":" + guestId),{
         type:"png",
         width: 300,
         margin:1,
