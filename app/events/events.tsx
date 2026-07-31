@@ -28,7 +28,7 @@ export default function Events() {
     })
 
     return(
-        <main className="flex flex-col">
+        <main className="flex flex-col max-w-7xl mx-auto w-full">
             <div className="p-8 flex flex-row justify-between">
                 <h1 className="text-3xl font-bold">
                     Events
