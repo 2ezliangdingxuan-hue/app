@@ -12,7 +12,7 @@ export function Header() {
                 <a href="/events" className="">Events</a>
             </li>
             <li>
-                <a href="/create-event">Create Event</a>
+                <a href="/createEvent">Create Event</a>
             </li>
             <li>
               <a href="/scanner">Scanner</a>

@@ -105,6 +105,7 @@
       "description": "This is the second event.",
       "date": "2024-06-15",
       "category": "private",
+      "location": "Buckingham Palace",
       "img": "https://th.bing.com/th/id/OIP.VdDc3iT3PCrJnnsiThNzGgHaF_?w=245&h=199&c=7&r=0&o=7&pid=1.7&rm=3",
       "guests": {
         "1": {
@@ -121,6 +122,7 @@
       "description": "This is the third event.",
       "date": "2024-06-20",
       "category": "invite-only",
+      "location": "Buckingham Palace",
       "img": "https://th.bing.com/th/id/OIP.VdDc3iT3PCrJnnsiThNzGgHaF_?w=245&h=199&c=7&r=0&o=7&pid=1.7&rm=3",
       "guests": {
         "1": {
@@ -137,6 +139,7 @@
       "description": "This is the fourth event.",
       "date": "2024-06-25",
       "category": "internal",
+      "location": "Buckingham Palace",
       "img": "https://th.bing.com/th/id/OIP.VdDc3iT3PCrJnnsiThNzGgHaF_?w=245&h=199&c=7&r=0&o=7&pid=1.7&rm=3",
       "guests": {
         "1": {
