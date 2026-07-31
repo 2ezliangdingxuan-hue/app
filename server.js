@@ -73,7 +73,18 @@ app.post("/api/events/:eventId/newguest", (req, res) => {
         arrivalTime: null,
     };
     event.guests[newGuestId] = guest;
-    sendGuestInviteEmail(guest.email, guest.name, newGuestId, event.title)
+    try{
+        sendGuestInviteEmail({
+        to: guest.email, 
+        guestName: guest.name, 
+        guestId: newGuestId, 
+        eventTitle: event.title,
+    })
+    }
+    catch (e){
+        console.log(e)
+    }
+    
     writeData(data);
 
     res.status(201).json({ok: true, guestId: newGuestId, guest, event})

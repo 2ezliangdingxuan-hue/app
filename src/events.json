@@ -41,46 +41,7 @@
           "status": "Not-Arrived",
           "arrivalTime": null
         },
-        "6": {
-          "name": "test1",
-          "email": "a@email.com",
-          "number": "1",
-          "arrived": false,
-          "status": "Not-Arrived",
-          "arrivalTime": null
-        },
-        "7": {
-          "name": "ter",
-          "email": "a@email",
-          "number": "123",
-          "arrived": false,
-          "status": "Not-Arrived",
-          "arrivalTime": null
-        },
-        "8": {
-          "name": "john",
-          "email": "a@b",
-          "number": "123",
-          "arrived": false,
-          "status": "Not-Arrived",
-          "arrivalTime": null
-        },
-        "9": {
-          "name": "test",
-          "email": "w@e.com",
-          "number": "65432",
-          "arrived": false,
-          "status": "Not-Arrived",
-          "arrivalTime": null
-        },
-        "10": {
-          "name": "banana",
-          "email": "liangdingxuan@gmail.com",
-          "number": "93521200",
-          "arrived": false,
-          "status": "Not-Arrived",
-          "arrivalTime": null
-        }
+        
       }
     },
     {
