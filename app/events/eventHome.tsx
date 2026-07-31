@@ -13,7 +13,7 @@ export function EventHome() {
         <main className="flex w-full flex-col pt-16 pb-4 px-8">
             <div className="relative w-full h-auto">
                 <div className="flex flex-row justify-between items-center mb-10">
-                    <h1 className="text-4xl">{curEvent?.title}</h1>
+                    <h1 className="text-4xl font-semibold">{curEvent?.title}</h1>
                     <button className="flex border-2 rounded-xl items-center px-3">
                         <p className="text-2xl pr-1">Edit</p>
                         <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">

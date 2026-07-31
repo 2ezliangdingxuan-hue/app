@@ -25,12 +25,47 @@ function findNextGuest(event){
 }
 
 function findMaxEvent(){
-    const events = readData().events;
+    const data = readData();
+    const nextId= Math.max(0, ...data.events.map((event) => Number(event.id) || 0)) + 1;
 }
 
 app.get("/api/events", (req, res) => {
     const events = readData().events;
     res.json(events);
+});
+
+app.post("/api/events", (req, res) =>{
+    const data = readData();
+    const title = req.body?.title?.trim();
+    const description = req.body?.description?.trim();
+    const date = req.body?.location?.trim();
+    const location = req.body?.location?.trim();
+    const category = req.body?.category?.trim();
+
+    if (!title || !description || !date || !location || !category){
+        return res.status(400).json({error:"All event fields are required"})
+    }
+
+    const nextId= Math.max(0, ...data.events.map((event) => Number(event.id) || 0)) + 1;
+
+    const newEvent = {
+        id:nextId,
+        title,
+        description,
+        date,
+        category,
+        location,
+        img: 
+        req.body?.img || 
+        "https://th.bing.com/th/id/OIP.VdDc3iT3PCrJnnsiThNzGgHaF_?w=245&h=199&c=7&r=0&o=7&pid=1.7&rm=3",
+        guests:{},
+    }
+
+    data.events.push(newEvent);
+    writeData(data);
+
+    res.status(201).json({ok: true, event: newEvent});
+
 });
 
 app.get("/api/events/:id", (req, res) => {

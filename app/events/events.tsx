@@ -1,8 +1,6 @@
 import {getEvents, getEventById} from "../../src/data/events"
 import { useEffect, useState } from "react"
 
-
-
 export default function Events() { 
 
     interface Guest{
@@ -30,7 +28,7 @@ export default function Events() {
     })
 
     return(
-        <main>
+        <main className="flex flex-col">
             <div className="p-8 flex flex-row justify-between">
                 <h1 className="text-3xl font-bold">
                     Events
@@ -44,18 +42,18 @@ export default function Events() {
                 </a>
             </div>
             <div>
-                <ul className="gap-4 flex flex-row py-6">
+                <ul className="gap-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 py-6">
                 {events.map((event) => (
-                <a href={`/events/${event.id}`} key={event.id}>
-                  <div className="border bg-white border-gray-200 rounded-lg p-4 drop-shadow-md" key={event.id}>
-                    <li key={event.id} className="flex flex-col gap-2">
-                      <img src={event.img} alt={event.title} />
-                      <h2>{event.title}</h2>
-                      <p>{event.date}</p>
-                      <p>{event.location}</p>
-                    </li>
-                  </div>
-                </a>
+                    <a href={`/events/${event.id}`} key={event.id}>
+                    <div className="border bg-white border-gray-200 rounded-lg w-full h-full p-4 drop-shadow-md" key={event.id}>
+                        <li key={event.id} className="flex flex-col gap-2">
+                        <img src={event.img} alt={event.title} />
+                        <h2>{event.title}</h2>
+                        <p>{event.date}</p>
+                        <p>{event.location}</p>
+                        </li>
+                    </div>
+                    </a>
                 ))}
                 </ul>
             </div>

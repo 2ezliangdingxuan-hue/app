@@ -1,51 +1,6 @@
 import data from "../events.json";
 const API_BASE = "http://localhost:3001";
 
-// import QRCode from "qrcode";
-// import nodemailer from "nodemailer";
-
-// const transporter = nodemailer.createTransport({
-//     host:"smtp.gmail.com",
-//     port: 465,
-//     secure: true,
-//     auth: {
-//         user: process.env.SMTP_USER,
-//         pass: process.env.SMTP_PASS,
-//     },
-// });
-
-// type InviteEmail = {
-//     to: string;
-//     guestName: string;
-//     guestId: string;
-//     eventTitle: string;
-// }
-// async function sendGuestInviteEmail(InviteEmail) {
-//     const qrCodeBuffer = await QRCode.toBuffer(InviteEmail.guestId,{
-//         type:"png",
-//         width: 300,
-//         margin:1,
-//     });
-
-//     return transporter.sendMail({
-//         from: `"Event App" <${process.env,SMTP_USER}`,
-//         InviteEmail.to,
-//         subject: `QRCode for ${InviteEmail.eventTitle || "event"}`,
-//         html:`
-//             <p>Hello ${InviteEmail.guestName || "there"},</p>
-//             <p>Your QR code is attached to this email.</p>
-//             <p>Guest ID: <strong>${InviteEmail.guestId}</strong></p>
-//         `,
-//         attachments:[
-//             {
-//                 filename: "guest-qr.png",
-//                 content: qrCodeBuffer,
-//                 contentType:"image/png"
-//             }
-//         ]
-//     })
-// }
-
 
 type Guest = {
     name: string; 
@@ -55,6 +10,7 @@ type Guest = {
     email?:string;
     number?: string;
 };
+
 type Event = {
     id: number; 
     title: string; 
@@ -72,13 +28,39 @@ const getEvents = async () =>{
     const res = await fetch(`${API_BASE}/api/events`);
     console.log(res);
     return res;
-}
+};
+
+const createEvent = async(event:{
+    title:string;
+    description: string;
+    date: string;
+    location: string;
+    category: string;
+    img?: string;
+}) => {
+    const res = await fetch(`${API_BASE}/api/events`,{
+        method: "POST",
+        headers:{
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(event),
+    });
+
+    const payload = await res.json();
+
+    if (res.ok && payload.event){
+        events.unshift(payload.event);
+    }
+
+    return payload;
+
+};
 
 const getEventById = async (id: string) =>{
     const res = await fetch(`${API_BASE}/api/events/${id}`);
     console.log(res);
     return res;
-}
+};
 
 const addGuest = async (eventId: string, guest: Partial<Guest> & {name:string}) => {
     const res = await fetch(`${API_BASE}/api/events/${eventId}/newguest`,{
@@ -99,7 +81,8 @@ const addGuest = async (eventId: string, guest: Partial<Guest> & {name:string}) 
     }
 
     return payload;
-}
+};
+
 const checkInGuest = async (eventId: string, guestId: string) => {
     const event = events.find((event) => String(event.id) === eventId);
     if (event?.guests && String(guestId) in event.guests) {
@@ -115,6 +98,6 @@ const checkInGuest = async (eventId: string, guestId: string) => {
         return true;
     }
     return false;
-}
+};
 
-export {events, getEvents, getEventById, checkInGuest, addGuest};
+export {events, getEvents, createEvent, getEventById, checkInGuest, addGuest};

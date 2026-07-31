@@ -33,30 +33,27 @@ export function Welcome() {
   },[])
 
   return (
-    <main className="flex flex-col items-center justify-center pt-16 pb-4">
-        <body>
-          <div className="w=full">
-            <img src={Banner} alt="Banner" className="w-full h-auto object-cover" />
-          </div>
-          <div className="flex flex-col p-4 gap-4">
-            <h1 className="text-2xl font-bold"> Your Events</h1>
-            <ul className="gap-4 flex flex-row py-6">
-              {events.map((event) => (
-                <a href={`/events/${event.id}`} key={event.id}>
-                  <div className="border bg-white border-gray-200 rounded-lg p-4 drop-shadow-md" key={event.id}>
-                    <li key={event.id} className="flex flex-col gap-2">
-                      <img src={event.img} alt={event.title} />
-                      <h2>{event.title}</h2>
-                      <p>{event.date}</p>
-                      <p>{event.location}</p>
-                    </li>
-                  </div>
-                </a>
-              ))}
-            </ul>
-        </div>
-      </body>
+    <main className="flex flex-col items-center justify-center pb-4 max-w-7xl mx-auto w-full">
+      <div className="w-full">
+        <img src={Banner} alt="Banner" className="w-full h-auto object-cover" />
+      </div>
+      <div className="flex flex-col p-4 gap-4">
+        <h1 className="text-2xl font-bold"> Your Events</h1>
+        <ul className="gap-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 py-6">
+          {events.map((event) => (
+            <a href={`/events/${event.id}`} key={event.id}>
+              <div className="border bg-white border-gray-200 rounded-lg w-full h-full p-4 drop-shadow-md" key={event.id}>
+                <li key={event.id} className="flex flex-col gap-2">
+                  <img src={event.img} alt={event.title} />
+                  <h2>{event.title}</h2>
+                  <p>{event.date}</p>
+                  <p>{event.location}</p>
+                </li>
+              </div>
+            </a>
+          ))}
+        </ul>
+      </div>
     </main>
   );
 }
-
