@@ -2,7 +2,9 @@ import express from "express";
 import {readFileSync, writeFileSync} from "node:fs";
 import path from "node:path";
 import cors from "cors";
+import { configDotenv } from "dotenv";
 import { sendGuestInviteEmail } from "./src/services/mailer.js";
+
 
 const app = express();
 app.use(cors());

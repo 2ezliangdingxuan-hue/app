@@ -5,7 +5,7 @@
   "scripts": {
     "build": "react-router build",
     "dev": "concurrently \"react-router dev\" \"npm run dev:server\"",
-    "dev:server": "node server.js",
+    "dev:server": "node --env-file=.env server.js",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc"
   },
@@ -13,6 +13,7 @@
     "@react-router/node": "8.0.0",
     "@react-router/serve": "8.0.0",
     "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "html5-qrcode": "^2.3.8",
     "isbot": "^5.1.36",

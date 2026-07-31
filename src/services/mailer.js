@@ -1,5 +1,7 @@
 import QRCode from "qrcode";
 import nodemailer from "nodemailer";
+import { configDotenv } from "dotenv";
+
 
 const transporter = nodemailer.createTransport({
     host:"smtp.gmail.com",
@@ -19,7 +21,7 @@ async function sendGuestInviteEmail({to, guestName, guestId, eventTitle}) {
     });
 
     return transporter.sendMail({
-        from: `"Event App" <${process.env,SMTP_USER}`,
+        from: `"Event App" <${process.env.SMTP_USER}`,
         to,
         subject: `QRCode for ${eventTitle || "event"}`,
         html:`
