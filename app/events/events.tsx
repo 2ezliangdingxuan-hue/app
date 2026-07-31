@@ -35,11 +35,13 @@ export default function Events() {
                 <h1 className="text-3xl font-bold">
                     Events
                 </h1>
+                <a href="/createEvent">
                 <button className="border p-1 rounded-xl">
                     <p>
                         Create Event +
                     </p>
                 </button>
+                </a>
             </div>
             <div>
                 <ul className="gap-4 flex flex-row py-6">

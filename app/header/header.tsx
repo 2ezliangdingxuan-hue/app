@@ -9,16 +9,16 @@ export function Header() {
         </h1>
         <ul className="flex flex-row gap-4 items-center justify-center font-normal">
             <li>
-                <a href="/events" className="">Events</a>
+              <a href="/events" className="">Events</a>
             </li>
             <li>
-                <a href="/createEvent">Create Event</a>
+              <a href="/createEvent">Create Event</a>
             </li>
             <li>
               <a href="/scanner">Scanner</a>
             </li>
             <li>
-                <a href="/sign-in">Sign in</a>
+              <a href="/sign-in">Sign in</a>
             </li>
         </ul>
       </div>
