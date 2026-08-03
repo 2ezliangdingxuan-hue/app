@@ -62,6 +62,24 @@ const getEventById = async (id: string) =>{
     return res;
 };
 
+const updateEvent = async (
+    eventId: string,
+    updates:{
+        date? :string;
+        location?: string;
+        description?: string;
+    }
+) =>{
+    const res = await fetch(`${API_BASE}/api/events/${eventId}`,{
+        method: "PUT",
+        headers:{
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updates),
+    });
+    return res.json();
+}
+
 const addGuest = async (eventId: string, guest: Partial<Guest> & {name:string}) => {
     const res = await fetch(`${API_BASE}/api/events/${eventId}/newguest`,{
         method: "POST",

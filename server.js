@@ -68,6 +68,21 @@ app.post("/api/events", (req, res) =>{
 
 });
 
+app.put("/api/events/:eventId", (req, res) => {
+    const data = readData();
+    const event=data.events.find((event) => String(event.id) === req.params.eventId);
+    if (!event){
+        return res.status(404).json({error: "Event not found"});
+    }
+
+    if (req.body?.date) event.date = req.body.date;
+    if (req.body?.location) event.location = req.body.location;
+    if (req.body?.description) event.description = req.body.description;
+
+    writeData(data);
+    res.json({ok: true, event});
+})
+
 app.get("/api/events/:id", (req, res) => {
     const event = readData().events.find((event) => String(event.id) === req.params.id);
     if (!event) {
