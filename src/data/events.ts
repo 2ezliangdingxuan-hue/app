@@ -13,9 +13,9 @@ type Guest = {
 
 type Event = {
     id: number; 
-    title: string; 
-    description: string; 
-    date: string; 
+    title?: string; 
+    description?: string; 
+    date?: string; 
     location?: string;
     category: string; 
     img: string; 
@@ -118,4 +118,4 @@ const checkInGuest = async (eventId: string, guestId: string) => {
     return false;
 };
 
-export {events, getEvents, createEvent, getEventById, checkInGuest, addGuest};
+export {events, getEvents, createEvent, getEventById, checkInGuest, addGuest, updateEvent};
