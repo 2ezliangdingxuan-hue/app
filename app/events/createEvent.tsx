@@ -10,6 +10,8 @@ const initialForm = {
     category:"",
 }
 
+const CATEGORY_OPTIONS = ["public", "private", "invite-only", "internal"];
+
 export function CreateEvent(){
     const[form, setForm] = useState(initialForm);
     const[error, setError] = useState<string | null>(null);
@@ -17,7 +19,7 @@ export function CreateEvent(){
     const navigate = useNavigate();
 
     const handleChange = (
-        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
     ) => {
         const {name, value} = event.target;
         setForm((current) => ({ ...current, [name]: value}));
@@ -88,13 +90,18 @@ export function CreateEvent(){
                     className="border p-1"/><br/>
 
                     <label>Event Category : </label>
-                    <input 
-                    type="text" 
-                    id="category"
+                    <select
                     name="category"
+                    id="category"
                     value={form.category}
                     onChange={handleChange}
-                    className="border p-1"/><br/>
+                    className="border p-1"
+                    >
+                        <option value="" disabled>Select a category</option>
+                        {CATEGORY_OPTIONS.map((option) => (
+                            <option key={option} value={option}>{option}</option>
+                        ))}
+                    </select>
 
                     {error && <p className="text-red-600">{error}</p>}
 

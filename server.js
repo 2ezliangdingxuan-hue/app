@@ -38,7 +38,7 @@ app.post("/api/events", (req, res) =>{
     const data = readData();
     const title = req.body?.title?.trim();
     const description = req.body?.description?.trim();
-    const date = req.body?.location?.trim();
+    const date = req.body?.date?.trim();
     const location = req.body?.location?.trim();
     const category = req.body?.category?.trim();
 
@@ -47,7 +47,7 @@ app.post("/api/events", (req, res) =>{
     }
 
     const nextId= Math.max(0, ...data.events.map((event) => Number(event.id) || 0)) + 1;
-
+ 
     const newEvent = {
         id:nextId,
         title,

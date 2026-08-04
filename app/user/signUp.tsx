@@ -11,7 +11,7 @@ export function Signup(){
                 <button type="submit" className="mt-4 border rounded-full text-white bg-black py-2 px-4 text-center">Sign Up</button>
                 </form>
             </div>
-            <a href="/sign-in">already have an account? sign in</a>
+            <a href="/sign-in" className="underline">already have an account? sign in</a>
 
         </div>
     )

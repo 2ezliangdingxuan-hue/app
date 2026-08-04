@@ -102,7 +102,7 @@
     {
       "id": 2,
       "title": "Event 2",
-      "description": "This is the second event.",
+      "description": "This is the second event. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
       "date": "2024-06-15",
       "category": "private",
       "location": "Buckingham Palace",
@@ -151,12 +151,22 @@
       }
     },
     {
-      "id": 5,
-      "title": "banana",
-      "description": "dssdssd",
-      "date": "dsds",
-      "category": "public",
-      "location": "dsds",
+      "id": 7,
+      "title": "date test 2",
+      "description": "date test 2",
+      "date": "2026-08-31",
+      "category": "date test 2",
+      "location": "date test 2",
+      "img": "https://th.bing.com/th/id/OIP.VdDc3iT3PCrJnnsiThNzGgHaF_?w=245&h=199&c=7&r=0&o=7&pid=1.7&rm=3",
+      "guests": {}
+    },
+    {
+      "id": 8,
+      "title": "test cat",
+      "description": "test cat",
+      "date": "2026-08-29",
+      "category": "internal",
+      "location": "test cat",
       "img": "https://th.bing.com/th/id/OIP.VdDc3iT3PCrJnnsiThNzGgHaF_?w=245&h=199&c=7&r=0&o=7&pid=1.7&rm=3",
       "guests": {}
     }

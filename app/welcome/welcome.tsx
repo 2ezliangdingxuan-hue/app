@@ -33,7 +33,7 @@ export function Welcome() {
   return (
     <main className="flex flex-col items-center justify-center pb-4 w-full">
       <div className="w-full">
-        <img src={Banner} alt="Banner" className="w-full h-auto object-cover" />
+        <img src={Banner} alt="Banner" className="w-full object-cover aspect-2/1" />
       </div>
       <div className="flex flex-col p-4 gap-4 max-w-7xl mx-auto">
         <h1 className="text-2xl font-bold">Events :</h1>
@@ -42,7 +42,7 @@ export function Welcome() {
             <a href={`/events/${event.id}`} key={event.id}>
               <div className="border bg-white border-gray-200 rounded-lg w-full h-full p-4 drop-shadow-md" key={event.id}>
                 <li key={event.id} className="flex flex-col gap-2">
-                  <img src={event.img} alt={event.title} />
+                  <img src={event.img} alt={event.title} className="aspect-2/1 object-cover"/>
                   <h2>{event.title}</h2>
                   <p>{event.date}</p>
                   <p>{event.location}</p>
