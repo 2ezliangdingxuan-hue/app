@@ -175,6 +175,28 @@
       "location": "test cat",
       "img": "https://th.bing.com/th/id/OIP.VdDc3iT3PCrJnnsiThNzGgHaF_?w=245&h=199&c=7&r=0&o=7&pid=1.7&rm=3",
       "guests": {}
+    },
+    {
+      "id": 9,
+      "title": "test cap",
+      "maxGuests": 322232,
+      "description": "test cap",
+      "date": "2026-08-13",
+      "category": "private",
+      "location": "test cap",
+      "img": "https://th.bing.com/th/id/OIP.VdDc3iT3PCrJnnsiThNzGgHaF_?w=245&h=199&c=7&r=0&o=7&pid=1.7&rm=3",
+      "guests": {}
+    },
+    {
+      "id": 10,
+      "title": "test cap",
+      "maxGuests": 21,
+      "description": "test cap",
+      "date": "2026-08-13",
+      "category": "internal",
+      "location": "test cap",
+      "img": "https://th.bing.com/th/id/OIP.VdDc3iT3PCrJnnsiThNzGgHaF_?w=245&h=199&c=7&r=0&o=7&pid=1.7&rm=3",
+      "guests": {}
     }
   ]
 }

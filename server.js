@@ -37,22 +37,22 @@ app.get("/api/events", (req, res) => {
 app.post("/api/events", (req, res) =>{
     const data = readData();
     const title = req.body?.title?.trim();
-    const maximumGuests = req.body?.maximumGuests?.trim();
+    const maxGuests = Number(req.body?.maxGuests);
     const description = req.body?.description?.trim();
     const date = req.body?.date?.trim();
     const location = req.body?.location?.trim();
     const category = req.body?.category?.trim();
 
-    if (!title || !maximumGuests || !description || !date || !location || !category){
+    if (!title || !maxGuests || Number.isNaN(maxGuests) || !description || !date || !location || !category){
         return res.status(400).json({error:"All event fields are required"})
     }
 
     const nextId= Math.max(0, ...data.events.map((event) => Number(event.id) || 0)) + 1;
- 
+
     const newEvent = {
         id:nextId,
         title,
-        maximumGuests,
+        maxGuests,
         description,
         date,
         category,
@@ -82,6 +82,7 @@ app.put("/api/events/:eventId", (req, res) => {
     if (req.body?.location) event.location = req.body.location;
     if (req.body?.description) event.description = req.body.description;
     if (req.body?.img) event.img = req.body.img;
+    if (req.body?.maxGuests && !Number.isNaN(Number(req.body.maxGuests))) event.maxGuests = Number(req.body.maxGuests);
 
     writeData(data);
     res.json({ok: true, event});

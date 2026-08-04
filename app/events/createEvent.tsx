@@ -4,7 +4,7 @@ import { createEvent } from "../../src/data/events";
 
 const initialForm = {
     title:"",
-    maximumGuests:"",
+    maxGuests:"",
     description:"",
     date:"",
     location:"",
@@ -59,7 +59,8 @@ export function CreateEvent(){
                     name="title"
                     value={form.title}
                     onChange={handleChange}
-                    className="border p-1"/><br/>
+                    className="border p-1"
+                    required/><br/>
 
                     <div className="flex flex-col">
                         <label>Event Description : </label>
@@ -69,18 +70,20 @@ export function CreateEvent(){
                         name="description"
                         value={form.description}
                         onChange={handleChange}
-                        className="border p-1"/><br/>
+                        className="border p-1"
+                        required/><br/>
                     </div>
 
                     <div className="flex flex-col">
                         <label>Event Maximum Capacity : </label>
-                        <input type="text" 
-                        id="maxGuest"
-                        name="maxGuest"
-                        value={form.maximumGuests}
+                        <input type="text"
+                        id="maxGuests"
+                        name="maxGuests"
+                        value={form.maxGuests}
                         onChange={handleChange}
                         inputMode="numeric"
-                        className="border p-1"/><br/>
+                        className="border p-1"
+                        required/><br/>
                     </div>
 
                     <label>Event Date : </label>
@@ -90,7 +93,8 @@ export function CreateEvent(){
                     name="date"
                     value={form.date}
                     onChange={handleChange}
-                    className="border p-1"/><br/>
+                    className="border p-1"
+                    required/><br/>
                     
                     <label>Event Location : </label>
                     <input 
@@ -99,7 +103,8 @@ export function CreateEvent(){
                     name="location"
                     value={form.location}
                     onChange={handleChange}
-                    className="border p-1"/><br/>
+                    className="border p-1"
+                    required/><br/>
 
                     <label>Event Category : </label>
                     <select
@@ -108,6 +113,7 @@ export function CreateEvent(){
                     value={form.category}
                     onChange={handleChange}
                     className="border p-1"
+                    required
                     >
                         <option value="" disabled>Select a category</option>
                         {CATEGORY_OPTIONS.map((option) => (
@@ -124,7 +130,6 @@ export function CreateEvent(){
                     >
                         {isSubmitting ? "Creating..." : "Create Event"}
                     </button>
-
                 </form>
             </div>
         </main>

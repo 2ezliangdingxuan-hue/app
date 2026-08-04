@@ -17,8 +17,9 @@ type Event = {
     description?: string; 
     date?: string; 
     location?: string;
-    category: string; 
-    img: string; 
+    category: string;
+    img: string;
+    maxGuests?: number;
     guests?: Record<string, Guest>
 };
 
@@ -32,7 +33,7 @@ const getEvents = async () =>{
 
 const createEvent = async(event:{
     title:string;
-    maximumGuests: string;
+    maxGuests: string;
     description: string;
     date: string;
     location: string;
@@ -71,6 +72,7 @@ const updateEvent = async (
         location?: string;
         description?: string;
         img?: string;
+        maxGuests?: string;
     }
 ) =>{
     const res = await fetch(`${API_BASE}/api/events/${eventId}`,{
