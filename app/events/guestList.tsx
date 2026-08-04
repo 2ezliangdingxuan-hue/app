@@ -1,6 +1,5 @@
 import { useOutletContext, useParams } from "react-router";
 import {useState} from "react";
-//import { events } from "../../src/events.json";
 import { events, getEvents, getEventById, checkInGuest, addGuest } from "../../src/data/events";
 import InviteForm from "./inviteFloat";
 

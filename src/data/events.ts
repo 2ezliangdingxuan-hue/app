@@ -32,6 +32,7 @@ const getEvents = async () =>{
 
 const createEvent = async(event:{
     title:string;
+    maximumGuests: string;
     description: string;
     date: string;
     location: string;

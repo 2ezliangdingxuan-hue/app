@@ -4,6 +4,7 @@ import { createEvent } from "../../src/data/events";
 
 const initialForm = {
     title:"",
+    maximumGuests:"",
     description:"",
     date:"",
     location:"",
@@ -68,6 +69,17 @@ export function CreateEvent(){
                         name="description"
                         value={form.description}
                         onChange={handleChange}
+                        className="border p-1"/><br/>
+                    </div>
+
+                    <div className="flex flex-col">
+                        <label>Event Maximum Capacity : </label>
+                        <input type="text" 
+                        id="maxGuest"
+                        name="maxGuest"
+                        value={form.maximumGuests}
+                        onChange={handleChange}
+                        inputMode="numeric"
                         className="border p-1"/><br/>
                     </div>
 

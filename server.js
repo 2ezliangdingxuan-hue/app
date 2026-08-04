@@ -37,12 +37,13 @@ app.get("/api/events", (req, res) => {
 app.post("/api/events", (req, res) =>{
     const data = readData();
     const title = req.body?.title?.trim();
+    const maximumGuests = req.body?.maximumGuests?.trim();
     const description = req.body?.description?.trim();
     const date = req.body?.date?.trim();
     const location = req.body?.location?.trim();
     const category = req.body?.category?.trim();
 
-    if (!title || !description || !date || !location || !category){
+    if (!title || !maximumGuests || !description || !date || !location || !category){
         return res.status(400).json({error:"All event fields are required"})
     }
 
@@ -51,6 +52,7 @@ app.post("/api/events", (req, res) =>{
     const newEvent = {
         id:nextId,
         title,
+        maximumGuests,
         description,
         date,
         category,
