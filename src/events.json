@@ -98,7 +98,8 @@
           "status": "Not-Arrived",
           "arrivalTime": null
         }
-      }
+      },
+      "maxGuests": 89
     },
     {
       "id": 2,
