@@ -2,7 +2,7 @@
   "events": [
     {
       "id": 1,
-      "title": "JJBA Event",
+      "title": "Event 1",
       "maximumGuests": 1,
       "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
       "date": "2024-06-12",
@@ -14,9 +14,9 @@
           "name": "test",
           "email": "test@email.com",
           "number": "87654321",
-          "arrived": false,
-          "status": "Not-Arrived",
-          "arrivalTime": null
+          "arrived": true,
+          "status": "Arrived",
+          "arrivalTime": "5:13:25 PM"
         },
         "2": {
           "name": "Jane Smith",
@@ -46,9 +46,9 @@
           "name": "test1",
           "email": "liangdingxuan@gmail.com",
           "number": "87654321",
-          "arrived": false,
-          "status": "Not-Arrived",
-          "arrivalTime": null
+          "arrived": true,
+          "status": "Arrived",
+          "arrivalTime": "5:33:15 PM"
         },
         "7": {
           "name": "email1",

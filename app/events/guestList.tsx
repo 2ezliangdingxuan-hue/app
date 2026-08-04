@@ -9,6 +9,7 @@ export default function GuestList() {
     const curEvent = events.find((event) => String(event.id) === eventId);
     const guestList = curEvent?.guests;
     const [checkedInGuestIds, setCheckedInGuestIds] = useState<string[]>([]);
+    const [search, setSearch] = useState("");
 
     const[isInviteOpen, setIsInviteOpen] = useState(false)
 
@@ -40,16 +41,26 @@ export default function GuestList() {
                 onSubmit={handleInviteSubmit}
             />
             <ul className="justify-between">
-                <li className="grid text-white grid-cols-[180px_1fr_1fr_100px] items-center border-b py-2 bg-black">
+                <li className="grid text-white grid-cols-[180px_100px_1fr_100px] items-center border-b py-2 bg-black ">
                     <span className="mx-2"> Guest</span>
                     <span>Time</span>
-                    <span className="justify-self-end">
-                    <span></span>
-                    </span>
+                    <div className="flex items-center justify-center h-full">
+                        <input
+                        type="text"
+                        placeholder="Search guest"
+                        value={search}
+                        onChange={(e)=>setSearch(e.target.value)}
+                        className="w-full max-w-sm border rounded-lg px-2 bg-white text-black"
+                        />
+                    </div>
+                        
                     <span className="text-right mx-2"> Status </span>
                 </li>
-                {guestList && Object.entries(guestList).map(([id,guest]) => (
-                    <li key={id} className="grid grid-cols-[180px_1fr_1fr_100px] items-center border-b border-x py-2">
+                
+                {guestList && Object.entries(guestList).filter(([id, guest]) =>
+                guest.name.toLowerCase().includes(search.toLowerCase())
+                ).map(([id,guest]) => (
+                    <li key={id} className="grid grid-cols-[180px_100px_1fr_110px] items-center border-b border-x py-2">
                         <span className="mx-2">{guest.name}</span>
                         <span>{
                             guest.arrivalTime

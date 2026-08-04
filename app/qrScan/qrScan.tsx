@@ -1,7 +1,6 @@
-// import { useOutletContext } from "react-router";
 import { Html5Qrcode } from "html5-qrcode"
-//import { decode } from "punycode"
 import { useEffect, useState } from "react"
+import {events} from "../../src/data/events"
 export function QrScan() { 
     const [resp, setResp] = useState("")
     useEffect(() => {
@@ -37,7 +36,19 @@ export function QrScan() {
         
         <main>
             <div className="p-8">
-                <h1 className="mb-4">Scan Qr Code :</h1>
+                <div className="flex flex-row justify-between items-center mb-4">
+                    <h1 className="text-2xl">Scan Qr Code :</h1>
+                    <div className="flex flex-col">
+                        <select className="border">
+                            <option>Select An Event</option>
+                            {events.map((event) => (
+                                <option>
+                                    {event.title}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
                 <div id="reader"/>
                 <a>respondus: {resp}</a>
             </div>

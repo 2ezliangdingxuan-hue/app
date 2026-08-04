@@ -48,7 +48,7 @@ export default function Events() {
                     <div className="border bg-white border-gray-200 rounded-lg w-full h-full p-4 drop-shadow-md" key={event.id}>
                         <li key={event.id} className="flex flex-col gap-2">
                         <img src={event.img} alt={event.title} className="aspect-2/1 object-cover"/>
-                        <h2>{event.title}</h2>
+                        <h2 className="capitalize">{event.title}</h2>
                         <p>{event.date}</p>
                         <p>{event.location}</p>
                         </li>
