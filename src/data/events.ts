@@ -65,9 +65,11 @@ const getEventById = async (id: string) =>{
 const updateEvent = async (
     eventId: string,
     updates:{
+        title?: string;
         date? :string;
         location?: string;
         description?: string;
+        img?: string;
     }
 ) =>{
     const res = await fetch(`${API_BASE}/api/events/${eventId}`,{

@@ -8,7 +8,7 @@ import { sendGuestInviteEmail } from "./src/services/mailer.js";
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "100mb" }));
 
 const dataPath = path.resolve("src/events.json");
 const readData = () => JSON.parse(readFileSync(dataPath, "utf8"));
@@ -75,9 +75,11 @@ app.put("/api/events/:eventId", (req, res) => {
         return res.status(404).json({error: "Event not found"});
     }
 
+    if(req.body?.title) event.title = req.body.title;
     if (req.body?.date) event.date = req.body.date;
     if (req.body?.location) event.location = req.body.location;
     if (req.body?.description) event.description = req.body.description;
+    if (req.body?.img) event.img = req.body.img;
 
     writeData(data);
     res.json({ok: true, event});

@@ -36,7 +36,7 @@ export function Welcome() {
         <img src={Banner} alt="Banner" className="w-full h-auto object-cover" />
       </div>
       <div className="flex flex-col p-4 gap-4 max-w-7xl mx-auto">
-        <h1 className="text-2xl font-bold"> Your Events</h1>
+        <h1 className="text-2xl font-bold">Events :</h1>
         <ul className="gap-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 py-6">
           {events.map((event) => (
             <a href={`/events/${event.id}`} key={event.id}>
