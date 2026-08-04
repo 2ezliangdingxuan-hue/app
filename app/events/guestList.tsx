@@ -57,7 +57,7 @@ export default function GuestList() {
                         }</span>
                         <span className="justify-self-end">
                             <button onClick={() => checkIn(String(eventId),id)}
-                            id="checkin"className="m-0.1 p-1 border rounded-2xl">
+                            id="checkin"className="m-0.1 px-2 py-1 border rounded-2xl">
                                 Check-In
                             </button>
                         </span>
