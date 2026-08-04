@@ -128,6 +128,7 @@ export function EventHome() {
                 </div>
 
                 <div className="flex flex-row mb-5 items-end space-x-2">
+                    {/* capacity */}
                     {editing === "capacity" ? (
                         <>
                         <h1 className="text-2xl">Maximum Capacity :</h1>
