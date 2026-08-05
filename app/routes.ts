@@ -5,6 +5,7 @@ export default [
     route("events", "routes/events.tsx"),
     route("createEvent", "routes/createEvents.tsx"),
     route("scanner", "routes/scanner.tsx"),
+    //route("scanner/:eventId", "routes/scanner.tsx"),
     route("sign-in", "routes/sign-in.tsx"),
     route("sign-up", "routes/sign-up.tsx"),
     route("events/:eventId", "routes/event.tsx",[

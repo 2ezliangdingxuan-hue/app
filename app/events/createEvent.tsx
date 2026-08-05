@@ -126,8 +126,7 @@ export function CreateEvent(){
                     <button
                     type="submit"
                     className="mt-4 rounded-xl bg-black px-4 py-2 text-white disabled:opacity-60"
-                    disabled={isSubmitting}
-                    >
+                    disabled={isSubmitting}>
                         {isSubmitting ? "Creating..." : "Create Event"}
                     </button>
                 </form>
