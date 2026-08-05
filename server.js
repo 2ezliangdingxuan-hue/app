@@ -181,6 +181,18 @@ app.post("/api/events/:eventId/check-in/:guestId", (req,res) => {
     res.json({ok: true, event});
 });
 
+app.get("/api/events/:eventId/guest/:guestId", (req,res) =>{
+    const data = readData();
+    const eventId = req.params.eventId;
+    const guestId = req.params.guestId;
+    const event = data.events.find((event) => String(event.id) === String(eventId));
+    if (!event) return res.status(404);
+    const guest = event.guests[guestId];
+    if (!guest) return res.status(404);
+    
+    return res.json({ok: true, guest})
+});
+
 app.listen(3001, () => {
     console.log("Server Express Running")
 });

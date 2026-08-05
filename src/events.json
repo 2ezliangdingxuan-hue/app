@@ -97,6 +97,14 @@
           "arrived": false,
           "status": "Not-Arrived",
           "arrivalTime": null
+        },
+        "13": {
+          "name": "testScan",
+          "email": "liangdingxuan@gmail.com",
+          "number": "93521200",
+          "arrived": false,
+          "status": "Not-Arrived",
+          "arrivalTime": null
         }
       },
       "maxGuests": 89

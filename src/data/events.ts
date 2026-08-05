@@ -1,5 +1,7 @@
 import data from "../events.json";
-const API_BASE = "http://localhost:3001";
+const API_BASE = typeof window !== "undefined"
+    ? `http://${window.location.hostname}:3001`
+    : "http://localhost:3001";
 
 
 type Guest = {
@@ -123,4 +125,15 @@ const checkInGuest = async (eventId: string, guestId: string) => {
     return false;
 };
 
-export {events, getEvents, createEvent, getEventById, checkInGuest, addGuest, updateEvent};
+const getGuest = async (eventId: string, guestId: string) =>{
+    const res = await fetch(`${API_BASE}/api/events/${eventId}/guest/${guestId}`,{
+        method: "GET",
+        headers:{
+            "Content-Type": "application/json"
+        }
+    })
+    const payload = await res.json();
+    return payload.guest;
+}
+
+export {events, getEvents, createEvent, getEventById, checkInGuest, addGuest, updateEvent, getGuest};
