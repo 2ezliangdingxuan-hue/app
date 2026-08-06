@@ -33,17 +33,15 @@ export function QrScan() {
     }, [scanned]);
     const [resp, setResp] = useState("");
     let [eventId, setEventId] = useState<number>(-1);
-    //----------------------------------------------------------------------------------------
     const eventIdRef = useRef(eventId);
     useEffect(()=>{eventIdRef.current=eventId},[eventId]);
     const lastScannedRef = useRef<string | null>(null);
     const scannedKeysRef = useRef<Set<string>>(new Set());
 
-
     async function handleScan(value: string){
         const pos = value.indexOf(":");
 
-        const guestEvent=value.slice(0, pos);
+        const guestEvent=value.slice(0 , pos);
         const guestId=value.slice(pos + 1);
 
         if (String(eventIdRef.current) !== guestEvent){
@@ -58,22 +56,20 @@ export function QrScan() {
             return;
         }
         try{
-        await checkInGuest(String(eventIdRef.current), guestId);
-        const checkIn = await getGuest(guestEvent, guestId);
+            await checkInGuest(String(eventIdRef.current), guestId);
+            const checkIn = await getGuest(guestEvent, guestId);
 
-        if (checkIn){
-            console.log(`check in : ${checkIn}`);
-            scannedKeysRef.current.add(key);
-            setScanned(prev => [...prev, checkIn]);
-        }
-        }
+            if (checkIn){
+                console.log(`check in : ${checkIn}`);
+                scannedKeysRef.current.add(key);
+                setScanned(prev => [...prev, checkIn]);
+            }
+        } 
         catch(e){
-            setResp(String(e))
+            setResp(String(e));
         }
-       
     }
 
-    
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
@@ -83,7 +79,6 @@ export function QrScan() {
         console.log(id);
     }
     
-
     const handleChange=(
         event: React.ChangeEvent<HTMLSelectElement>
     ) => {
@@ -161,7 +156,7 @@ export function QrScan() {
                 <button className="border px-1"> submit</button>
                 </form>
                 
-                <a>respondus: {resp}</a>
+                <a href="/page">respondus: {resp}</a>
                 <ul>
                 {scanned.map((guest, index) => (
                     <li key={guest.email ?? `${guest.name}-${index}`}>

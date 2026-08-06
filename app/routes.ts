@@ -8,6 +8,7 @@ export default [
     //route("scanner/:eventId", "routes/scanner.tsx"),
     route("sign-in", "routes/sign-in.tsx"),
     route("sign-up", "routes/sign-up.tsx"),
+    route("page", "routes/page.tsx"),
     route("events/:eventId", "routes/event.tsx",[
         //index("events/guestList.tsx"),
         route("invite", "events/invite.tsx"),
