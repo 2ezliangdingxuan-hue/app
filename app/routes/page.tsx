@@ -2,6 +2,7 @@ import { Header } from "~/header/header"
 import {pieces, colours} from "~/page/pieces"
 import { board } from "~/page/board"
 export default function page(){
+    const pieceIDs = ["I", "O", "T", "S", "Z", "L", "J"]
     return(
         <>
         <Header/>
@@ -43,7 +44,11 @@ export default function page(){
                     </div>
                 )}
                 </div>
-                
+            </div>
+            <div className="mt-3">
+                <button className="border">
+                    New match
+                </button>
             </div>
         </div>
         </>
