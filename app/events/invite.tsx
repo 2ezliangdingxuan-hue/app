@@ -32,7 +32,7 @@ export default function Invite() {
 
             setStatusMessage(`Added ${name}`);
             setFormData({name:"", email:"", number:""});
-            setLatestQrValue(eventId + "," + guestId)
+            setLatestQrValue(eventId + ":" + guestId)
             setText(name);
         }
         catch (err){

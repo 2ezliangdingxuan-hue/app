@@ -110,10 +110,11 @@ const addGuest = async (eventId: string, guest: Partial<Guest> & {name:string}) 
 
 const checkInGuest = async (eventId: string, guestId: string) => {
     const event = events.find((event) => String(event.id) === eventId);
+    let res = null;
     if (event?.guests && String(guestId) in event.guests) {
         event.guests[String(guestId)].arrived = true;
         event.guests[String(guestId)].status = "Arrived"
-        const res = await fetch(`${API_BASE}/api/events/${eventId}/check-in/${guestId}`,{
+        res = await fetch(`${API_BASE}/api/events/${eventId}/check-in/${guestId}`,{
             method: "POST",
             headers:{
                 "Content-Type": "application/json"
@@ -122,7 +123,22 @@ const checkInGuest = async (eventId: string, guestId: string) => {
         console.log(res);
         return true;
     }
-    return false;
+    else{
+        try{
+            res = await fetch(`${API_BASE}/api/events/${eventId}/check-in/${guestId}`,{
+            method: "POST",
+            headers:{
+                "Content-Type": "application/json"
+            },
+        });
+        }
+        catch(e){
+            console.log(e);
+        }
+        console.log("Guest does not exist.");
+        console.log(res);
+        return false;
+    }
 };
 
 const getGuest = async (eventId: string, guestId: string) =>{

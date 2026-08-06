@@ -26,45 +26,45 @@
         },
         "3": {
           "name": "Michael Johnson",
-          "arrived": false,
-          "status": "Not-Arrived",
-          "arrivalTime": null
+          "arrived": true,
+          "status": "Arrived",
+          "arrivalTime": "2:08:57 PM"
         },
         "4": {
           "name": "Emily Davis",
-          "arrived": false,
-          "status": "Not-Arrived",
-          "arrivalTime": null
+          "arrived": true,
+          "status": "Arrived",
+          "arrivalTime": "2:09:00 PM"
         },
         "5": {
           "name": "David Wilson",
-          "arrived": false,
-          "status": "Not-Arrived",
-          "arrivalTime": null
+          "arrived": true,
+          "status": "Arrived",
+          "arrivalTime": "2:09:03 PM"
         },
         "6": {
           "name": "test1",
           "email": "liangdingxuan@gmail.com",
           "number": "87654321",
-          "arrived": true,
-          "status": "Arrived",
-          "arrivalTime": "5:33:15 PM"
+          "arrived": false,
+          "status": "Not-Arrived",
+          "arrivalTime": null
         },
         "7": {
           "name": "email1",
           "email": "liangdingxuan@gmail.com",
           "number": "87654321",
-          "arrived": false,
-          "status": "Not-Arrived",
-          "arrivalTime": null
+          "arrived": true,
+          "status": "Arrived",
+          "arrivalTime": "2:09:09 PM"
         },
         "8": {
           "name": "test3",
           "email": "liangdingxuan@gmail.com",
           "number": "87654321",
-          "arrived": false,
-          "status": "Not-Arrived",
-          "arrivalTime": null
+          "arrived": true,
+          "status": "Arrived",
+          "arrivalTime": "2:09:11 PM"
         },
         "9": {
           "name": "test4",
@@ -105,6 +105,14 @@
           "arrived": false,
           "status": "Not-Arrived",
           "arrivalTime": null
+        },
+        "14": {
+          "name": "testduplicate",
+          "email": "liangdingxuan@gmail.com",
+          "number": "87654321",
+          "arrived": true,
+          "status": "Arrived",
+          "arrivalTime": "2:17:28 PM"
         }
       },
       "maxGuests": 89
@@ -142,6 +150,14 @@
           "arrived": true,
           "status": "Arrived",
           "arrivalTime": null
+        },
+        "2": {
+          "name": "test 1",
+          "email": "liangdingxuan@gmail.com",
+          "number": "87654321",
+          "arrived": true,
+          "status": "Arrived",
+          "arrivalTime": "2:15:43 PM"
         }
       }
     },
