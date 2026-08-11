@@ -15,7 +15,7 @@ const CATEGORY_OPTIONS = ["public", "private", "invite-only", "internal"];
 
 export function CreateEvent(){
     const[form, setForm] = useState(initialForm);
-    const[error, setError] = useState<string | null>(null);
+    const[error, setError] = useState<string | null >(null);
     const[isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
 
