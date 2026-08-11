@@ -36,4 +36,47 @@ const createAccount = async(account:{
     return payload as CreateAccountResult;
 };
 
-export{createAccount}
+type SignInResult =
+    | { ok: true; token: string; account: Account }
+    | { ok: false; error: string };
+
+const signIn = async(email: string, password: string): Promise<SignInResult> => {
+    const res = await fetch(`${API_BASE}/api/sign-in`,{
+        method: "POST",
+        headers:{
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+    });
+
+    const payload = await res.json();
+
+    if (!res.ok){
+        return { ok: false, error: payload?.error || "Unable to sign in." };
+    }
+
+    return payload as SignInResult;
+};
+
+type MeResult =
+    | { ok: true; account: Account }
+    | { ok: false; error: string };
+
+const getMe = async(token: string): Promise<MeResult> => {
+    const res = await fetch(`${API_BASE}/api/me`,{
+        headers:{
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    const payload = await res.json();
+
+    if (!res.ok){
+        return { ok: false, error: payload?.error || "Session expired." };
+    }
+
+    return payload as MeResult;
+};
+
+export{createAccount, signIn, getMe}
+export type{Account}

@@ -118,9 +118,9 @@
           "name": "test1",
           "email": "liangdingxuan@gmail.com",
           "number": "",
-          "arrived": false,
-          "status": "Not-Arrived",
-          "arrivalTime": null
+          "arrived": true,
+          "status": "Arrived",
+          "arrivalTime": "5:41:48 PM"
         },
         "19": {
           "name": "email1",
@@ -328,7 +328,7 @@
     {
       "id": 3,
       "email": "liangdingxuan@gmail.com",
-      "name": "test",
+      "name": "banana",
       "number": "87654321",
       "password": "c7bfc38271438bc77f3a247b21dcd00b:11cbd23e181a99470b1783d59558b9a7c369e9c4c033e8f0d7ab4923e4029bfb7f4289b28ed0941e5bfdb77f22930c1cf564452a76cf25049a4baddc0162cf54"
     }

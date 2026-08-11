@@ -3,13 +3,62 @@ import {readFileSync, writeFileSync} from "node:fs";
 import path from "node:path";
 import cors from "cors";
 import { configDotenv } from "dotenv";
-import { randomBytes, scryptSync } from "node:crypto";
+import { randomBytes, scryptSync, timingSafeEqual, createHmac } from "node:crypto";
 import { sendGuestInviteEmail } from "./src/services/mailer.js";
+
+const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
+const TOKEN_TTL_SECONDS = 60 * 60 * 24 * 7;
 
 function hashPassword(password){
     const salt = randomBytes(16).toString("hex");
     const hash = scryptSync(password, salt, 64).toString("hex");
     return `${salt}:${hash}`;
+}
+
+function verifyPassword(password, stored){
+    const [salt, hash] = String(stored || "").split(":");
+    if (!salt || !hash) return false;
+    const hashBuf = Buffer.from(hash, "hex");
+    const derivedBuf = scryptSync(password, salt, hashBuf.length);
+    return hashBuf.length === derivedBuf.length && timingSafeEqual(hashBuf, derivedBuf);
+}
+
+function base64url(input){
+    return Buffer.from(input).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function signToken(payload){
+    const header = { alg: "HS256", typ: "JWT" };
+    const now = Math.floor(Date.now() / 1000);
+    const body = { ...payload, iat: now, exp: now + TOKEN_TTL_SECONDS };
+    const encodedHeader = base64url(JSON.stringify(header));
+    const encodedBody = base64url(JSON.stringify(body));
+    const signature = base64url(
+        createHmac("sha256", JWT_SECRET).update(`${encodedHeader}.${encodedBody}`).digest()
+    );
+    return `${encodedHeader}.${encodedBody}.${signature}`;
+}
+
+function verifyToken(token){
+    if (!token || typeof token !== "string") return null;
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const [encodedHeader, encodedBody, signature] = parts;
+    const expectedSignature = base64url(
+        createHmac("sha256", JWT_SECRET).update(`${encodedHeader}.${encodedBody}`).digest()
+    );
+    const signatureBuf = Buffer.from(signature);
+    const expectedBuf = Buffer.from(expectedSignature);
+    if (signatureBuf.length !== expectedBuf.length || !timingSafeEqual(signatureBuf, expectedBuf)){
+        return null;
+    }
+    try{
+        const payload = JSON.parse(Buffer.from(encodedBody, "base64").toString("utf8"));
+        if (payload.exp && Math.floor(Date.now() / 1000) > payload.exp) return null;
+        return payload;
+    } catch {
+        return null;
+    }
 }
 
 
@@ -234,6 +283,48 @@ app.post("/api/accounts", (req,res) =>{
     const { password: _password, ...accountWithoutPassword } = newAccount;
     res.status(201).json({ok: true, account: accountWithoutPassword});
 })
+
+app.post("/api/sign-in", (req, res) => {
+    const data = readData();
+    const email = req.body?.email?.trim();
+    const password = req.body?.password?.trim();
+
+    if (!email || !password){
+        return res.status(400).json({error: "Email and password are required"});
+    }
+
+    const account = data.accounts.find(
+        (account) => account.email?.toLowerCase() === email.toLowerCase()
+    );
+
+    if (!account || !verifyPassword(password, account.password)){
+        return res.status(401).json({error: "Invalid email or password"});
+    }
+
+    const token = signToken({ sub: String(account.id) });
+    const { password: _password, ...accountWithoutPassword } = account;
+    res.json({ok: true, token, account: accountWithoutPassword});
+});
+
+app.get("/api/me", (req, res) => {
+    const authHeader = req.headers.authorization || "";
+    const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    const payload = verifyToken(token);
+
+    if (!payload){
+        return res.status(401).json({error: "Invalid or expired session"});
+    }
+
+    const data = readData();
+    const account = data.accounts.find((account) => String(account.id) === payload.sub);
+
+    if (!account){
+        return res.status(401).json({error: "Account not found"});
+    }
+
+    const { password: _password, ...accountWithoutPassword } = account;
+    res.json({ok: true, account: accountWithoutPassword});
+});
 
 app.listen(3001, () => {
     console.log("Server Express Running")
