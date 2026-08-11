@@ -193,6 +193,33 @@ app.get("/api/events/:eventId/guest/:guestId", (req,res) =>{
     return res.json({ok: true, guest})
 });
 
+app.post("/api/accounts", (req,res) =>{
+    const data = readData();
+    const name = req.body?.name?.trim();
+    const email = req.body?.email?.trim();
+    const number = req.body?.number?.trim();
+    const password = req.body?.password?.trim();
+
+    if ( !name || !email || !number || !password){
+        return res.status(400).json({error:"All event fields are required"})
+    }
+
+    const nextId= Math.max(0, ...data.accounts.map((account) => Number(account.id) || 0)) + 1;
+
+    const newAccount = {
+        id: nextId,
+        email,
+        name,
+        number,
+        password,
+    }
+
+    data.accounts.push(newAccount);
+    writeData(data); 
+
+    res.status(201).json({ok: true, event: newAccount});
+})
+
 app.listen(3001, () => {
     console.log("Server Express Running")
 });
