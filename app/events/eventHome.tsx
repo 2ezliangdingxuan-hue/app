@@ -15,7 +15,7 @@ type TabItem = {
 const TABS: TabItem[] = [
     { to: ".", label: "Home", end: true, relative: "path" },
     { to: "invite", label: "Invite" },
-    { to: "rsvp", label: "RSVP" },
+    // { to: "rsvp", label: "RSVP" },
     { to: "guestList", label: "Guestlist" },
 ];
 

@@ -14,25 +14,25 @@
           "name": "test",
           "email": "test@email.com",
           "number": "87654321",
-          "arrived": true,
-          "status": "Arrived",
-          "arrivalTime": "3:57:44 PM"
+          "arrived": false,
+          "status": "Not-Arrived",
+          "arrivalTime": null
         },
         "6": {
           "name": "test1",
           "email": "liangdingxuan@gmail.com",
           "number": "87654321",
-          "arrived": false,
-          "status": "Not-Arrived",
-          "arrivalTime": null
+          "arrived": true,
+          "status": "Arrived",
+          "arrivalTime": "4:26:05 PM"
         },
         "7": {
           "name": "email1",
           "email": "liangdingxuan@gmail.com",
           "number": "87654321",
-          "arrived": false,
-          "status": "Not-Arrived",
-          "arrivalTime": null
+          "arrived": true,
+          "status": "Arrived",
+          "arrivalTime": "4:25:00 PM"
         },
         "8": {
           "name": "test3",
@@ -46,9 +46,9 @@
           "name": "test4",
           "email": "liangdingxuan@gmail.com",
           "number": "87654321",
-          "arrived": false,
-          "status": "Not-Arrived",
-          "arrivalTime": null
+          "arrived": true,
+          "status": "Arrived",
+          "arrivalTime": "4:25:01 PM"
         },
         "10": {
           "name": "test5",
@@ -62,9 +62,9 @@
           "name": "qrtest",
           "email": "Liangdingxuan@gmail.com",
           "number": "87654321",
-          "arrived": false,
-          "status": "Not-Arrived",
-          "arrivalTime": null
+          "arrived": true,
+          "status": "Arrived",
+          "arrivalTime": "4:26:15 PM"
         },
         "12": {
           "name": "testpop",
@@ -94,9 +94,17 @@
           "name": "john",
           "email": "liangdingxuan@gmail.com",
           "number": "87654321",
-          "arrived": false,
-          "status": "Not-Arrived",
-          "arrivalTime": null
+          "arrived": true,
+          "status": "Arrived",
+          "arrivalTime": "4:43:10 PM"
+        },
+        "16": {
+          "name": "testcakssa",
+          "email": "liangdingxuan@gmail.com",
+          "number": "",
+          "arrived": true,
+          "status": "Arrived",
+          "arrivalTime": "4:55:28 PM"
         }
       },
       "maxGuests": 90

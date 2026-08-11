@@ -4,7 +4,6 @@ import { useState } from "react";
 import { EditableField } from "~/components/EditableField";
 import { Input } from "~/components/Input";
 import { Textarea } from "~/components/Textarea";
-import { StatTile } from "~/components/StatTile";
 import { IconButton } from "~/components/IconButton";
 import { EditIcon } from "~/components/EditIcon";
 import { SaveCancelBar } from "~/components/SaveCancelBar";
@@ -14,9 +13,6 @@ type EditField = "date" | "location" | "capacity" | "description" | "image" | nu
 export default function EventDetails() {
     let { eventId } = useParams();
     const curEvent = events.find((event) => String(event.id) === eventId);
-    const guestList = curEvent?.guests ? Object.values(curEvent.guests) : [];
-    const arrivedCount = guestList.filter((guest) => guest.arrived).length;
-    const notArrivedCount = guestList.length - arrivedCount;
 
     const [editing, setEditing] = useState<EditField>(null);
     const [saving, setSaving] = useState(false);
@@ -80,13 +76,6 @@ export default function EventDetails() {
 
     return (
         <div className="mx-auto w-full max-w-4xl px-4 pb-10 pt-6 sm:px-8">
-            {/* Stats */}
-            <div className="mb-8 flex w-full flex-row justify-evenly gap-4">
-                <StatTile label="Arrived" value={arrivedCount} tone="brand" />
-                <StatTile label="Not Arrived" value={notArrivedCount} tone="accent" />
-                <StatTile label="Total Guests" value={guestList.length} tone="neutral" />
-            </div>
-
             {/* Capacity */}
             <div className="mb-6">
                 <EditableField

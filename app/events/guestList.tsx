@@ -5,12 +5,16 @@ import InviteForm from "./inviteFloat";
 import { PageHeader } from "~/components/PageHeader";
 import { Button } from "~/components/Button";
 import { Input } from "~/components/Input";
+import { StatTile } from "~/components/StatTile";
 
 export default function GuestList() {
     const {event} = useOutletContext<{event: any }>();
     const{eventId} = useParams();
     const curEvent = events.find((event) => String(event.id) === eventId);
     const guestList = curEvent?.guests;
+    const guestValues = guestList ? Object.values(guestList) : [];
+    const arrivedCount = guestValues.filter((guest) => guest.arrived).length;
+    const notArrivedCount = guestValues.length - arrivedCount;
     const [checkedInGuestIds, setCheckedInGuestIds] = useState<string[]>([]);
     const [search, setSearch] = useState("");
     const [statusSort, setStatusSort] = useState<"none" | "arrived" | "notArrived">("none");
@@ -46,6 +50,11 @@ export default function GuestList() {
                 }
                 className="mb-6"
             />
+            <div className="mb-6 flex w-full flex-row justify-evenly gap-4">
+                <StatTile label="Arrived" value={arrivedCount} tone="brand" />
+                <StatTile label="Not Arrived" value={notArrivedCount} tone="accent" />
+                <StatTile label="Total Guests" value={guestValues.length} tone="neutral" />
+            </div>
             <InviteForm
                 isOpen={isInviteOpen}
                 onClose={() => setIsInviteOpen(false)}
@@ -62,8 +71,9 @@ export default function GuestList() {
             </div>
             <div className="overflow-hidden rounded-xl border border-neutral-200 shadow-card">
                 <ul>
-                    <li className="grid grid-cols-[minmax(140px,1fr)_minmax(140px,1fr)_90px_100px_110px] items-center gap-2 bg-brand-500 py-3 text-white">
-                        <span className="pl-4">Guest</span>
+                    <li className="grid grid-cols-[40px_minmax(140px,1fr)_minmax(140px,1fr)_90px_100px_110px] items-center gap-2 bg-brand-500 py-3 text-white">
+                        <span className="pl-4">#</span>
+                        <span>Guest</span>
                         <span>Email</span>
                         <span>Time</span>
                         <span className="flex items-center gap-1.5">
@@ -113,9 +123,10 @@ export default function GuestList() {
                         const diff = Number(Boolean(b.arrived)) - Number(Boolean(a.arrived));
                         return statusSort === "arrived" ? diff : -diff;
                     })
-                    .map(([id,guest]) => (
-                        <li key={id} className="grid grid-cols-[minmax(140px,1fr)_minmax(140px,1fr)_90px_100px_110px] items-center gap-2 border-b border-neutral-200 bg-neutral-0 py-2 last:border-b-0">
-                            <span className="truncate pl-4">{guest.name}</span>
+                    .map(([id,guest], index) => (
+                        <li key={id} className="grid grid-cols-[40px_minmax(140px,1fr)_minmax(140px,1fr)_90px_100px_110px] items-center gap-2 border-b border-neutral-200 bg-neutral-0 py-2 last:border-b-0">
+                            <span className="pl-4 text-sm text-neutral-400">{index + 1}</span>
+                            <span className="truncate">{guest.name}</span>
                             <span className="truncate text-sm text-neutral-500">{guest.email || "—"}</span>
                             <span className="text-sm text-neutral-500">{guest.arrivalTime}</span>
                             <span className="text-sm font-medium text-neutral-600">{guest.status}</span>
