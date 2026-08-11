@@ -1,18 +1,19 @@
 import { Html5Qrcode, Html5QrcodeScannerState } from "html5-qrcode"
 import { useEffect, useState, useRef } from "react"
 import {events, checkInGuest, getGuest} from "../../src/data/events"
+import { Select } from "~/components/Select"
 
 
 type Guest = {
-    name: string; 
-    arrived?: boolean; 
-    status?:string; 
+    name: string;
+    arrived?: boolean;
+    status?:string;
     arrivalTime?:string|null;
     email?:string;
     number?: string;
 };
 
-export function QrScan() { 
+export function QrScan() {
     const STORAGE_KEY  = 'Scanned'
     const [scanned, setScanned] = useState<Guest[]>([]);
     const hydrated = useRef(false);
@@ -22,7 +23,7 @@ export function QrScan() {
             const saved = localStorage.getItem(STORAGE_KEY)
             if (saved) setScanned(JSON.parse(saved));
         } catch{
-            
+
         }
         hydrated.current = true;
     }, []);
@@ -63,29 +64,19 @@ export function QrScan() {
                 console.log(`check in : ${checkIn}`);
                 scannedKeysRef.current.add(key);
                 setScanned(prev => [...prev, checkIn]);
+                setResp(`Checked in ${checkIn.name ?? guestId}`);
             }
-        } 
+        }
         catch(e){
             setResp(String(e));
         }
     }
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        const id = String(formData.get('id'));
-        setResp(id);
-        handleScan(id);
-        console.log(id);
-    }
-    
     const handleChange=(
         event: React.ChangeEvent<HTMLSelectElement>
     ) => {
         const {name, value} = event.target;
         setEventId(Number(value));
-        console.log({name, value});
-        //navigate("/");
     }
 
     useEffect(() => {
@@ -131,41 +122,47 @@ export function QrScan() {
             });
         }
     },[])
+
     return(
-        <main>
-            <div className="p-8">
-                <div className="flex flex-row justify-between items-center mb-4">
-                    <h1 className="text-2xl">Scan Qr Code :</h1>
-                    <div className="flex flex-col">
-                        <select className="border"  
-                        onChange={handleChange}>
-                            <option>Select An Event</option>
-                            {events.map((event) => (
-                                <option key={event.id} value={event.id}>
-                                    {event.id}: {event.title} , {event.date}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
-                <div id="reader"></div>
-                <form onSubmit={handleSubmit} className="py-2 space-x-2">
-                    <label> test : </label>
-                    <input type="text" name="id" className="border">
-                </input>
-                <button className="border px-1"> submit</button>
-                </form>
-                
-                <a href="">respondus: {resp}</a>
-                <ul>
-                {scanned.map((guest, index) => (
-                    <li key={guest.email ?? `${guest.name}-${index}`}>
-                        <div>
-                            {guest.name} : {guest.arrivalTime}
-                        </div>
-                    </li>
-                ))}
-                </ul>
+        <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8 sm:px-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <h1 className="text-2xl font-bold text-neutral-800">Scan QR Code</h1>
+                <Select className="max-w-xs" onChange={handleChange} defaultValue="">
+                    <option value="" disabled>Select an event</option>
+                    {events.map((event) => (
+                        <option key={event.id} value={event.id}>
+                            {event.title} — {event.date}
+                        </option>
+                    ))}
+                </Select>
+            </div>
+
+            {eventId === -1 && (
+                <p className="rounded-md border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-700">
+                    Select an event above before scanning guest QR codes.
+                </p>
+            )}
+
+            <div id="reader" className="overflow-hidden rounded-xl border border-neutral-200 shadow-card" />
+
+            {resp && (
+                <p className="text-sm text-neutral-600">{resp}</p>
+            )}
+
+            <div>
+                <h2 className="mb-3 text-lg font-semibold text-neutral-800">Checked in ({scanned.length})</h2>
+                {scanned.length === 0 ? (
+                    <p className="text-sm text-neutral-500">No guests scanned yet this session.</p>
+                ) : (
+                    <ul className="flex flex-col divide-y divide-neutral-200 overflow-hidden rounded-xl border border-neutral-200">
+                    {scanned.map((guest, index) => (
+                        <li key={guest.email ?? `${guest.name}-${index}`} className="flex items-center justify-between bg-neutral-0 px-4 py-3">
+                            <span className="font-medium text-neutral-800">{guest.name}</span>
+                            <span className="text-sm text-neutral-500">{guest.arrivalTime}</span>
+                        </li>
+                    ))}
+                    </ul>
+                )}
             </div>
         </main>
     )

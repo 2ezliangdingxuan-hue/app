@@ -2,12 +2,15 @@ import { useState, type FormEvent} from "react";
 import { QRCodeSVG } from "qrcode.react"
 import { useParams } from "react-router";
 import { addGuest } from "../../src/data/events"
+import { FormField } from "~/components/FormField";
+import { Input } from "~/components/Input";
+import { Button } from "~/components/Button";
 
-export default function Invite() { 
+export default function Invite() {
     const{ eventId } = useParams();
-    const[text, setText] = useState("");
-    const[formData, setFormData] = useState({name: "", email: "", number: ""});
+    const[formData, setFormData] = useState({name: "", email: ""});
     const[statusMessage, setStatusMessage] = useState("");
+    const[isError, setIsError] = useState(false);
 
     const [latestQrValue, setLatestQrValue] = useState<string | null>(null);
 
@@ -16,6 +19,7 @@ export default function Invite() {
         event.preventDefault();
         const name = formData.name.trim();
         if (!name){
+            setIsError(true);
             setStatusMessage("Please enter a guest name.");
             return;
         }
@@ -25,77 +29,65 @@ export default function Invite() {
             const payload = await addGuest(currentEventId, {
                 name,
                 email: formData.email.trim(),
-                number: formData.number.trim(),
             });
 
             const guestId = payload.guestId ?? payload.guest?.id ?? "";
 
+            setIsError(false);
             setStatusMessage(`Added ${name}`);
-            setFormData({name:"", email:"", number:""});
+            setFormData({name:"", email:""});
             setLatestQrValue(eventId + ":" + guestId)
-            setText(name);
         }
         catch (err){
             console.error(err);
+            setIsError(true);
             setStatusMessage("Failed to add guest.");
         }
     }
 
-             
+
     return(
-        <div className="p-8 flex flex-col justify-center items-center">
-            <h1 className="mb-4"> QR code generator</h1>
-            {/* <h1 className="mb-4">Invite</h1>  */}
+        <div className="mx-auto flex w-full max-w-lg flex-col items-center gap-6 px-4 py-10">
+            <h1 className="text-2xl font-bold text-neutral-800">Invite a guest</h1>
 
-            <form className="mb-4 border border-r border-slate-500 p-6 flex flex-col"
+            <form
+                className="flex w-full flex-col gap-4 rounded-xl border border-neutral-200 bg-neutral-0 p-6 shadow-card"
                 onSubmit={handleNewGuest}>
-                <label >Name:</label><br/>
-                <input 
-                className="border border-r" 
-                type="text" 
-                id="name" 
-                name="fname"
-                value={formData.name}
-                onChange={(event) => setFormData((current) => ({ ...current, name: event.target.value }))}
-                /><br/>
+                <FormField label="Name" htmlFor="invite-page-name">
+                    <Input
+                    type="text"
+                    id="invite-page-name"
+                    name="fname"
+                    value={formData.name}
+                    onChange={(event) => setFormData((current) => ({ ...current, name: event.target.value }))}
+                    />
+                </FormField>
 
-                <label >Email:</label><br/>
-                <input 
-                className="border border-r" 
-                type="text" 
-                id="email" 
-                name="email"
-                value={formData.email}
-                onChange={(event) => setFormData((current) => ({ ...current, email: event.target.value }))}
-                /><br/>
+                <FormField label="Email" htmlFor="invite-page-email">
+                    <Input
+                    type="email"
+                    id="invite-page-email"
+                    name="email"
+                    value={formData.email}
+                    onChange={(event) => setFormData((current) => ({ ...current, email: event.target.value }))}
+                    />
+                </FormField>
 
-                <label >Number:</label><br/>
-                <input 
-                className="border border-r" 
-                type="tel" 
-                id="number" 
-                name="number"
-                value={formData.number}
-                onChange={(event) => setFormData((current) => ({ ...current, number: event.target.value }))}
-                /><br/>
-
-                <input 
-                className="border border-r text-white bg-black rounded-full" 
-                type="submit" 
-                id="submit" 
-                name="submit"/><br/>
-
+                <Button type="submit" variant="primary" className="mt-2 w-full">
+                    Add guest & generate QR
+                </Button>
             </form>
 
-            {statusMessage ? <p className="mb-8 text-sm text-red-600">{statusMessage}</p> : null}
+            {statusMessage ? (
+                <p className={`text-sm ${isError ? "text-danger-500" : "text-success-500"}`}>{statusMessage}</p>
+            ) : null}
 
-            <input 
-            className="border border-r mb-4 p-x-2" 
-            type="text" 
-            placeholder=" Enter text" 
-            onChange={(e) => setText(e.target.value)}></input>
-
-            <QRCodeSVG value={latestQrValue || text || " "} size={256}/>
+            {latestQrValue && (
+                <div className="flex flex-col items-center gap-3 rounded-xl border border-neutral-200 bg-neutral-0 p-6 shadow-card">
+                    <p className="text-sm font-medium text-neutral-600">Guest QR code</p>
+                    <QRCodeSVG value={latestQrValue} size={220}/>
+                </div>
+            )}
         </div>
     )
 }

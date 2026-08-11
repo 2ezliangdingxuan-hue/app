@@ -1,5 +1,9 @@
 import {createAccount} from "../../src/data/accounts"
 import { useState } from "react"
+import { Link } from "react-router";
+import { FormField } from "~/components/FormField";
+import { Input } from "~/components/Input";
+import { Button } from "~/components/Button";
 
 const initialForm = {
     name:"",
@@ -25,27 +29,33 @@ export function Signup(){
         } catch(e){
             console.log(e)
         }
-        
+
     }
     return(
-        <div className="flex flex-col text-center mt-6">
-            <h1 className="text-3xl font-bold">Sign up</h1>
-            <div className="flex mx-auto p-6 shrink">
-                <form 
-                className="flex flex-col items-center text-start shrink border p-4"
-                onSubmit={handleSubmit}>
-                    <label htmlFor="name">Name:</label>
-                    <input type="text" placeholder="Name" className="border mb-4 px-1" onChange={handleChange}/>
-                    <label htmlFor="email" className="text-start">Email:</label>
-                    <input type="email" placeholder="Email" className="border mb-4 px-1" onChange={handleChange}/>
-                    <label htmlFor="number">Phone Number:</label>
-                    <input type="tel" placeholder="Number" className="border mb-4 px-1" onChange={handleChange}/>
-                    <label htmlFor="password">Password:</label>
-                    <input type="password" placeholder="Password" className="border px-1" onChange={handleChange}/>
-                    <button type="submit" className="mt-4 border rounded-full text-white bg-black py-2 px-4 text-center">Sign Up</button>
+        <div className="flex min-h-[70vh] w-full flex-col items-center justify-center gap-6 px-4 py-12">
+            <div className="w-full max-w-sm rounded-xl border border-neutral-200 bg-neutral-0 p-8 shadow-card">
+                <h1 className="mb-6 text-center text-3xl font-bold text-neutral-800">Sign Up</h1>
+                <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+                    <FormField label="Name" htmlFor="name">
+                        <Input type="text" id="name" name="name" placeholder="Your name" onChange={handleChange} />
+                    </FormField>
+                    <FormField label="Email" htmlFor="email">
+                        <Input type="email" id="email" name="email" placeholder="you@example.com" onChange={handleChange} />
+                    </FormField>
+                    <FormField label="Phone Number" htmlFor="number">
+                        <Input type="tel" id="number" name="number" placeholder="Phone number" onChange={handleChange} />
+                    </FormField>
+                    <FormField label="Password" htmlFor="password">
+                        <Input type="password" id="password" name="password" placeholder="********" onChange={handleChange} />
+                    </FormField>
+                    <Button type="submit" variant="primary" className="mt-2 w-full">
+                        Sign Up
+                    </Button>
                 </form>
             </div>
-            <a href="/sign-in" className="underline">Already have an account? sign in</a>
+            <Link to="/sign-in" className="text-sm text-brand-600 underline underline-offset-2 hover:text-brand-700">
+                Already have an account? Sign in
+            </Link>
         </div>
     )
 }

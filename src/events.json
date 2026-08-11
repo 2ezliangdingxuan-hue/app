@@ -2,7 +2,7 @@
   "events": [
     {
       "id": 1,
-      "title": "Event 1",
+      "title": "Event 12345344",
       "maximumGuests": 1,
       "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
       "date": "2024-06-12",
@@ -16,31 +16,7 @@
           "number": "87654321",
           "arrived": true,
           "status": "Arrived",
-          "arrivalTime": "5:13:25 PM"
-        },
-        "2": {
-          "name": "Jane Smith",
-          "arrived": false,
-          "status": "Not-Arrived",
-          "arrivalTime": null
-        },
-        "3": {
-          "name": "Michael Johnson",
-          "arrived": true,
-          "status": "Arrived",
-          "arrivalTime": "2:08:57 PM"
-        },
-        "4": {
-          "name": "Emily Davis",
-          "arrived": true,
-          "status": "Arrived",
-          "arrivalTime": "2:09:00 PM"
-        },
-        "5": {
-          "name": "David Wilson",
-          "arrived": true,
-          "status": "Arrived",
-          "arrivalTime": "2:09:03 PM"
+          "arrivalTime": "3:57:44 PM"
         },
         "6": {
           "name": "test1",
@@ -54,17 +30,17 @@
           "name": "email1",
           "email": "liangdingxuan@gmail.com",
           "number": "87654321",
-          "arrived": true,
-          "status": "Arrived",
-          "arrivalTime": "2:09:09 PM"
+          "arrived": false,
+          "status": "Not-Arrived",
+          "arrivalTime": null
         },
         "8": {
           "name": "test3",
           "email": "liangdingxuan@gmail.com",
           "number": "87654321",
-          "arrived": true,
-          "status": "Arrived",
-          "arrivalTime": "2:09:11 PM"
+          "arrived": false,
+          "status": "Not-Arrived",
+          "arrivalTime": null
         },
         "9": {
           "name": "test4",
@@ -110,12 +86,20 @@
           "name": "testduplicate",
           "email": "liangdingxuan@gmail.com",
           "number": "87654321",
-          "arrived": true,
-          "status": "Arrived",
-          "arrivalTime": "2:17:28 PM"
+          "arrived": false,
+          "status": "Not-Arrived",
+          "arrivalTime": null
+        },
+        "15": {
+          "name": "john",
+          "email": "liangdingxuan@gmail.com",
+          "number": "87654321",
+          "arrived": false,
+          "status": "Not-Arrived",
+          "arrivalTime": null
         }
       },
-      "maxGuests": 89
+      "maxGuests": 90
     },
     {
       "id": 2,
@@ -224,18 +208,18 @@
       "guests": {}
     }
   ],
-  "accounts":[
+  "accounts": [
     {
-      "id":1,
-      "email":"test@email.com",
-      "name":"",
-      "password":""
+      "id": 1,
+      "email": "test@email.com",
+      "name": "",
+      "password": ""
     },
     {
-      "id":2,
-      "email":"john@email.com",
-      "name":"",
-      "password":""
+      "id": 2,
+      "email": "john@email.com",
+      "name": "",
+      "password": ""
     }
   ]
 }

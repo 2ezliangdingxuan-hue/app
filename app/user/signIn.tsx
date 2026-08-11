@@ -1,18 +1,28 @@
+import { Link } from "react-router";
+import { FormField } from "~/components/FormField";
+import { Input } from "~/components/Input";
+import { Button } from "~/components/Button";
+
 export function Signin(){
     return(
-        <div className="flex flex-col text-center mt-6">
-            <h1 className="text-3xl font-bold">Sign In</h1>
-            <div className="flex mx-auto p-6 shrink">
-                <form className="flex flex-col items-center text-start shrink border p-4">
-                <label htmlFor="email" className="text-start">Email:</label>
-                <input type="email" placeholder="Email" className="border mb-4"/>
-                <label htmlFor="password">Password:</label>
-                <input type="password" placeholder="Password" className="border"/>
-                <button type="submit" className="mt-4 border rounded-full text-white bg-black py-2 px-4 text-center">Sign In</button>
+        <div className="flex min-h-[70vh] w-full flex-col items-center justify-center gap-6 px-4 py-12">
+            <div className="w-full max-w-sm rounded-xl border border-neutral-200 bg-neutral-0 p-8 shadow-card">
+                <h1 className="mb-6 text-center text-3xl font-bold text-neutral-800">Sign In</h1>
+                <form className="flex flex-col gap-4">
+                    <FormField label="Email" htmlFor="email">
+                        <Input type="email" id="email" name="email" placeholder="you@example.com" />
+                    </FormField>
+                    <FormField label="Password" htmlFor="password">
+                        <Input type="password" id="password" name="password" placeholder="********" />
+                    </FormField>
+                    <Button type="submit" variant="primary" className="mt-2 w-full">
+                        Sign In
+                    </Button>
                 </form>
             </div>
-            <a href="/sign-up" className="underline">no account? sign up</a>
+            <Link to="/sign-up" className="text-sm text-brand-600 underline underline-offset-2 hover:text-brand-700">
+                No account? Sign up
+            </Link>
         </div>
-        
     )
 }

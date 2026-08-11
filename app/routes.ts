@@ -10,7 +10,7 @@ export default [
     route("sign-up", "routes/sign-up.tsx"),
     route("page", "routes/page.tsx"),
     route("events/:eventId", "routes/event.tsx",[
-        //index("events/guestList.tsx"),
+        index("events/eventDetails.tsx"),
         route("invite", "events/invite.tsx"),
         route("guestList", "events/guestList.tsx"),
         route("activities", "events/activities.tsx"),

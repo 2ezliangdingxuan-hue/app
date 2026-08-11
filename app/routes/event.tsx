@@ -15,12 +15,10 @@ export default function Event() {
     return(
         <>
         <Header/>
-        <div className="flex flex-row h-screen">
+        <div className="flex flex-col w-full">
             {/* <Sidebar/> */}
-            <div className="flex flex-col w-full">
-                <EventHome/>
-                <Outlet context={{event}}/>
-            </div>
+            <EventHome/>
+            <Outlet context={{event}}/>
         </div>
         </>
     )

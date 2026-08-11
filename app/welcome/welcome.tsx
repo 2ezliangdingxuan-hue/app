@@ -1,8 +1,8 @@
 import Banner from "./banner.png";
-//import {events} from "../../src/events.json";
-import {getEvents, events} from "../../src/data/events";
-import {useEffect, useState} from "react";
-
+import { getEvents } from "../../src/data/events";
+import { useEffect, useState } from "react";
+import { Card } from "~/components/Card";
+import { PageHeader } from "~/components/PageHeader";
 
 export function Welcome() {
 
@@ -10,13 +10,13 @@ export function Welcome() {
     name: string; arrived: boolean
   }
   interface Event{
-    id: number; 
-    title: string; 
-    description: string; 
-    date: string; 
+    id: number;
+    title: string;
+    description: string;
+    date: string;
     category: string;
-    location?: string; 
-    img: string; 
+    location?: string;
+    img: string;
     guests?: Record<string, Guest>
   }
 
@@ -31,26 +31,29 @@ export function Welcome() {
   },[])
 
   return (
-    <main className="flex flex-col items-center justify-center pb-4 w-full">
+    <main className="flex w-full flex-col items-center pb-16">
       <div className="w-full">
-        <img src={Banner} alt="Banner" className="w-full object-cover aspect-2/1" />
+        <img src={Banner} alt="Banner" className="aspect-2/1 w-full object-cover sm:aspect-3/1" />
       </div>
-      <div className="flex flex-col p-4 gap-4 max-w-7xl mx-auto">
-        <h1 className="text-2xl font-bold">Events :</h1>
-        <ul className="gap-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 py-6">
-          {events.map((event) => (
-            <a href={`/events/${event.id}`} key={event.id}>
-              <div className="border bg-white border-gray-200 rounded-lg w-full h-full p-4 drop-shadow-md" key={event.id}>
-                <li key={event.id} className="flex flex-col gap-2">
-                  <img src={event.img} alt={event.title} className="aspect-2/1 object-cover"/>
-                  <h2 className="capitalize">{event.title}</h2>
-                  <p>{event.date}</p>
-                  <p>{event.location}</p>
-                </li>
-              </div>
-            </a>
-          ))}
-        </ul>
+      <div className="flex w-full max-w-7xl flex-col gap-4 p-4 sm:p-8">
+        <PageHeader title="Upcoming Events" className="pt-4" />
+        {events.length === 0 ? (
+          <p className="py-8 text-neutral-500">No events yet. Check back soon.</p>
+        ) : (
+          <ul className="grid grid-cols-2 gap-4 py-6 sm:grid-cols-3 lg:grid-cols-4">
+            {events.map((event) => (
+              <li key={event.id}>
+                <Card
+                  href={`/events/${event.id}`}
+                  image={event.img}
+                  title={event.title}
+                  date={event.date}
+                  location={event.location}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </main>
   );

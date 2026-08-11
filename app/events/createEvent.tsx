@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { createEvent } from "../../src/data/events";
+import { FormField } from "~/components/FormField";
+import { Input } from "~/components/Input";
+import { Textarea } from "~/components/Textarea";
+import { Select } from "~/components/Select";
+import { Button } from "~/components/Button";
 
 const initialForm = {
     title:"",
@@ -48,89 +53,84 @@ export function CreateEvent(){
     };
 
     return (
-        <main>
-            <div className="p-6">
-                <h1 className="text-2xl font-bold mb-6">Create Event</h1>
-                <form className="space-y-2 flex flex-col" onSubmit={handleSubmit}>
-                    <label>Event title : </label>
-                    <input 
-                    type="text" 
+        <main className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-8">
+            <h1 className="mb-6 text-2xl font-bold text-neutral-800 sm:text-3xl">Create Event</h1>
+            <form className="flex flex-col gap-5 rounded-xl border border-neutral-200 bg-neutral-0 p-6 shadow-card" onSubmit={handleSubmit}>
+                <FormField label="Event title" htmlFor="title">
+                    <Input
+                    type="text"
                     id="title"
                     name="title"
                     value={form.title}
                     onChange={handleChange}
-                    className="border p-1"
-                    required/><br/>
+                    required/>
+                </FormField>
 
-                    <div className="flex flex-col">
-                        <label>Event Description : </label>
-                        <textarea
-                        rows={4}
-                        id="description"
-                        name="description"
-                        value={form.description}
-                        onChange={handleChange}
-                        className="border p-1"
-                        required/><br/>
-                    </div>
+                <FormField label="Event description" htmlFor="description">
+                    <Textarea
+                    rows={4}
+                    id="description"
+                    name="description"
+                    value={form.description}
+                    onChange={handleChange}
+                    required/>
+                </FormField>
 
-                    <div className="flex flex-col">
-                        <label>Event Maximum Capacity : </label>
-                        <input type="text"
-                        id="maxGuests"
-                        name="maxGuests"
-                        value={form.maxGuests}
-                        onChange={handleChange}
-                        inputMode="numeric"
-                        className="border p-1"
-                        required/><br/>
-                    </div>
+                <FormField label="Maximum capacity" htmlFor="maxGuests">
+                    <Input type="text"
+                    id="maxGuests"
+                    name="maxGuests"
+                    value={form.maxGuests}
+                    onChange={handleChange}
+                    inputMode="numeric"
+                    required/>
+                </FormField>
 
-                    <label>Event Date : </label>
-                    <input 
-                    type="date" 
+                <FormField label="Event date" htmlFor="date">
+                    <Input
+                    type="date"
                     id="date"
                     name="date"
                     value={form.date}
                     onChange={handleChange}
-                    className="border p-1"
-                    required/><br/>
-                    
-                    <label>Event Location : </label>
-                    <input 
-                    type="text" 
+                    required/>
+                </FormField>
+
+                <FormField label="Event location" htmlFor="location">
+                    <Input
+                    type="text"
                     id="location"
                     name="location"
                     value={form.location}
                     onChange={handleChange}
-                    className="border p-1"
-                    required/><br/>
+                    required/>
+                </FormField>
 
-                    <label>Event Category : </label>
-                    <select
+                <FormField label="Event category" htmlFor="category">
+                    <Select
                     name="category"
                     id="category"
                     value={form.category}
                     onChange={handleChange}
-                    className="border p-1"
                     required
                     >
                         <option value="" disabled>Select a category</option>
                         {CATEGORY_OPTIONS.map((option) => (
                             <option key={option} value={option}>{option}</option>
                         ))}
-                    </select>
+                    </Select>
+                </FormField>
 
-                    {error && <p className="text-red-600">{error}</p>}
+                {error && <p className="text-sm text-danger-500">{error}</p>}
 
-                    <button
-                    type="submit"
-                    className="mt-4 rounded-xl bg-black px-4 py-2 text-white disabled:opacity-60"
-                    disabled={isSubmitting}>
-                        {isSubmitting ? "Creating..." : "Create Event"}
-                    </button>
-                </form>
-            </div>
+                <Button
+                type="submit"
+                variant="primary"
+                className="mt-2 w-full"
+                disabled={isSubmitting}>
+                    {isSubmitting ? "Creating..." : "Create Event"}
+                </Button>
+            </form>
         </main>
     )
 }

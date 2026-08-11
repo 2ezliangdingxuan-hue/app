@@ -1,19 +1,22 @@
-import {getEvents, getEventById} from "../../src/data/events"
+import { getEvents } from "../../src/data/events"
 import { useEffect, useState } from "react"
+import { Card } from "~/components/Card"
+import { PageHeader } from "~/components/PageHeader"
+import { LinkButton } from "~/components/Button"
 
-export default function Events() { 
+export default function Events() {
 
     interface Guest{
 
     }
     interface Event{
-    id: number; 
-    title: string; 
-    description: string; 
-    date: string; 
-    category: string; 
+    id: number;
+    title: string;
+    description: string;
+    date: string;
+    category: string;
     location?: string;
-    img: string; 
+    img: string;
     guests?: Record<string, Guest>
     }
 
@@ -25,37 +28,36 @@ export default function Events() {
             setEvents(data);
         }
         loadEvents();
-    })
+    }, [])
 
     return(
-        <main className="flex flex-col max-w-7xl mx-auto w-full">
-            <div className="p-8 flex flex-row justify-between">
-                <h1 className="text-3xl font-bold">
-                    Events
-                </h1>
-                <a href="/createEvent">
-                <button className="border p-1 rounded-xl">
-                    <p>
+        <main className="mx-auto flex w-full max-w-7xl flex-col p-4 sm:p-8">
+            <PageHeader
+                title="Events"
+                action={
+                    <LinkButton to="/createEvent" variant="primary">
                         Create Event +
-                    </p>
-                </button>
-                </a>
-            </div>
+                    </LinkButton>
+                }
+            />
             <div>
-                <ul className="gap-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 py-6">
-                {events.map((event) => (
-                    <a href={`/events/${event.id}`} key={event.id}>
-                    <div className="border bg-white border-gray-200 rounded-lg w-full h-full p-4 drop-shadow-md" key={event.id}>
-                        <li key={event.id} className="flex flex-col gap-2">
-                        <img src={event.img} alt={event.title} className="aspect-2/1 object-cover"/>
-                        <h2 className="capitalize">{event.title}</h2>
-                        <p>{event.date}</p>
-                        <p>{event.location}</p>
+                {events.length === 0 ? (
+                    <p className="py-8 text-neutral-500">No events yet. Create the first one.</p>
+                ) : (
+                    <ul className="grid grid-cols-2 gap-4 py-6 sm:grid-cols-3 lg:grid-cols-4">
+                    {events.map((event) => (
+                        <li key={event.id}>
+                            <Card
+                                href={`/events/${event.id}`}
+                                image={event.img}
+                                title={event.title}
+                                date={event.date}
+                                location={event.location}
+                            />
                         </li>
-                    </div>
-                    </a>
-                ))}
-                </ul>
+                    ))}
+                    </ul>
+                )}
             </div>
 
         </main>
