@@ -20,6 +20,7 @@ const CATEGORY_OPTIONS = ["public", "private", "invite-only", "internal"];
 
 export function CreateEvent(){
     const[form, setForm] = useState(initialForm);
+    const[imageDataUrl, setImageDataUrl] = useState<string | null>(null);
     const[error, setError] = useState<string | null >(null);
     const[isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
@@ -31,13 +32,27 @@ export function CreateEvent(){
         setForm((current) => ({ ...current, [name]: value}));
     };
 
+    const handleImageChange = (file: File | null) => {
+        if (!file){
+            setImageDataUrl(null);
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+            setImageDataUrl(String(reader.result ?? ""));
+        };
+        reader.readAsDataURL(file);
+    };
+
     const handleSubmit = async(event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setError(null);
         setIsSubmitting(true);
 
         try{
-            const payload = await createEvent(form);
+            const payload = await createEvent(
+                imageDataUrl ? { ...form, img: imageDataUrl } : form
+            );
 
             if(!payload.ok || !payload.event?.id){
                 setError(payload.error || "unable to create event.");
@@ -104,6 +119,24 @@ export function CreateEvent(){
                     value={form.location}
                     onChange={handleChange}
                     required/>
+                </FormField>
+
+                <FormField label="Event image (optional)" htmlFor="image">
+                    {imageDataUrl && (
+                        <img
+                            src={imageDataUrl}
+                            alt="Event preview"
+                            className="mb-2 aspect-2/1 w-full rounded-md object-cover"
+                        />
+                    )}
+                    <input
+                        type="file"
+                        id="image"
+                        accept="image/*"
+                        onChange={(e) => handleImageChange(e.target.files?.[0] ?? null)}
+                        className="text-sm text-neutral-600 file:mr-3 file:rounded-pill file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-brand-600"
+                    />
+                    <p className="text-xs text-neutral-400">Leave empty to use a default image.</p>
                 </FormField>
 
                 <FormField label="Event category" htmlFor="category">

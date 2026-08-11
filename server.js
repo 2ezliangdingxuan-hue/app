@@ -3,7 +3,14 @@ import {readFileSync, writeFileSync} from "node:fs";
 import path from "node:path";
 import cors from "cors";
 import { configDotenv } from "dotenv";
+import { randomBytes, scryptSync } from "node:crypto";
 import { sendGuestInviteEmail } from "./src/services/mailer.js";
+
+function hashPassword(password){
+    const salt = randomBytes(16).toString("hex");
+    const hash = scryptSync(password, salt, 64).toString("hex");
+    return `${salt}:${hash}`;
+}
 
 
 const app = express();
@@ -201,7 +208,14 @@ app.post("/api/accounts", (req,res) =>{
     const password = req.body?.password?.trim();
 
     if ( !name || !email || !number || !password){
-        return res.status(400).json({error:"All event fields are required"})
+        return res.status(400).json({error:"All account fields are required"})
+    }
+
+    const emailTaken = data.accounts.some(
+        (account) => account.email?.toLowerCase() === email.toLowerCase()
+    );
+    if (emailTaken){
+        return res.status(409).json({error:"An account with that email already exists"})
     }
 
     const nextId= Math.max(0, ...data.accounts.map((account) => Number(account.id) || 0)) + 1;
@@ -211,13 +225,14 @@ app.post("/api/accounts", (req,res) =>{
         email,
         name,
         number,
-        password,
+        password: hashPassword(password),
     }
 
     data.accounts.push(newAccount);
-    writeData(data); 
+    writeData(data);
 
-    res.status(201).json({ok: true, event: newAccount});
+    const { password: _password, ...accountWithoutPassword } = newAccount;
+    res.status(201).json({ok: true, account: accountWithoutPassword});
 })
 
 app.listen(3001, () => {

@@ -1,40 +1,24 @@
-import data from "../events.json"
 const API_BASE = typeof window !== "undefined"
     ? `http://${window.location.hostname}:3001`
     : "http://localhost:3001";
 
-
-
-    type Guest = {
-    name: string; 
-    arrived?: boolean; 
-    status?:string; 
-    arrivalTime?:string|null;
-    email?:string;
-    number?: string;
+type Account = {
+    id: number;
+    name: string;
+    email: string;
+    number: string;
 };
 
-    type Event = {
-    id: number; 
-    title?: string; 
-    description?: string; 
-    date?: string; 
-    location?: string;
-    category: string;
-    img: string;
-    maxGuests?: number;
-    guests?: Record<string, Guest>
-};
-
-    const events = data.events as Event[];
+type CreateAccountResult =
+    | { ok: true; account: Account }
+    | { ok: false; error: string };
 
 const createAccount = async(account:{
-    
     name : string;
     email : string;
     number : string;
     password : string;
-}) => {
+}): Promise<CreateAccountResult> => {
     const res = await fetch(`${API_BASE}/api/accounts`,{
         method: "POST",
         headers:{
@@ -45,12 +29,11 @@ const createAccount = async(account:{
 
     const payload = await res.json();
 
-    if (res.ok && payload.event){
-        events.unshift(payload.event);
+    if (!res.ok){
+        return { ok: false, error: payload?.error || "Unable to create account." };
     }
 
-    return payload;
-
+    return payload as CreateAccountResult;
 };
 
 export{createAccount}
