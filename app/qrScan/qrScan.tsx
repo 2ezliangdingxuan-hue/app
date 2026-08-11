@@ -156,7 +156,7 @@ export function QrScan() {
                 <button className="border px-1"> submit</button>
                 </form>
                 
-                <a href="/page">respondus: {resp}</a>
+                <a href="">respondus: {resp}</a>
                 <ul>
                 {scanned.map((guest, index) => (
                     <li key={guest.email ?? `${guest.name}-${index}`}>

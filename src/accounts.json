@@ -1,22 +1,17 @@
 {
-    "accounts":{
-        "guest1@email.com":{
+    "accounts":[
+        {
             "id":1,
-            "email":"",
+            "email":"test@email.com",
             "name":"",
             "password":""
         },
-        "guest2@email.com":{
+        {
             "id":2,
-            "email":"",
-            "name":"",
-            "password":""
-        },
-        "guest3@email.com":{
-            "id":3,
-            "email":"",
+            "email":"john@email.com",
             "name":"",
             "password":""
         }
-    }
+    ]
 }
+
