@@ -1,9 +1,13 @@
+import { useState } from "react";
 import { useParams } from "react-router";
-import { events } from "../../src/data/events";
+import { events, addGuest } from "../../src/data/events";
+import { Button } from "~/components/Button";
+import SignUpForm from "./signUpFloat";
 
 export default function EventView() {
     const { eventId } = useParams();
     const curEvent = events.find((event) => String(event.id) === eventId);
+    const [isSignUpOpen, setIsSignUpOpen] = useState(false);
 
     if (!curEvent) {
         return (
@@ -13,9 +17,20 @@ export default function EventView() {
         );
     }
 
+    const handleSignUp = async (guest: { name: string; email: string; number: string }) => {
+        await addGuest(String(curEvent.id), guest);
+    };
+
     return (
         <div className="mx-auto w-full max-w-4xl px-4 pb-10 pt-6 sm:px-8">
-            <h1 className="mb-4 text-3xl font-bold capitalize text-neutral-800 sm:text-4xl">{curEvent.title}</h1>
+            <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
+                <h1 className="text-3xl font-bold capitalize text-neutral-800 sm:text-4xl">{curEvent.title}</h1>
+                <Button type="button" variant="primary" onClick={() => setIsSignUpOpen(true)}>
+                    Sign Up
+                </Button>
+            </div>
+
+            <SignUpForm isOpen={isSignUpOpen} onClose={() => setIsSignUpOpen(false)} onSubmit={handleSignUp} />
 
             <div className="mb-6 flex flex-wrap items-center gap-x-8 gap-y-3">
                 <div>
