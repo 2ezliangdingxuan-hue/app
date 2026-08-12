@@ -61,14 +61,13 @@ export function EventHome() {
                         <Input
                         value={titleDraft}
                         onChange={(e) => setTitleDraft(e.target.value)}
-                        className="max-w-sm"
-                        />
+                        className="max-w-sm"/>
                     }
                 />
             </div>
 
-            <nav className="flex flex-row justify-center border-b border-neutral-200 pb-4">
-                <ul className="flex flex-row flex-wrap items-center justify-center gap-2">
+            <nav className="flex flex-row border-b justify-center border-neutral-200 pb-4">
+                <ul className="flex flex-row flex-wrap items-center justify-between gap-x-8">
                     {TABS.map((item) => (
                         <li key={item.to}>
                             <NavLinkItem to={item.to} end={item.end} relative={item.relative}>

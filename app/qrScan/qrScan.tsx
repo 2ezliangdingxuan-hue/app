@@ -80,6 +80,8 @@ export function QrScan() {
     }
 
     useEffect(() => {
+        if (eventId === -1) return;
+
         const scanner = new Html5Qrcode("reader")
         const startPromise = scanner.start(
             {facingMode:"environment"},
@@ -121,7 +123,7 @@ export function QrScan() {
                 }
             });
         }
-    },[])
+    },[eventId])
 
     return(
         <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8 sm:px-8">
@@ -137,13 +139,13 @@ export function QrScan() {
                 </Select>
             </div>
 
-            {eventId === -1 && (
+            {eventId === -1 ? (
                 <p className="rounded-md border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-700">
                     Select an event above before scanning guest QR codes.
                 </p>
+            ) : (
+                <div id="reader" className="overflow-hidden rounded-xl border border-neutral-200 shadow-card" />
             )}
-
-            <div id="reader" className="overflow-hidden rounded-xl border border-neutral-200 shadow-card" />
 
             {resp && (
                 <p className="text-sm text-neutral-600">{resp}</p>
