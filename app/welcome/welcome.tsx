@@ -25,7 +25,7 @@ export function Welcome() {
     async function loadEvents(){
       const res = await getEvents();
       const data = await res.json();
-      setEvents(data);
+      setEvents(data.filter((event: Event) => event.category === "public"));
     }
     loadEvents();
   },[])

@@ -41,7 +41,7 @@ export function UserMenu({ name, onSignOut, className = "", variant = "light" }:
                 >
                     {name.trim().charAt(0).toUpperCase() || "?"}
                 </span>
-                <span className="max-w-[10rem] truncate">{name}</span>
+                <span className="max-w-40 truncate">{name}</span>
             </button>
 
             {isOpen && (

@@ -209,9 +209,9 @@
       "id": 2,
       "title": "Event 2",
       "maximumGuests": 1,
-      "description": "This is the second event. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "description": "This is the second event. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
       "date": "2024-06-15",
-      "category": "private",
+      "category": "public",
       "location": "Buckingham Palace",
       "img": "https://th.bing.com/th/id/OIP.VdDc3iT3PCrJnnsiThNzGgHaF_?w=245&h=199&c=7&r=0&o=7&pid=1.7&rm=3",
       "guests": {
@@ -221,7 +221,8 @@
           "status": "Arrived",
           "arrivalTime": null
         }
-      }
+      },
+      "maxGuests": 20
     },
     {
       "id": 3,
