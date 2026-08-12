@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { createEvent } from "../../src/data/events";
+import { createEvent, CATEGORY_OPTIONS } from "../../src/data/events";
 import { FormField } from "~/components/FormField";
 import { Input } from "~/components/Input";
 import { Textarea } from "~/components/Textarea";
@@ -15,8 +15,6 @@ const initialForm = {
     location:"",
     category:"",
 }
-
-const CATEGORY_OPTIONS = ["public", "private", "invite-only", "internal"];
 
 export function CreateEvent(){
     const[form, setForm] = useState(initialForm);

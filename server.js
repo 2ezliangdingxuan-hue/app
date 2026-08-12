@@ -137,6 +137,7 @@ app.put("/api/events/:eventId", (req, res) => {
     if (req.body?.date) event.date = req.body.date;
     if (req.body?.location) event.location = req.body.location;
     if (req.body?.description) event.description = req.body.description;
+    if (req.body?.category) event.category = req.body.category;
     if (req.body?.img) event.img = req.body.img;
     if (req.body?.maxGuests && !Number.isNaN(Number(req.body.maxGuests))) event.maxGuests = Number(req.body.maxGuests);
 

@@ -27,6 +27,8 @@ type Event = {
 
 const events = data.events as Event[];
 
+const CATEGORY_OPTIONS = ["public", "private", "invite-only", "internal"];
+
 const getEvents = async () =>{
     const res = await fetch(`${API_BASE}/api/events`);
     console.log(res);
@@ -73,6 +75,7 @@ const updateEvent = async (
         date? :string;
         location?: string;
         description?: string;
+        category?: string;
         img?: string;
         maxGuests?: string;
     }
@@ -152,4 +155,4 @@ const getGuest = async (eventId: string, guestId: string) =>{
     return payload.guest;
 }
 
-export {events, getEvents, createEvent, getEventById, checkInGuest, addGuest, updateEvent, getGuest};
+export {events, getEvents, createEvent, getEventById, checkInGuest, addGuest, updateEvent, getGuest, CATEGORY_OPTIONS};

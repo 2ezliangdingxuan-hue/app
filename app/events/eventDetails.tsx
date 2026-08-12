@@ -1,14 +1,15 @@
 import { useParams } from "react-router";
-import { events, updateEvent } from "../../src/data/events";
+import { events, updateEvent, CATEGORY_OPTIONS } from "../../src/data/events";
 import { useState } from "react";
 import { EditableField } from "~/components/EditableField";
 import { Input } from "~/components/Input";
 import { Textarea } from "~/components/Textarea";
+import { Select } from "~/components/Select";
 import { IconButton } from "~/components/IconButton";
 import { EditIcon } from "~/components/EditIcon";
 import { SaveCancelBar } from "~/components/SaveCancelBar";
 
-type EditField = "date" | "location" | "capacity" | "description" | "image" | null;
+type EditField = "date" | "location" | "capacity" | "category" | "description" | "image" | null;
 
 export default function EventDetails() {
     let { eventId } = useParams();
@@ -20,6 +21,7 @@ export default function EventDetails() {
     const [draft, setDraft] = useState({
         date: curEvent?.date ?? "",
         capacity: curEvent?.maxGuests ?? "",
+        category: curEvent?.category ?? "",
         location: curEvent?.location ?? "",
         description: curEvent?.description ?? "",
         image: curEvent?.img ?? "",
@@ -30,6 +32,7 @@ export default function EventDetails() {
         setDraft({
             date: curEvent?.date ?? "",
             capacity: curEvent?.maxGuests ?? "",
+            category: curEvent?.category ?? "",
             location: curEvent?.location ?? "",
             description: curEvent?.description ?? "",
             image: curEvent?.img ?? "",
@@ -44,6 +47,7 @@ export default function EventDetails() {
 
         if (editing === "date") updatePayLoad.date = draft.date;
         if (editing === "capacity") updatePayLoad.maxGuests = String(draft.capacity);
+        if (editing === "category") updatePayLoad.category = draft.category;
         if (editing === "location") updatePayLoad.location = draft.location;
         if (editing === "description") updatePayLoad.description = draft.description;
         if (editing === "image") updatePayLoad.img = draft.image;
@@ -76,8 +80,8 @@ export default function EventDetails() {
 
     return (
         <div className="mx-auto w-full max-w-4xl px-4 pb-10 pt-6 sm:px-8">
-            {/* Capacity */}
-            <div className="mb-6">
+            {/* Capacity & Category */}
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-x-8 gap-y-3">
                 <EditableField
                     editing={editing === "capacity"}
                     onEdit={() => startEdit("capacity")}
@@ -100,6 +104,37 @@ export default function EventDetails() {
                         onChange={(e) => setDraft((current) => ({...current, capacity: e.target.value}))}
                         className="max-w-32"
                         />
+                        </>
+                    }
+                />
+
+                <EditableField
+                    editing={editing === "category"}
+                    onEdit={() => startEdit("category")}
+                    onSave={saveEdit}
+                    onCancel={() => setEditing(null)}
+                    saving={saving}
+                    view={
+                        <>
+                        <span className="text-lg font-medium text-neutral-600">Category:</span>
+                        <span className="rounded-pill bg-brand-50 px-3 py-1 text-sm font-medium capitalize text-brand-600">
+                            {curEvent?.category}
+                        </span>
+                        </>
+                    }
+                    edit={
+                        <>
+                        <span className="text-lg font-medium text-neutral-600">Category:</span>
+                        <Select
+                        value={draft.category}
+                        onChange={(e) => setDraft((current) => ({...current, category: e.target.value}))}
+                        className="max-w-40"
+                        >
+                            <option value="" disabled>Select a category</option>
+                            {CATEGORY_OPTIONS.map((option) => (
+                                <option key={option} value={option}>{option}</option>
+                            ))}
+                        </Select>
                         </>
                     }
                 />

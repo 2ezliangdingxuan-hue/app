@@ -4,9 +4,10 @@ type UserMenuProps = {
     name: string;
     onSignOut: () => void;
     className?: string;
+    variant?: "light" | "dark";
 };
 
-export function UserMenu({ name, onSignOut, className = "" }: UserMenuProps) {
+export function UserMenu({ name, onSignOut, className = "", variant = "light" }: UserMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -27,9 +28,17 @@ export function UserMenu({ name, onSignOut, className = "" }: UserMenuProps) {
                 onClick={() => setIsOpen((current) => !current)}
                 aria-haspopup="menu"
                 aria-expanded={isOpen}
-                className="flex items-center gap-2 rounded-pill px-3 py-1.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-brand-50 hover:text-brand-600"
+                className={`flex items-center gap-2 rounded-pill px-3 py-1.5 text-sm font-medium transition-colors ${
+                    variant === "dark"
+                        ? "text-white/90 hover:bg-white/10 hover:text-white"
+                        : "text-neutral-600 hover:bg-brand-50 hover:text-brand-600"
+                }`}
             >
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-500 text-xs font-semibold text-white">
+                <span
+                    className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold ${
+                        variant === "dark" ? "bg-white text-brand-700" : "bg-brand-500 text-white"
+                    }`}
+                >
                     {name.trim().charAt(0).toUpperCase() || "?"}
                 </span>
                 <span className="max-w-[10rem] truncate">{name}</span>

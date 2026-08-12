@@ -7,9 +7,10 @@ type NavLinkItemProps = {
   end?: boolean;
   relative?: "route" | "path";
   className?: string;
+  variant?: "light" | "dark";
 };
 
-export function NavLinkItem({ to, children, end, relative, className = "" }: NavLinkItemProps) {
+export function NavLinkItem({ to, children, end, relative, className = "", variant = "light" }: NavLinkItemProps) {
   return (
     <NavLink
       to={to}
@@ -17,7 +18,13 @@ export function NavLinkItem({ to, children, end, relative, className = "" }: Nav
       relative={relative}
       className={({ isActive }) =>
         `rounded-pill px-3 py-1.5 text-sm font-medium transition-colors ${
-          isActive ? "bg-brand-500 text-white" : "text-neutral-600 hover:bg-brand-50 hover:text-brand-600"
+          variant === "dark"
+            ? isActive
+              ? "bg-white text-brand-700"
+              : "text-white/90 hover:bg-white/10 hover:text-white"
+            : isActive
+              ? "bg-brand-500 text-white"
+              : "text-neutral-600 hover:bg-brand-50 hover:text-brand-600"
         } ${className}`
       }
     >
@@ -29,14 +36,15 @@ export function NavLinkItem({ to, children, end, relative, className = "" }: Nav
 type NavListProps = {
   items: { to: string; label: string; end?: boolean }[];
   className?: string;
+  variant?: "light" | "dark";
 };
 
-export function NavList({ items, className = "flex flex-row items-center gap-2" }: NavListProps) {
+export function NavList({ items, className = "flex flex-row items-center gap-2", variant = "light" }: NavListProps) {
   return (
     <ul className={className}>
       {items.map((item) => (
         <li key={item.to}>
-          <NavLinkItem to={item.to} end={item.end}>
+          <NavLinkItem to={item.to} end={item.end} variant={variant}>
             {item.label}
           </NavLinkItem>
         </li>
