@@ -20,7 +20,7 @@ export function Header() {
     <header className="sticky top-0 z-40 border-b border-brand-700 bg-brand-600 backdrop-blur">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-8">
         <Link to="/" className="text-2xl font-extrabold tracking-tight text-white">
-          App1
+          Event App 1
         </Link>
 
         <nav className="hidden items-center gap-2 md:flex">

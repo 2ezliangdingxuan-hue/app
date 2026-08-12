@@ -44,7 +44,7 @@ export function Welcome() {
             {events.map((event) => (
               <li key={event.id}>
                 <Card
-                  href={`/events/${event.id}`}
+                  href={`/view/${event.id}`}
                   image={event.img}
                   title={event.title}
                   date={event.date}
