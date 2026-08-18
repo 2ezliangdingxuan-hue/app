@@ -5,12 +5,14 @@ const API_BASE = typeof window !== "undefined"
 
 
 type Guest = {
-    name: string; 
-    arrived?: boolean; 
-    status?:string; 
+    name: string;
+    arrived?: boolean;
+    status?:string;
     arrivalTime?:string|null;
     email?:string;
     number?: string;
+    rsvp?: "Pending" | "Going" | "Declined";
+    rsvpAt?: string | null;
 };
 
 type Event = {
@@ -90,7 +92,7 @@ const updateEvent = async (
     return res.json();
 }
 
-const addGuest = async (eventId: string, guest: Partial<Guest> & {name:string}) => {
+const addGuest = async (eventId: string, guest: Partial<Guest> & {name:string; selfSignup?: boolean}) => {
     const res = await fetch(`${API_BASE}/api/events/${eventId}/newguest`,{
         method: "POST",
         headers:{
@@ -155,4 +157,36 @@ const getGuest = async (eventId: string, guestId: string) =>{
     return payload.guest;
 }
 
-export {events, getEvents, createEvent, getEventById, checkInGuest, addGuest, updateEvent, getGuest, CATEGORY_OPTIONS};
+const getGuestRsvp = async (eventId: string, guestId: string) => {
+    const res = await fetch(`${API_BASE}/api/events/${eventId}/guest/${guestId}/rsvp`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+    const payload = await res.json();
+    return { ok: res.ok, ...payload };
+};
+
+const submitRsvp = async (eventId: string, guestId: string, response: "Going" | "Declined") => {
+    const res = await fetch(`${API_BASE}/api/events/${eventId}/guest/${guestId}/rsvp`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ response }),
+    });
+    const payload = await res.json();
+
+    if (res.ok && payload.guest) {
+        const event = events.find((item) => String(item.id) === eventId);
+        if (event?.guests && guestId in event.guests) {
+            event.guests[guestId].rsvp = payload.guest.rsvp;
+            event.guests[guestId].rsvpAt = payload.guest.rsvpAt;
+        }
+    }
+
+    return { ok: res.ok, ...payload };
+};
+
+export {events, getEvents, createEvent, getEventById, checkInGuest, addGuest, updateEvent, getGuest, getGuestRsvp, submitRsvp, CATEGORY_OPTIONS};

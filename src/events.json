@@ -38,9 +38,9 @@
           "name": "test3",
           "email": "liangdingxuan@gmail.com",
           "number": "87654321",
-          "arrived": false,
-          "status": "Not-Arrived",
-          "arrivalTime": null
+          "arrived": true,
+          "status": "Arrived",
+          "arrivalTime": "9:33:48 AM"
         },
         "9": {
           "name": "test4",
@@ -209,6 +209,60 @@
           "arrived": true,
           "status": "Arrived",
           "arrivalTime": "11:44:11 AM"
+        },
+        "30": {
+          "name": "RSVP Test Guest",
+          "email": "rsvptest@example.com",
+          "number": "",
+          "arrived": false,
+          "status": "Not-Arrived",
+          "arrivalTime": null
+        },
+        "31": {
+          "name": "Self Signup Guest",
+          "email": "selfsignup@example.com",
+          "number": "",
+          "arrived": false,
+          "status": "Not-Arrived",
+          "arrivalTime": null
+        },
+        "32": {
+          "name": "RSVP Test Guest",
+          "email": "rsvptest@example.com",
+          "number": "",
+          "arrived": false,
+          "status": "Not-Arrived",
+          "arrivalTime": null
+        },
+        "33": {
+          "name": "RSVP Test Guest",
+          "email": "rsvptest@example.com",
+          "number": "",
+          "arrived": false,
+          "status": "Not-Arrived",
+          "arrivalTime": null,
+          "rsvp": "Going",
+          "rsvpAt": "2026-08-12T05:58:58.722Z"
+        },
+        "34": {
+          "name": "Self Signup Guest",
+          "email": "selfsignup@example.com",
+          "number": "",
+          "arrived": false,
+          "status": "Not-Arrived",
+          "arrivalTime": null,
+          "rsvp": "Going",
+          "rsvpAt": "2026-08-12T05:58:58.392Z"
+        },
+        "35": {
+          "name": "rsvp test",
+          "email": "liangdingxuan@gmail.com",
+          "number": "",
+          "arrived": false,
+          "status": "Not-Arrived",
+          "arrivalTime": null,
+          "rsvp": "Going",
+          "rsvpAt": "2026-08-17T01:29:45.666Z"
         }
       },
       "maxGuests": 90

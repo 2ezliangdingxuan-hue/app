@@ -178,6 +178,7 @@ app.post("/api/events/:eventId/newguest", (req, res) => {
     }
 
     const newGuestId = findNextGuest(event);
+    const selfSignup = req.body?.selfSignup === true;
     const guest = {
         name: guestName,
         email: req.body?.email?.trim() || "",
@@ -185,6 +186,8 @@ app.post("/api/events/:eventId/newguest", (req, res) => {
         arrived: false,
         status: "Not-Arrived",
         arrivalTime: null,
+        rsvp: selfSignup ? "Going" : "Pending",
+        rsvpAt: selfSignup ? new Date().toISOString() : null,
     };
     event.guests[newGuestId] = guest;
     try{
@@ -236,6 +239,56 @@ app.post("/api/events/:eventId/check-in/:guestId", (req,res) => {
     writeFileSync(dataPath, JSON.stringify(data, null, 2), "utf8");
 
     res.json({ok: true, event});
+});
+
+app.get("/api/events/:eventId/guest/:guestId/rsvp", (req, res) => {
+    const data = readData();
+    const eventId = req.params.eventId;
+    const guestId = req.params.guestId;
+    const event = data.events.find((event) => String(event.id) === String(eventId));
+
+    if (!event) {
+        return res.status(404).json({ error: "Event not found" });
+    }
+
+    if (!event?.guests || !(guestId in event.guests)) {
+        return res.status(404).json({ error: "Guest not found" });
+    }
+
+    const guest = event.guests[guestId];
+
+    res.json({
+        ok: true,
+        guest: { name: guest.name, rsvp: guest.rsvp ?? "Pending", rsvpAt: guest.rsvpAt ?? null },
+        event: { title: event.title, date: event.date, location: event.location },
+    });
+});
+
+app.post("/api/events/:eventId/guest/:guestId/rsvp", (req, res) => {
+    const data = readData();
+    const eventId = req.params.eventId;
+    const guestId = req.params.guestId;
+    const event = data.events.find((event) => String(event.id) === String(eventId));
+
+    if (!event) {
+        return res.status(404).json({ error: "Event not found" });
+    }
+
+    if (!event?.guests || !(guestId in event.guests)) {
+        return res.status(404).json({ error: "Guest not found" });
+    }
+
+    const response = req.body?.response;
+    if (response !== "Going" && response !== "Declined") {
+        return res.status(400).json({ error: "RSVP response must be 'Going' or 'Declined'" });
+    }
+
+    event.guests[guestId].rsvp = response;
+    event.guests[guestId].rsvpAt = new Date().toISOString();
+
+    writeData(data);
+
+    res.json({ ok: true, guest: event.guests[guestId] });
 });
 
 app.get("/api/events/:eventId/guest/:guestId", (req,res) =>{

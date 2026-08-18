@@ -155,13 +155,14 @@ export default function GuestList() {
     }
 
     function handleExportCsv(){
-        const header = ["#", "Name", "Email", "Time", "Status"];
+        const header = ["#", "Name", "Email", "Time", "Status", "RSVP"];
         const rows = visibleGuests.map(([, guest], index) => [
             String(index + 1),
             guest.name ?? "",
             guest.email ?? "",
             guest.arrivalTime ?? "",
             guest.status ?? "",
+            guest.rsvp ?? "Pending",
         ]);
         const csv = [header, ...rows].map((row) => row.map(escapeCsvValue).join(",")).join("\n");
 
@@ -267,7 +268,7 @@ export default function GuestList() {
             </div>
             <div className="overflow-hidden border border-neutral-200 shadow-card">
                 <ul>
-                    <li className="grid grid-cols-[40px_minmax(140px,1fr)_minmax(140px,1fr)_90px_100px_110px] items-center gap-2 bg-brand-500 py-3 text-white">
+                    <li className="grid grid-cols-[40px_minmax(120px,1fr)_minmax(120px,1fr)_90px_90px_90px_110px] items-center gap-2 bg-brand-500 py-3 text-white">
                         <span className="pl-4">#</span>
                         <span>Guest</span>
                         <span>Email</span>
@@ -305,16 +306,28 @@ export default function GuestList() {
                                 </svg>
                             </button>
                         </span>
+                        <span>RSVP</span>
                         <span className="pr-4 text-right">Action</span>
                     </li>
 
                     {visibleGuests.map(([id,guest], index) => (
-                        <li key={id} className="grid grid-cols-[40px_minmax(140px,1fr)_minmax(140px,1fr)_90px_100px_110px] items-center gap-2 border-b border-neutral-200 bg-neutral-0 py-2 last:border-b-0">
+                        <li key={id} className="grid grid-cols-[40px_minmax(120px,1fr)_minmax(120px,1fr)_90px_90px_90px_110px] items-center gap-2 border-b border-neutral-200 bg-neutral-0 py-2 last:border-b-0">
                             <span className="pl-4 text-sm text-neutral-400">{index + 1}</span>
                             <span className="truncate">{guest.name}</span>
                             <span className="truncate text-sm text-neutral-500">{guest.email || "—"}</span>
                             <span className="text-sm text-neutral-500">{guest.arrivalTime}</span>
                             <span className="text-sm font-medium text-neutral-600">{guest.status}</span>
+                            <span
+                                className={`text-sm font-medium ${
+                                    guest.rsvp === "Going"
+                                        ? "text-brand-600"
+                                        : guest.rsvp === "Declined"
+                                        ? "text-danger-500"
+                                        : "text-neutral-500"
+                                }`}
+                            >
+                                {guest.rsvp ?? "Pending"}
+                            </span>
                             <span className="pr-4 text-right">
                                 <Button
                                     onClick={() => checkIn(String(eventId),id)}
