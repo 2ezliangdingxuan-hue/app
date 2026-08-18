@@ -45,11 +45,12 @@ const createEvent = async(event:{
     location: string;
     category: string;
     img?: string;
-}) => {
+}, token?: string | null) => {
     const res = await fetch(`${API_BASE}/api/events`,{
         method: "POST",
         headers:{
             "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(event),
     });

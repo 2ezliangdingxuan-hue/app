@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { createEvent, CATEGORY_OPTIONS } from "../../src/data/events";
+import { useAuth } from "~/auth/AuthContext";
 import { FormField } from "~/components/FormField";
 import { Input } from "~/components/Input";
 import { Textarea } from "~/components/Textarea";
@@ -22,6 +23,7 @@ export function CreateEvent(){
     const[error, setError] = useState<string | null >(null);
     const[isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
+    const { token } = useAuth();
 
     const handleChange = (
         event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -49,7 +51,8 @@ export function CreateEvent(){
 
         try{
             const payload = await createEvent(
-                imageDataUrl ? { ...form, img: imageDataUrl } : form
+                imageDataUrl ? { ...form, img: imageDataUrl } : form,
+                token
             );
 
             if(!payload.ok || !payload.event?.id){

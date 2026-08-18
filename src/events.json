@@ -282,6 +282,26 @@
           "arrived": true,
           "status": "Arrived",
           "arrivalTime": null
+        },
+        "2": {
+          "name": "test smth",
+          "email": "liangdingxuan@gmail.com",
+          "number": "",
+          "arrived": true,
+          "status": "Arrived",
+          "arrivalTime": "4:02:57 PM",
+          "rsvp": "Pending",
+          "rsvpAt": null
+        },
+        "3": {
+          "name": "test2",
+          "email": "liangdingxuan@gmail.com",
+          "number": "",
+          "arrived": true,
+          "status": "Arrived",
+          "arrivalTime": "4:03:50 PM",
+          "rsvp": "Pending",
+          "rsvpAt": null
         }
       },
       "maxGuests": 20
@@ -373,6 +393,28 @@
       "location": "test cap",
       "img": "https://th.bing.com/th/id/OIP.VdDc3iT3PCrJnnsiThNzGgHaF_?w=245&h=199&c=7&r=0&o=7&pid=1.7&rm=3",
       "guests": {}
+    },
+    {
+      "id": 11,
+      "title": "testAccount",
+      "maxGuests": 69,
+      "description": "testAccount",
+      "date": "2026-08-20",
+      "category": "public",
+      "location": "testAccount",
+      "img": "https://th.bing.com/th/id/OIP.VdDc3iT3PCrJnnsiThNzGgHaF_?w=245&h=199&c=7&r=0&o=7&pid=1.7&rm=3",
+      "guests": {}
+    },
+    {
+      "id": 12,
+      "title": "TestAccount2",
+      "maxGuests": 69,
+      "description": "TestAccount2",
+      "date": "2026-08-20",
+      "category": "public",
+      "location": "TestAccount2",
+      "img": "https://th.bing.com/th/id/OIP.VdDc3iT3PCrJnnsiThNzGgHaF_?w=245&h=199&c=7&r=0&o=7&pid=1.7&rm=3",
+      "guests": {}
     }
   ],
   "accounts": [
@@ -394,7 +436,16 @@
       "name": "test1",
       "number": "87654321",
       "password": "615f145dae08ac7cc4288e83eeb137bb:a3025abb68943bbd2a6b6d8afa0366134de1e1891271ab45621928c33a90b06793d2b96497088b139f814a6759f67865d08659ba3a9aa7e7bc13d1b2f5573a12",
-      "_commentPassword":"Password1"
+      "_commentPassword": "Password1",
+      "eventIds": [
+        1,
+        2,
+        3,
+        4,
+        7,
+        8,
+        12
+      ]
     }
   ]
 }

@@ -7,6 +7,7 @@ type Account = {
     name: string;
     email: string;
     number: string;
+    eventIds: number[];
 };
 
 type CreateAccountResult =

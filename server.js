@@ -91,7 +91,19 @@ app.get("/api/events", (req, res) => {
 });
 
 app.post("/api/events", (req, res) =>{
+    const authHeader = req.headers.authorization || "";
+    const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    const tokenPayload = verifyToken(token);
+    if (!tokenPayload){
+        return res.status(401).json({error: "Invalid or expired session"});
+    }
+
     const data = readData();
+    const account = data.accounts.find((account) => String(account.id) === tokenPayload.sub);
+    if (!account){
+        return res.status(401).json({error: "Account not found"});
+    }
+
     const title = req.body?.title?.trim();
     const maxGuests = Number(req.body?.maxGuests);
     const description = req.body?.description?.trim();
@@ -120,6 +132,8 @@ app.post("/api/events", (req, res) =>{
     }
 
     data.events.push(newEvent);
+    account.eventIds = account.eventIds || [];
+    account.eventIds.push(newEvent.id);
     writeData(data);
 
     res.status(201).json({ok: true, event: newEvent});
@@ -329,6 +343,7 @@ app.post("/api/accounts", (req,res) =>{
         name,
         number,
         password: hashPassword(password),
+        eventIds: [],
     }
 
     data.accounts.push(newAccount);

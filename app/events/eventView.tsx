@@ -55,11 +55,11 @@ export default function EventView() {
                 <div className=" flex flex-col gap-2">
                     <p className="text-xl text-neutral-700">
                         Date: 
-                        <span className="font-semibold text-neutral-800">{curEvent.date}</span>
+                        <span className="font-semibold text-neutral-800"> {curEvent.date}</span>
                     </p>
                     <p className="text-xl text-neutral-700">
                         Location: 
-                        <span className="font-semibold text-neutral-800">{curEvent.location}</span>
+                        <span className="font-semibold text-neutral-800 capitalize"> {curEvent.location}</span>
                     </p>
                 </div>
                 <Button type="button" variant="primary" onClick={() => setIsSignUpOpen(true)} className="">

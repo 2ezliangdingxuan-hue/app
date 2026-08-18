@@ -7,6 +7,7 @@ type SignInOutcome = { ok: true } | { ok: false; error: string };
 
 type AuthContextValue = {
     account: Account | null;
+    token: string | null;
     isLoading: boolean;
     signIn: (email: string, password: string) => Promise<SignInOutcome>;
     signOut: () => void;
@@ -16,18 +17,20 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [account, setAccount] = useState<Account | null>(null);
+    const [token, setToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const token = localStorage.getItem(TOKEN_KEY);
-        if (!token) {
+        const storedToken = localStorage.getItem(TOKEN_KEY);
+        if (!storedToken) {
             setIsLoading(false);
             return;
         }
 
-        getMe(token).then((result) => {
+        getMe(storedToken).then((result) => {
             if (result.ok) {
                 setAccount(result.account);
+                setToken(storedToken);
             } else {
                 localStorage.removeItem(TOKEN_KEY);
             }
@@ -42,16 +45,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         localStorage.setItem(TOKEN_KEY, result.token);
         setAccount(result.account);
+        setToken(result.token);
         return { ok: true };
     };
 
     const signOut = () => {
         localStorage.removeItem(TOKEN_KEY);
         setAccount(null);
+        setToken(null);
     };
 
     return (
-        <AuthContext.Provider value={{ account, isLoading, signIn, signOut }}>
+        <AuthContext.Provider value={{ account, token, isLoading, signIn, signOut }}>
             {children}
         </AuthContext.Provider>
     );
