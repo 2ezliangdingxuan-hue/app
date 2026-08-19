@@ -19,6 +19,7 @@ export default function page(){
     const [queue, setQueue] = useState(()=>items)
     const [curPiece, setCurPiece] = useState(()=>items[0])
     const [piecePos, setPiecePos] = useState(()=>({x: 3, y: 0}))
+    const [boardState, setBoardState] = useState(() => board.Default.map(row => [...row]));
     
     
     const getBoard = () => {
@@ -77,17 +78,81 @@ export default function page(){
     }, [curPiece]);
 
     //srs
-    const rotate = (piece: typeof curPiece)=>{
+    const rotateClockwise = (piece: typeof curPiece)=>{
         const n = piece.shape.length;
         const rotated = Array(piece.shape[0].length)
         .fill(null)
         .map((_,i) =>
             piece.shape.map(row=> row[i]).reverse()
         )
+        return {...piece, shape: rotated}
+    }
+
+    const handleRotateClockwise = () =>{
+        const rotated = rotateClockwise(curPiece)
+
+        if (canPlace(rotated, piecePos.x, piecePos.y, board.Default)){
+            setCurPiece(rotated);
+            return;
+        }
+
+        const kicks = [
+            {x:1, y:0},
+            {x: -1, y:0},
+            {x:2, y:0},
+            {x: -2, y:0},
+        ]
+
+        for(const kick of kicks){
+            if(canPlace(rotated, piecePos.x + kick.x, piecePos.y+kick.y, board.Default)){
+                setCurPiece(rotated);
+                setPiecePos(p => ({x: p.x + kick.x, y: p.y+kick.y}));
+                return;
+            }
+        }
     }
     
-    const handleLockPiece = () => {
+    const handleMove = (direction: number) =>{
+        const newX = piecePos.x + direction;
+        if (canPlace(curPiece, newX, piecePos.y, board.Default)){
+            setPiecePos(p=>({...p, x: newX}));
+        }
+    };
 
+    const typing = '';
+    useEffect(()=>{
+        const handleKey = (e: KeyboardEvent) =>{
+            if (e.key === 'ArrowLeft') handleMove(-1)
+            if (e.key === 'ArrowRight') handleMove(1)
+            if (e.key === 'ArrowUp') handleRotateClockwise()
+            //if (e.key === ' ') hardDrop();
+        }
+        window.addEventListener('keydown', handleKey);
+        return () => window.removeEventListener('keydown', handleKey);
+    }, [piecePos, curPiece])
+
+    const handleLockPiece = () => {
+        const lockedBoard = gameBoard.map(row => [...row]);
+        let clearedLines = 0;
+        const newBoard = lockedBoard.filter(row =>{
+            if (row.every(cell => cell !== 0)){
+                clearedLines++;
+                return false;
+            }
+            return true;
+        })
+
+        while (newBoard.length < 20){
+            newBoard.unshift(Array(10).fill(0))
+        }
+
+        setBoardState(newBoard);
+
+        if(queue.length > 1){
+            handlePopQueue();
+        }
+
+        setPiecePos({x:3, y:0});
     }
 
     const handleShuffle = () =>{
