@@ -23,7 +23,7 @@ export default function page(){
     
     
     const getBoard = () => {
-        const gameBoard = board.Default.map(row => [...row])
+        const gameBoard = boardState.map(row => [...row])
         if(curPiece && piecePos){
             curPiece.shape.forEach((row,dy) => {
                 row.forEach((cell, dx) =>{
@@ -66,7 +66,7 @@ export default function page(){
             setPiecePos(prev => {
                 const newY = prev.y + 1;
 
-                if (canPlace(curPiece, prev.x, newY, board.Default)){
+                if (canPlace(curPiece, prev.x, newY, boardState)){
                     return {...prev, y: newY};
                 } else{
                     handleLockPiece();
