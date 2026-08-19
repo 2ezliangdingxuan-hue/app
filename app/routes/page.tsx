@@ -4,19 +4,21 @@ import { board } from "~/page/board"
 import { useState, useEffect } from "react"
 
 const initialPieces = [
-        { name: "I", shape: pieces.I },
-        { name: "O", shape: pieces.O },
-        { name: "T", shape: pieces.T },
-        { name: "S", shape: pieces.S },
-        { name: "Z", shape: pieces.Z },
-        { name: "L", shape: pieces.L },
-        { name: "J", shape: pieces.J },
-    ];
+    { name: "I", shape: pieces.I },
+    { name: "O", shape: pieces.O },
+    { name: "T", shape: pieces.T },
+    { name: "S", shape: pieces.S },
+    { name: "Z", shape: pieces.Z },
+    { name: "L", shape: pieces.L },
+    { name: "J", shape: pieces.J },
+];
 
 export default function page(){
         
     const [items, setItems] = useState(()=>initialPieces)
     const [queue, setQueue] = useState(()=>items)
+    const [curPiece, setCurPiece] = useState(()=>items[0])
+    const [piecePos, setPiecePos] = useState(()=>({}))
     
     const handleShuffle = () =>{
         let shuffled = [...initialPieces];
@@ -29,14 +31,6 @@ export default function page(){
         return shuffled;
     }
 
-    useEffect(()=>{
-        const shuffled = handleShuffle();
-        setQueue(shuffled)
-        handleAddQueue();
-    },[]);
-
-    
-
     const handleAddQueue = () => {
         if(queue.length === 7){
             const newItems = handleShuffle();
@@ -45,14 +39,22 @@ export default function page(){
     }
 
     const handlePopQueue = () =>{
+        
         setQueue(currentQueue => {
+            setCurPiece(currentQueue[0]);
             return currentQueue.slice(1);
         })
         handleAddQueue();
     }
 
-    const orderedPieces = pieces && Object.entries(pieces).map(([name,shape],pieceIndex)=>
-        <div key={pieceIndex} className="space-x-3">
+    useEffect(()=>{
+        const shuffled = handleShuffle();
+        setQueue(shuffled)
+        handleAddQueue();
+    },[]);
+
+    const shuffledPieces = queue.slice(0, 6).map(({name,shape},pieceIndex)=>
+        <div key={`${name}-${pieceIndex}`}className="space-x-3">
             {shape.map((shape,shapeIndex)=>
             <div key={shapeIndex} className="flex">
                 {shape.map((cell,cellIndex)=>(
@@ -72,15 +74,15 @@ export default function page(){
             )}
         </div>
     )
-    const shuffledPieces = queue.slice(0, 6).map(({name,shape},pieceIndex)=>
-        <div key={`${name}-${pieceIndex}`}className="space-x-3">
-            {shape.map((shape,shapeIndex)=>
+    const curPieceUI = curPiece && (
+        <div key={curPiece.name} className="space-x-3">
+            {curPiece.shape.map((shape,shapeIndex)=>
             <div key={shapeIndex} className="flex">
                 {shape.map((cell,cellIndex)=>(
                     <div key={cellIndex} style={{
                         backgroundColor: 
                         cell === 1 ?
-                        colours[name as keyof typeof colours] : 'transparent',
+                        colours[curPiece.name as keyof typeof colours] : 'transparent',
                         border: 
                         cell === 1 ?
                         '1px solid' : ''
@@ -105,9 +107,9 @@ export default function page(){
                 <button onClick={handlePopQueue} className="mb-3 border">
                     Shuffle List
                 </button>
-                {/* <div className="gap-3 flex flex-row mb-3">
-                    {shuffledPieces}
-                </div> */}
+                 <div className="gap-3 flex flex-row mb-3">
+                    {curPieceUI}
+                </div>
                 <div>
                     {board.Default.map((row, rowIndex) =>(
                     <div key={rowIndex} className="flex">
@@ -127,7 +129,7 @@ export default function page(){
             </div>
             <div className="mt-3">
                 <button className="border">
-                    New match
+                    New
                 </button>
             </div>
         </div>
