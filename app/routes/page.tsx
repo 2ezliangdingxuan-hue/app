@@ -18,8 +18,78 @@ export default function page(){
     const [items, setItems] = useState(()=>initialPieces)
     const [queue, setQueue] = useState(()=>items)
     const [curPiece, setCurPiece] = useState(()=>items[0])
-    const [piecePos, setPiecePos] = useState(()=>({}))
+    const [piecePos, setPiecePos] = useState(()=>({x: 3, y: 0}))
     
+    
+    const getBoard = () => {
+        const gameBoard = board.Default.map(row => [...row])
+        if(curPiece && piecePos){
+            curPiece.shape.forEach((row,dy) => {
+                row.forEach((cell, dx) =>{
+                    if (cell === 1){
+                        const boardY = piecePos.y + dy;
+                        const boardX = piecePos.x + dx;
+                        if(boardY >=0 && boardX >= 0 && boardX < gameBoard[0].length){
+                            gameBoard[boardY][boardX] = 1;
+                        }
+                    }
+                })
+            })
+        }
+        return gameBoard;
+    }
+
+    const gameBoard = getBoard();
+
+    //collision
+    const canPlace=(
+        piece: typeof curPiece, 
+        x: number, 
+        y: number, 
+        boardState: typeof gameBoard) =>{
+        for (let dy = 0; dy < piece.shape.length; dy++){
+            for(let dx = 0; dx < piece.shape[dy].length; dx++){
+                const bx = x + dx;
+                const by = y + dy;
+
+                if (bx < 0 || bx >= 10 || by >=20) return false;
+                if (by >= 0 && boardState[by][bx] !== 0) return false;
+            }
+        }
+        return true;
+    }
+
+    //gravity
+    useEffect(()=>{
+        const gameLoop = setInterval (()=>{
+            setPiecePos(prev => {
+                const newY = prev.y + 1;
+
+                if (canPlace(curPiece, prev.x, newY, board.Default)){
+                    return {...prev, y: newY};
+                } else{
+                    handleLockPiece();
+                    return prev;
+                }
+            });
+        }, 500);
+        return () => clearInterval(gameLoop);
+    }, [curPiece]);
+
+    //srs
+    const rotate = (piece: typeof curPiece)=>{
+        const n = piece.shape.length;
+        const rotated = Array(piece.shape[0].length)
+        .fill(null)
+        .map((_,i) =>
+            piece.shape.map(row=> row[i]).reverse()
+        )
+    }
+    
+    const handleLockPiece = () => {
+
+    }
+
     const handleShuffle = () =>{
         let shuffled = [...initialPieces];
 
@@ -52,6 +122,8 @@ export default function page(){
         setQueue(shuffled)
         handleAddQueue();
     },[]);
+
+    
 
     const shuffledPieces = queue.slice(0, 6).map(({name,shape},pieceIndex)=>
         <div key={`${name}-${pieceIndex}`}className="space-x-3">
@@ -111,11 +183,11 @@ export default function page(){
                     {curPieceUI}
                 </div>
                 <div>
-                    {board.Default.map((row, rowIndex) =>(
+                    {gameBoard.map((row, rowIndex) =>(
                     <div key={rowIndex} className="flex">
                         {row.map((cell, cellIndex)=>
                             <div key={cellIndex} className="border h-4 w-4">
-                                {/* {cell} */}
+                                {cell}
                             </div>
                         )}
                     </div>
