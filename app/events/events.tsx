@@ -19,6 +19,7 @@ export default function Events() {
     location?: string;
     img: string;
     guests?: Record<string, Guest>
+    collaboratorIds?: number[];
     }
 
     const { account } = useAuth();
@@ -28,7 +29,13 @@ export default function Events() {
             const res = await getEvents();
             const data= await res.json();
             const ownedIds = account?.eventIds || [];
-            setEvents(data.filter((event: Event) => ownedIds.includes(event.id)));
+            setEvents(
+                data.filter(
+                    (event: Event) =>
+                        ownedIds.includes(event.id) ||
+                        (account && (event.collaboratorIds || []).includes(account.id))
+                )
+            );
         }
         loadEvents();
     }, [account])

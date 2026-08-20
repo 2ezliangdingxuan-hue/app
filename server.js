@@ -62,6 +62,24 @@ function verifyToken(token){
 }
 
 
+function getAuthenticatedAccount(req, data){
+    const authHeader = req.headers.authorization || "";
+    const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    const payload = verifyToken(token);
+    if (!payload) return null;
+    return data.accounts.find((account) => String(account.id) === payload.sub) || null;
+}
+
+function findEventOwner(data, event){
+    return data.accounts.find((account) => (account.eventIds || []).includes(event.id)) || null;
+}
+
+function canManageEvent(data, event, account){
+    if (!account) return false;
+    if ((account.eventIds || []).includes(event.id)) return true;
+    return (event.collaboratorIds || []).includes(account.id);
+}
+
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "100mb" }));
@@ -91,17 +109,10 @@ app.get("/api/events", (req, res) => {
 });
 
 app.post("/api/events", (req, res) =>{
-    const authHeader = req.headers.authorization || "";
-    const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
-    const tokenPayload = verifyToken(token);
-    if (!tokenPayload){
-        return res.status(401).json({error: "Invalid or expired session"});
-    }
-
     const data = readData();
-    const account = data.accounts.find((account) => String(account.id) === tokenPayload.sub);
+    const account = getAuthenticatedAccount(req, data);
     if (!account){
-        return res.status(401).json({error: "Account not found"});
+        return res.status(401).json({error: "Invalid or expired session"});
     }
 
     const title = req.body?.title?.trim();
@@ -129,6 +140,7 @@ app.post("/api/events", (req, res) =>{
         req.body?.img || 
         "https://th.bing.com/th/id/OIP.VdDc3iT3PCrJnnsiThNzGgHaF_?w=245&h=199&c=7&r=0&o=7&pid=1.7&rm=3",
         guests:{},
+        collaboratorIds:[],
     }
 
     data.events.push(newEvent);
@@ -165,6 +177,88 @@ app.get("/api/events/:id", (req, res) => {
         return res.status(404).json({ error: "Event not found" });
     }
     res.json(event);
+});
+
+const toPublicAccount = ({ password: _password, ...rest }) => rest;
+
+app.get("/api/events/:eventId/collaborators", (req, res) => {
+    const data = readData();
+    const event = data.events.find((event) => String(event.id) === req.params.eventId);
+    if (!event){
+        return res.status(404).json({error: "Event not found"});
+    }
+
+    const owner = findEventOwner(data, event);
+    const collaborators = (event.collaboratorIds || [])
+        .map((id) => data.accounts.find((account) => account.id === id))
+        .filter(Boolean)
+        .map(toPublicAccount);
+
+    res.json({
+        ok: true,
+        owner: owner ? toPublicAccount(owner) : null,
+        collaborators,
+    });
+});
+
+app.post("/api/events/:eventId/collaborators", (req, res) => {
+    const data = readData();
+    const event = data.events.find((event) => String(event.id) === req.params.eventId);
+    if (!event){
+        return res.status(404).json({error: "Event not found"});
+    }
+
+    const requester = getAuthenticatedAccount(req, data);
+    if (!canManageEvent(data, event, requester)){
+        return res.status(403).json({error: "Only the owner or a collaborator can invite collaborators"});
+    }
+
+    const email = req.body?.email?.trim();
+    if (!email){
+        return res.status(400).json({error: "Email is required"});
+    }
+
+    const invitee = data.accounts.find(
+        (account) => account.email?.toLowerCase() === email.toLowerCase()
+    );
+    if (!invitee){
+        return res.status(404).json({error: "No account found with that email"});
+    }
+
+    const owner = findEventOwner(data, event);
+    if (owner && owner.id === invitee.id){
+        return res.status(400).json({error: "This account already owns the event"});
+    }
+
+    event.collaboratorIds = event.collaboratorIds || [];
+    if (event.collaboratorIds.includes(invitee.id)){
+        return res.status(400).json({error: "This account is already a collaborator"});
+    }
+
+    event.collaboratorIds.push(invitee.id);
+    writeData(data);
+
+    res.status(201).json({ok: true, collaborator: toPublicAccount(invitee)});
+});
+
+app.delete("/api/events/:eventId/collaborators/:accountId", (req, res) => {
+    const data = readData();
+    const event = data.events.find((event) => String(event.id) === req.params.eventId);
+    if (!event){
+        return res.status(404).json({error: "Event not found"});
+    }
+
+    const requester = getAuthenticatedAccount(req, data);
+    const targetId = Number(req.params.accountId);
+    const isSelfRemoval = requester && requester.id === targetId;
+    if (!canManageEvent(data, event, requester) && !isSelfRemoval){
+        return res.status(403).json({error: "Only the owner or a collaborator can remove collaborators"});
+    }
+
+    event.collaboratorIds = (event.collaboratorIds || []).filter((id) => id !== targetId);
+    writeData(data);
+
+    res.json({ok: true});
 });
 
 app.get("/api/events/:eventId/guests", (req, res) =>{

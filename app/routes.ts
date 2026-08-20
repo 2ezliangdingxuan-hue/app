@@ -19,6 +19,7 @@ export default [
         route("gifts", "events/gifts.tsx"),
         route("ratings", "events/ratings.tsx"),
         route("edit", "events/edit.tsx"),
-        route("rsvp", "events/rsvp.tsx")
+        route("rsvp", "events/rsvp.tsx"),
+        route("collaborators", "events/collaborators.tsx")
     ]),
 ] satisfies RouteConfig;

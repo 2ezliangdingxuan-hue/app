@@ -16,15 +16,22 @@ type Guest = {
 };
 
 type Event = {
-    id: number; 
-    title?: string; 
-    description?: string; 
-    date?: string; 
+    id: number;
+    title?: string;
+    description?: string;
+    date?: string;
     location?: string;
     category: string;
     img: string;
     maxGuests?: number;
     guests?: Record<string, Guest>
+    collaboratorIds?: number[];
+};
+
+type CollaboratorAccount = {
+    id: number;
+    name: string;
+    email: string;
 };
 
 const events = data.events as Event[];
@@ -190,4 +197,40 @@ const submitRsvp = async (eventId: string, guestId: string, response: "Going" | 
     return { ok: res.ok, ...payload };
 };
 
-export {events, getEvents, createEvent, getEventById, checkInGuest, addGuest, updateEvent, getGuest, getGuestRsvp, submitRsvp, CATEGORY_OPTIONS};
+const getCollaborators = async (eventId: string) => {
+    const res = await fetch(`${API_BASE}/api/events/${eventId}/collaborators`);
+    const payload = await res.json();
+    return {
+        ok: res.ok,
+        owner: payload.owner as CollaboratorAccount | null,
+        collaborators: (payload.collaborators || []) as CollaboratorAccount[],
+        error: payload.error as string | undefined,
+    };
+};
+
+const inviteCollaborator = async (eventId: string, email: string, token: string | null) => {
+    const res = await fetch(`${API_BASE}/api/events/${eventId}/collaborators`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ email }),
+    });
+    const payload = await res.json();
+    return { ok: res.ok, collaborator: payload.collaborator as CollaboratorAccount | undefined, error: payload.error as string | undefined };
+};
+
+const removeCollaborator = async (eventId: string, accountId: number, token: string | null) => {
+    const res = await fetch(`${API_BASE}/api/events/${eventId}/collaborators/${accountId}`, {
+        method: "DELETE",
+        headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+    });
+    const payload = await res.json();
+    return { ok: res.ok, error: payload.error as string | undefined };
+};
+
+export {events, getEvents, createEvent, getEventById, checkInGuest, addGuest, updateEvent, getGuest, getGuestRsvp, submitRsvp, getCollaborators, inviteCollaborator, removeCollaborator, CATEGORY_OPTIONS};
+export type { CollaboratorAccount };

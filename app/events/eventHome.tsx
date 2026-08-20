@@ -17,6 +17,7 @@ const TABS: TabItem[] = [
     { to: "invite", label: "Invite" },
     // { to: "rsvp", label: "RSVP" },
     { to: "guestList", label: "Guestlist" },
+    { to: "collaborators", label: "Collaborators" },
 ];
 
 export function EventHome() {

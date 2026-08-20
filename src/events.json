@@ -265,7 +265,10 @@
           "rsvpAt": "2026-08-17T01:29:45.666Z"
         }
       },
-      "maxGuests": 90
+      "maxGuests": 90,
+      "collaboratorIds": [
+        4
+      ]
     },
     {
       "id": 2,
@@ -696,6 +699,14 @@
         8,
         12
       ]
+    },
+    {
+      "id": 4,
+      "email": "2ezliangdingxuan@gmail.com",
+      "name": "testcollab",
+      "number": "93521200",
+      "password": "929046bc547f6aa983890e0506ac78a7:4ed2497ffad2e4a56f15f6b81a5ec22931b2160ac007335aa4c26f337c772281859db80e563674c17730fc9162fff91d5499f2a2a815ad23ea2b1752da89d762",
+      "eventIds": []
     }
   ]
 }
