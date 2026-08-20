@@ -3,7 +3,7 @@ import {pieces, colours} from "~/page/pieces"
 import { board } from "~/page/board"
 import { useState, useEffect } from "react"
 
-const initialPieces = [
+const initialPieces: { name: keyof typeof colours; shape: number[][] }[] = [
     { name: "I", shape: pieces.I },
     { name: "O", shape: pieces.O },
     { name: "T", shape: pieces.T },
@@ -13,25 +13,30 @@ const initialPieces = [
     { name: "J", shape: pieces.J },
 ];
 
+type BoardCell = 0 | keyof typeof colours;
+
+const createEmptyBoard = (): BoardCell[][] =>
+    board.Default.map(row => row.map(() => 0 as BoardCell));
+
 export default function page(){
         
     const [items, setItems] = useState(()=>initialPieces)
     const [queue, setQueue] = useState(()=>items)
     const [curPiece, setCurPiece] = useState(()=>items[0])
     const [piecePos, setPiecePos] = useState(()=>({x: 3, y: 0}))
-    const [boardState, setBoardState] = useState(() => board.Default.map(row => [...row]));
+    const [boardState, setBoardState] = useState<BoardCell[][]>(createEmptyBoard);
     
     
     const getBoard = () => {
         const gameBoard = boardState.map(row => [...row])
         if(curPiece && piecePos){
-            curPiece.shape.forEach((row,dy) => {
+            curPiece.shape.forEach((row, dy) => {
                 row.forEach((cell, dx) =>{
                     if (cell === 1){
                         const boardY = piecePos.y + dy;
                         const boardX = piecePos.x + dx;
                         if(boardY >=0 && boardX >= 0 && boardX < gameBoard[0].length && boardY<gameBoard.length){
-                            gameBoard[boardY][boardX] = 1;
+                            gameBoard[boardY][boardX] = curPiece.name;
                         }
                     }
                 })
@@ -50,6 +55,7 @@ export default function page(){
         boardState: typeof gameBoard) =>{
         for (let dy = 0; dy < piece.shape.length; dy++){
             for(let dx = 0; dx < piece.shape[dy].length; dx++){
+                if(curPiece.shape[dy][dx] === 0) continue;
                 const bx = x + dx;
                 const by = y + dy;
 
@@ -63,23 +69,19 @@ export default function page(){
     //gravity
     useEffect(()=>{
         const gameLoop = setInterval (()=>{
-            setPiecePos(prev => {
-                const newY = prev.y + 1;
+            const newY = piecePos.y + 1;
 
-                if (canPlace(curPiece, prev.x, newY, boardState)){
-                    return {...prev, y: newY};
-                } else{
-                    handleLockPiece();
-                    return prev;
-                }
-            });
+            if (canPlace(curPiece, piecePos.x, newY, boardState)){
+                setPiecePos(prev => ({...prev, y: newY}));
+            } else {
+                handleLockPiece();
+            }
         }, 500);
         return () => clearInterval(gameLoop);
-    }, [curPiece, boardState]);
+    }, [curPiece, boardState, piecePos]);
 
     //srs
     const rotateClockwise = (piece: typeof curPiece)=>{
-        const n = piece.shape.length;
         const rotated = Array(piece.shape[0].length)
         .fill(null)
         .map((_,i) =>
@@ -104,7 +106,7 @@ export default function page(){
         ]
 
         for(const kick of kicks){
-            if(canPlace(rotated, piecePos.x + kick.x, piecePos.y+kick.y, board.Default)){
+            if(canPlace(rotated, piecePos.x + kick.x, piecePos.y+kick.y, boardState)){
                 setCurPiece(rotated);
                 setPiecePos(p => ({x: p.x + kick.x, y: p.y+kick.y}));
                 return;
@@ -143,7 +145,8 @@ export default function page(){
                     boardY >= 0 && boardY < lockedBoard.length &&
                     boardX >= 0 && boardX < lockedBoard[0].length
                 ){
-                    lockedBoard[boardY][boardX] = 1;
+                    lockedBoard[boardY][boardX] = curPiece.name;
+                    console.log("Y: " + boardY + " X: " + boardX)
                 }
             });
         });
@@ -174,26 +177,25 @@ export default function page(){
         return shuffled;
     }
 
-    const handleAddQueue = () => {
-        if(queue.length === 7){
-            const newItems = handleShuffle();
-            setQueue(prevQueue => [ ...prevQueue,...newItems]);
-        }
-    }
-
     const handlePopQueue = () =>{
-        
-        setQueue(currentQueue => {
-            setCurPiece(currentQueue[0]);
-            return currentQueue.slice(1);
-        })
-        handleAddQueue();
+        const nextPiece = queue[0];
+        let nextQueue = queue.slice(1);
+
+        if (nextQueue.length === 7){
+            const newItems = handleShuffle();
+            nextQueue = [...nextQueue, ...newItems];
+        }
+
+        setCurPiece(nextPiece);
+        console.log(curPiece.name)
+        setQueue(nextQueue);
     }
 
     useEffect(()=>{
         const shuffled = handleShuffle();
-        setQueue(shuffled)
-        handleAddQueue();
+        const nextBatch = handleShuffle();
+        setQueue([...shuffled.slice(1), ...nextBatch]);
+        setCurPiece(shuffled[0]);
     },[]);
 
     
@@ -259,7 +261,11 @@ export default function page(){
                     {gameBoard.map((row, rowIndex) =>(
                     <div key={rowIndex} className="flex">
                         {row.map((cell, cellIndex)=>
-                            <div key={cellIndex} className="border h-4 w-4">
+                            <div key={cellIndex} className="border h-4 w-4"
+                            style={{
+                                backgroundColor:
+                                    cell === 0 ? "transparent" : colours[cell]
+                            }}>
                                 {cell}
                             </div>
                         )}
