@@ -30,7 +30,7 @@ export default function page(){
                     if (cell === 1){
                         const boardY = piecePos.y + dy;
                         const boardX = piecePos.x + dx;
-                        if(boardY >=0 && boardX >= 0 && boardX < gameBoard[0].length){
+                        if(boardY >=0 && boardX >= 0 && boardX < gameBoard[0].length && boardY<gameBoard.length){
                             gameBoard[boardY][boardX] = 1;
                         }
                     }
@@ -53,7 +53,7 @@ export default function page(){
                 const bx = x + dx;
                 const by = y + dy;
 
-                if (bx < 0 || bx >= 10 || by >=20) return false;
+                if (bx < 0 || bx >= boardState[0].length || by >= boardState.length) return false;
                 if (by >= 0 && boardState[by][bx] !== 0) return false;
             }
         }
@@ -75,7 +75,7 @@ export default function page(){
             });
         }, 500);
         return () => clearInterval(gameLoop);
-    }, [curPiece]);
+    }, [curPiece, boardState]);
 
     //srs
     const rotateClockwise = (piece: typeof curPiece)=>{
@@ -91,7 +91,7 @@ export default function page(){
     const handleRotateClockwise = () =>{
         const rotated = rotateClockwise(curPiece)
 
-        if (canPlace(rotated, piecePos.x, piecePos.y, board.Default)){
+        if (canPlace(rotated, piecePos.x, piecePos.y, boardState)){
             setCurPiece(rotated);
             return;
         }
@@ -114,12 +114,11 @@ export default function page(){
     
     const handleMove = (direction: number) =>{
         const newX = piecePos.x + direction;
-        if (canPlace(curPiece, newX, piecePos.y, board.Default)){
+        if (canPlace(curPiece, newX, piecePos.y, boardState)){
             setPiecePos(p=>({...p, x: newX}));
         }
     };
 
-    const typing = '';
     useEffect(()=>{
         const handleKey = (e: KeyboardEvent) =>{
             if (e.key === 'ArrowLeft') handleMove(-1)
@@ -133,24 +132,33 @@ export default function page(){
 
     const handleLockPiece = () => {
         const lockedBoard = gameBoard.map(row => [...row]);
-        let clearedLines = 0;
-        const newBoard = lockedBoard.filter(row =>{
-            if (row.every(cell => cell !== 0)){
-                clearedLines++;
-                return false;
-            }
-            return true;
-        })
+        curPiece.shape.forEach((row,dy) => {
+            row.forEach((cell,dx) =>{
+                if (cell !== 1) return;
 
-        while (newBoard.length < 20){
-            newBoard.unshift(Array(10).fill(0))
+                const boardY = piecePos.y + dy;
+                const boardX = piecePos.x + dx;
+
+                if(
+                    boardY >= 0 && boardY < lockedBoard.length &&
+                    boardX >= 0 && boardX < lockedBoard[0].length
+                ){
+                    lockedBoard[boardY][boardX] = 1;
+                }
+            });
+        });
+
+        const clearedBoard = lockedBoard.filter(
+            row => !row.every(cell => cell !== 0)
+        );
+
+        while (clearedBoard.length < 20){
+            clearedBoard.unshift(Array(10).fill(0));
         }
 
-        setBoardState(newBoard);
+        setBoardState(clearedBoard);
 
-        if(queue.length > 1){
-            handlePopQueue();
-        }
+        handlePopQueue();
 
         setPiecePos({x:3, y:0});
     }
