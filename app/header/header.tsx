@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { NavList } from "~/components/NavList";
 import { UserMenu } from "~/components/UserMenu";
 import { useAuth } from "~/auth/AuthContext";
@@ -15,6 +15,12 @@ const SIGN_IN_ITEM = [{ to: "/sign-in", label: "Sign in" }];
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { account, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = () => {
+    signOut();
+    navigate("/");
+  };
 
   return (
     <header className="sticky top-0 z-40 border-b border-brand-700 bg-brand-600 backdrop-blur">
@@ -26,7 +32,7 @@ export function Header() {
         <nav className="hidden items-center gap-2 md:flex">
           <NavList items={NAV_ITEMS} variant="dark" />
           {account ? (
-            <UserMenu name={account.name || account.email} onSignOut={signOut} variant="dark" />
+            <UserMenu name={account.name || account.email} onSignOut={handleSignOut} variant="dark" />
           ) : (
             <NavList items={SIGN_IN_ITEM} variant="dark" />
           )}
@@ -55,7 +61,7 @@ export function Header() {
               </div>
               <button
                 type="button"
-                onClick={signOut}
+                onClick={handleSignOut}
                 className="rounded-pill px-3 py-1.5 text-left text-sm font-medium text-white/90 transition-colors hover:bg-white/10 hover:text-white"
               >
                 Log out
