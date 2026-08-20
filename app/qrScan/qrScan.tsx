@@ -13,10 +13,34 @@ type Guest = {
     number?: string;
 };
 
+type ScanStatus = "checked-in" | "duplicate" | "error";
+
+type ScanEntry = {
+    key: string;
+    guestId: string;
+    name?: string;
+    status: ScanStatus;
+    message: string;
+    timestamp: string;
+};
+
+const STATUS_LABELS: Record<ScanStatus, string> = {
+    "checked-in": "Checked in",
+    duplicate: "Duplicate",
+    error: "Error",
+};
+
+const STATUS_STYLES: Record<ScanStatus, string> = {
+    "checked-in": "bg-green-50 text-green-700",
+    duplicate: "bg-amber-50 text-amber-700",
+    error: "bg-red-50 text-red-700",
+};
+
 export function QrScan() {
     const STORAGE_KEY  = 'Scanned'
-    const [scanned, setScanned] = useState<Guest[]>([]);
+    const [scanned, setScanned] = useState<ScanEntry[]>([]);
     const hydrated = useRef(false);
+    const guestNamesRef = useRef<Map<string, string>>(new Map());
 
     useEffect(() => {
         try{
@@ -39,21 +63,36 @@ export function QrScan() {
     const lastScannedRef = useRef<string | null>(null);
     const scannedKeysRef = useRef<Set<string>>(new Set());
 
+    function logScan(entry: ScanEntry){
+        setScanned(prev => [...prev, entry]);
+    }
+
     async function handleScan(value: string){
         const pos = value.indexOf(":");
 
         const guestEvent=value.slice(0 , pos);
         const guestId=value.slice(pos + 1);
+        const key = `${guestEvent}:${guestId}`;
 
         if (String(eventIdRef.current) !== guestEvent){
-            console.log("Event does not match!");
-            setResp("Event does not match!");
+            const message = "Event does not match!";
+            console.log(message);
+            setResp(message);
+            logScan({ key, guestId, status: "error", message, timestamp: new Date().toISOString() });
             return;
         }
 
-        const key = `${guestEvent}:${guestId}`;
         if (scannedKeysRef.current.has(key)){
-            setResp("Guest already scanned");
+            const message = "Guest already scanned";
+            setResp(message);
+            logScan({
+                key,
+                guestId,
+                name: guestNamesRef.current.get(key),
+                status: "duplicate",
+                message,
+                timestamp: new Date().toISOString(),
+            });
             return;
         }
         try{
@@ -63,12 +102,22 @@ export function QrScan() {
             if (checkIn){
                 console.log(`check in : ${checkIn}`);
                 scannedKeysRef.current.add(key);
-                setScanned(prev => [...prev, checkIn]);
+                guestNamesRef.current.set(key, checkIn.name ?? guestId);
                 setResp(`Checked in ${checkIn.name ?? guestId}`);
+                logScan({
+                    key,
+                    guestId,
+                    name: checkIn.name,
+                    status: "checked-in",
+                    message: `Checked in ${checkIn.name ?? guestId}`,
+                    timestamp: checkIn.arrivalTime ?? new Date().toISOString(),
+                });
             }
         }
         catch(e){
-            setResp(String(e));
+            const message = String(e);
+            setResp(message);
+            logScan({ key, guestId, status: "error", message, timestamp: new Date().toISOString() });
         }
     }
 
@@ -152,15 +201,20 @@ export function QrScan() {
             )}
 
             <div>
-                <h2 className="mb-3 text-lg font-semibold text-neutral-800">Checked in ({scanned.length})</h2>
+                <h2 className="mb-3 text-lg font-semibold text-neutral-800">Scan history ({scanned.length})</h2>
                 {scanned.length === 0 ? (
-                    <p className="text-sm text-neutral-500">No guests scanned yet this session.</p>
+                    <p className="text-sm text-neutral-500">No scans yet this session.</p>
                 ) : (
                     <ul className="flex flex-col divide-y divide-neutral-200 overflow-hidden rounded-xl border border-neutral-200">
-                    {scanned.map((guest, index) => (
-                        <li key={guest.email ?? `${guest.name}-${index}`} className="flex items-center justify-between bg-neutral-0 px-4 py-3">
-                            <span className="font-medium text-neutral-800">{guest.name}</span>
-                            <span className="text-sm text-neutral-500">{guest.arrivalTime}</span>
+                    {scanned.slice().reverse().map((entry, index) => (
+                        <li key={`${entry.key}-${entry.timestamp}-${index}`} className="flex items-center justify-between gap-3 bg-neutral-0 px-4 py-3">
+                            <div className="flex flex-col">
+                                <span className="font-medium text-neutral-800">{entry.name ?? entry.guestId}</span>
+                                <span className="text-xs text-neutral-500">{entry.message}</span>
+                            </div>
+                            <span className={`shrink-0 rounded-pill px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[entry.status]}`}>
+                                {STATUS_LABELS[entry.status]}
+                            </span>
                         </li>
                     ))}
                     </ul>
