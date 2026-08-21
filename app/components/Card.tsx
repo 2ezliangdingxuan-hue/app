@@ -24,7 +24,7 @@ export function Card({ href, image, title, date, location }: CardProps) {
       <div className="flex flex-col gap-1 p-4">
         <h2 className="truncate text-lg font-semibold capitalize text-neutral-800">{title}</h2>
         {date && <p className="text-sm text-neutral-500">{date}</p>}
-        {location && <p className="truncate text-sm text-neutral-500">{location}</p>}
+        {location && <p className="truncate text-sm text-neutral-500 capitalize">{location}</p>}
       </div>
     </Link>
   );
