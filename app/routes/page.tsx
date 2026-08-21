@@ -20,7 +20,8 @@ const createEmptyBoard = (): BoardCell[][] =>
 
 export default function page(){
     
-    const defaultPos = ({x:3, y:19})
+    const defaultPos = ({x:3, y:18})
+    const overPos = ({x:3, y:19})
     const [items, setItems] = useState(()=>initialPieces)
     const [queue, setQueue] = useState(()=>items)
     const [curPiece, setCurPiece] = useState(()=>items[0])
@@ -42,6 +43,14 @@ export default function page(){
             setHoldState(true);
         }
         setPiecePos(defaultPos);
+    }
+
+    const handleTopOut = () =>{
+
+    }
+
+    const handleTopOutCheck = () =>{
+        
     }
 
     const getBoard = () => {

@@ -6,7 +6,7 @@ import { useAuth } from "~/auth/AuthContext";
 
 const NAV_ITEMS = [
   { to: "/events", label: "Your Events" },
-  { to: "/createEvent", label: "Create Event" },
+  { to: "/createEvent", label: "Create Events" },
   { to: "/scanner", label: "Scanner" },
 ];
 
