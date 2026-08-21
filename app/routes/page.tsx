@@ -19,15 +19,31 @@ const createEmptyBoard = (): BoardCell[][] =>
     board.Default.map(row => row.map(() => 0 as BoardCell));
 
 export default function page(){
-        
+    
+    const defaultPos = ({x:3, y:19})
     const [items, setItems] = useState(()=>initialPieces)
     const [queue, setQueue] = useState(()=>items)
     const [curPiece, setCurPiece] = useState(()=>items[0])
-    const [piecePos, setPiecePos] = useState(()=>({x: 3, y: 0}))
+    const [piecePos, setPiecePos] = useState(()=>(defaultPos))
     const [boardState, setBoardState] = useState<BoardCell[][]>(createEmptyBoard);
-    const [holdPiece, setHoldPiece] = useState()
+    const [holdPiece, setHoldPiece] = useState<typeof curPiece|null>(null);
+    const [holdState, setHoldState] = useState(false);
     
-    
+    const handleHoldPiece = () =>{
+        const newHoldPiece: typeof curPiece | null = items.find(item => item.name === curPiece.name) ?? null
+        if (holdPiece === null && holdState === false){
+            setHoldPiece(newHoldPiece)
+            handlePopQueue(); 
+            setHoldState(true);
+        }
+        else if (holdPiece !== null && holdState === false){
+            setCurPiece(holdPiece)
+            setHoldPiece(newHoldPiece)
+            setHoldState(true);
+        }
+        setPiecePos(defaultPos);
+    }
+
     const getBoard = () => {
         const gameBoard = boardState.map(row => [...row])
         if(curPiece && piecePos){
@@ -183,6 +199,7 @@ export default function page(){
             if (e.key === 'ArrowUp') handleRotateClockwise()
             if (e.key === 'z') handleRotateCounterClockwise()
             if (e.key === ' ') hardDrop();
+            if (e.key === 'Shift') handleHoldPiece();
         }
         window.addEventListener('keydown', handleKey);
         return () => window.removeEventListener('keydown', handleKey);
@@ -203,7 +220,7 @@ export default function page(){
                     boardX >= 0 && boardX < lockedBoard[0].length
                 ){
                     lockedBoard[boardY][boardX] = curPiece.name;
-                    console.log("Y: " + boardY + " X: " + boardX)
+                    //console.log("Y: " + boardY + " X: " + boardX)
                 }
             });
         });
@@ -220,7 +237,11 @@ export default function page(){
 
         handlePopQueue();
 
-        setPiecePos({x:3, y:0});
+        if(holdState){
+            setHoldState(false)
+        }
+
+        setPiecePos(defaultPos);
     }
 
     //shuffle pieces
@@ -246,11 +267,11 @@ export default function page(){
         }
 
         setCurPiece(nextPiece);
-        console.log(curPiece.name)
+        //console.log(curPiece.name)
         setQueue(nextQueue);
     }
 
-    
+
     useEffect(()=>{
         const shuffled = handleShuffle();
         const nextBatch = handleShuffle();
@@ -302,6 +323,27 @@ export default function page(){
             )}
         </div>
     )
+    const holdPieceUI = holdPiece && (
+        <div key={holdPiece.name} className="space-x-3">
+            {holdPiece.shape.map((shape,shapeIndex)=>
+            <div key={shapeIndex} className="flex">
+                {shape.map((cell,cellIndex)=>(
+                    <div key={cellIndex} style={{
+                        backgroundColor: 
+                        cell === 1 ?
+                        colours[holdPiece.name as keyof typeof colours] : 'transparent',
+                        border: 
+                        cell === 1 ?
+                        '1px solid' : ''
+                    }}
+                    className="h-4 w-4">
+                        {/* {cell} */}
+                    </div>
+                ))}
+            </div>
+            )}
+        </div>
+    )
     
     
     return(
@@ -310,29 +352,50 @@ export default function page(){
         <div className="p-8 flex flex-col">
             <h1 className="text-3xl font-bold mb-8">Page</h1>
             <div className="flex gap-3">
-            <div className="flex flex-col">
-                <button onClick={handlePopQueue} className="mb-3 border">
-                    Shuffle List
-                </button>
-                 <div className="gap-3 flex flex-row mb-3">
-                    {curPieceUI}
-                </div>
-                <div>
-                    {gameBoard.map((row, rowIndex) =>(
-                    <div key={rowIndex} className="flex">
-                        {row.map((cell, cellIndex)=>
-                            <div key={cellIndex} className="border h-4 w-4"
-                            style={{
-                                backgroundColor:
-                                    cell === 0 ? "transparent" : colours[cell]
-                            }}>
-                                {cell}
-                            </div>
-                        )}
+                <div className="flex flex-col">
+                    <button onClick={handlePopQueue} className="mb-3 border">
+                        Shuffle List
+                    </button>
+                    <div className="gap-3 flex flex-row mb-3">
+                        {/* {curPieceUI} */}
                     </div>
-                ))}
+                    <div className="flex flex-row">
+                        <div className="flex mr-4 mt-16 border border-slate-300 h-10 w-20 items-center justify-center">
+                            {holdPieceUI}
+                        </div>
+                        <div>
+                             {gameBoard.slice(16,20).map((row, rowIndex) =>(
+                            <div key={rowIndex} className="flex">
+                                {row.map((cell, cellIndex)=>
+                                    <div key={cellIndex} className=" h-4 w-4"
+                                    style={{
+                                        backgroundColor:
+                                            cell === 0 ? "transparent" : colours[cell],
+                                        border: 
+                                            cell !== 0 ?
+                                        '1px solid' : ''
+                                    }}>
+                                        {/* {cell} */}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                            {gameBoard.slice(20,40).map((row, rowIndex) =>(
+                            <div key={rowIndex} className="flex">
+                                {row.map((cell, cellIndex)=>
+                                    <div key={cellIndex} className="border h-4 w-4"
+                                    style={{
+                                        backgroundColor:
+                                            cell === 0 ? "transparent" : colours[cell]
+                                    }}>
+                                        {/* {cell} */}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                        </div>
+                    </div>
                 </div>
-            </div>
                 <div className="flex flex-col gap-3">
                     <p> NEXT: </p>
                     {shuffledPieces}
