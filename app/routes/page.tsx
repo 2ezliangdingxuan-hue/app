@@ -29,6 +29,7 @@ export default function page(){
     const [boardState, setBoardState] = useState<BoardCell[][]>(createEmptyBoard);
     const [holdPiece, setHoldPiece] = useState<typeof curPiece|null>(null);
     const [holdState, setHoldState] = useState(false);
+    const [playingState, setPlayingState] = useState(true)
     
     const handleHoldPiece = () =>{
         const newHoldPiece: typeof curPiece | null = items.find(item => item.name === curPiece.name) ?? null
@@ -45,13 +46,40 @@ export default function page(){
         setPiecePos(defaultPos);
     }
 
+    const handleStart = () =>{
+        setPlayingState(true);
+    }
+
+    const handleStop = () =>{
+        setPlayingState(false);
+    }
+
+    const handleNewGame = (event: React.MouseEvent<HTMLButtonElement>) =>{
+        handleStart();
+        setHoldPiece(null);
+        setBoardState(createEmptyBoard)
+        const shuffled = handleShuffle();
+        const nextBatch = handleShuffle();
+        setQueue([...shuffled.slice(1), ...nextBatch]);
+        setCurPiece(shuffled[0]);
+        event.currentTarget.blur();
+    }
+
     const handleTopOut = () =>{
+            curPiece.shape.forEach((row,dy) => {
+            row.forEach((cell,dx) =>{
+                if (cell !== 1) return;
 
+                const boardY = overPos.y + dy;
+                const boardX = overPos.x + dx;
+
+                if (boardY !== 0 || boardX !== 0){
+                    handleStop();
+                }
+            });
+        });
     }
 
-    const handleTopOutCheck = () =>{
-        
-    }
 
     const getBoard = () => {
         const gameBoard = boardState.map(row => [...row])
@@ -94,6 +122,7 @@ export default function page(){
 
     //gravity
     useEffect(()=>{
+        if (!playingState) return;
         const gameLoop = setInterval (()=>{
             const newY = piecePos.y + 1;
 
@@ -104,6 +133,7 @@ export default function page(){
             }
         }, 500);
         return () => clearInterval(gameLoop);
+    
     }, [curPiece, boardState, piecePos]);
 
     //rotate 90 clockwise
@@ -189,34 +219,67 @@ export default function page(){
     //harddrop
     const hardDrop = () => {
         let newY = piecePos.y
-        for(const row of boardState){
-            if(canPlace(curPiece, piecePos.x, newY, boardState)){
-                newY += 1;
-                continue;
-            }
-            else(
-                setPiecePos(p=>({...p, y: newY-1}))
-            )
+        while(canPlace(curPiece, piecePos.x, newY, boardState)){
+            newY+=1;
         }
+        setPiecePos(p=>({...p, y: newY-1}))
+        
+        const lockedBoard = boardState.map(row => [...row]);
+        curPiece.shape.forEach((row,dy) => {
+            row.forEach((cell,dx) =>{
+                if (cell !== 1) return;
+
+                const boardY = newY + dy - 1;
+                const boardX = piecePos.x + dx;
+
+                if(
+                    boardY >= 0 && 
+                    boardY < lockedBoard.length &&
+                    boardX >= 0 && 
+                    boardX < lockedBoard[0].length
+                ){
+                    lockedBoard[boardY][boardX] = curPiece.name;
+                }
+            });
+        });
+
+        const clearedBoard = lockedBoard.filter(
+            row => !row.every(cell => cell !== 0)
+        );
+
+        while (clearedBoard.length < board.Default.length){
+            clearedBoard.unshift(Array(10).fill(0));
+        }
+
+        setBoardState(clearedBoard);
+        handlePopQueue();
+
+        if(holdState){
+            setHoldState(false)
+        }
+        
+        setPiecePos(defaultPos);
     }
 
     //check kb inputs
     useEffect(()=>{
+        if (!playingState) return;
         const handleKey = (e: KeyboardEvent) =>{
             if (e.key === 'ArrowLeft') handleMove(-1)
             if (e.key === 'ArrowRight') handleMove(1)
             if (e.key === 'ArrowUp') handleRotateClockwise()
             if (e.key === 'z') handleRotateCounterClockwise()
-            if (e.key === ' ') hardDrop();
+            if (e.key === ' ') {hardDrop()}
             if (e.key === 'Shift') handleHoldPiece();
         }
         window.addEventListener('keydown', handleKey);
         return () => window.removeEventListener('keydown', handleKey);
+        
     }, [piecePos, curPiece])
 
     //set piece position
     const handleLockPiece = () => {
-        const lockedBoard = gameBoard.map(row => [...row]);
+        const lockedBoard = boardState.map(row => [...row]);
         curPiece.shape.forEach((row,dy) => {
             row.forEach((cell,dx) =>{
                 if (cell !== 1) return;
@@ -238,12 +301,11 @@ export default function page(){
             row => !row.every(cell => cell !== 0)
         );
 
-        while (clearedBoard.length < 20){
+        while (clearedBoard.length < board.Default.length){
             clearedBoard.unshift(Array(10).fill(0));
         }
 
         setBoardState(clearedBoard);
-
         handlePopQueue();
 
         if(holdState){
@@ -252,6 +314,8 @@ export default function page(){
 
         setPiecePos(defaultPos);
     }
+
+
 
     //shuffle pieces
     const handleShuffle = () =>{
@@ -267,6 +331,7 @@ export default function page(){
 
     //remove pieces from queue and change cur piece
     const handlePopQueue = () =>{
+        if (!playingState) return;
         const nextPiece = queue[0];
         let nextQueue = queue.slice(1);
 
@@ -275,12 +340,18 @@ export default function page(){
             nextQueue = [...nextQueue, ...newItems];
         }
 
+        
+        if(!canPlace(nextPiece, overPos.x, overPos.y, boardState)){
+            handleStop();
+            return;
+        }
         setCurPiece(nextPiece);
+        //handleTopOut()
         //console.log(curPiece.name)
         setQueue(nextQueue);
     }
 
-
+    //starting stuff
     useEffect(()=>{
         const shuffled = handleShuffle();
         const nextBatch = handleShuffle();
@@ -402,6 +473,14 @@ export default function page(){
                                 )}
                             </div>
                         ))}
+                        <div className="mt-3 flex flex-row justify-between">
+                            <button onClick={handleNewGame} className="border">
+                                New
+                            </button>
+                            <div>
+                                {String(playingState)}
+                            </div>
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -410,11 +489,7 @@ export default function page(){
                     {shuffledPieces}
                 </div>
             </div>
-            <div className="mt-3">
-                <button className="border">
-                    New
-                </button>
-            </div>
+            
         </div>
         </>
     )
