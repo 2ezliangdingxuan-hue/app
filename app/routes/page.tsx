@@ -25,6 +25,7 @@ export default function page(){
     const [curPiece, setCurPiece] = useState(()=>items[0])
     const [piecePos, setPiecePos] = useState(()=>({x: 3, y: 0}))
     const [boardState, setBoardState] = useState<BoardCell[][]>(createEmptyBoard);
+    const [holdPiece, setHoldPiece] = useState()
     
     
     const getBoard = () => {
@@ -55,7 +56,7 @@ export default function page(){
         boardState: typeof gameBoard) =>{
         for (let dy = 0; dy < piece.shape.length; dy++){
             for(let dx = 0; dx < piece.shape[dy].length; dx++){
-                if(curPiece.shape[dy][dx] === 0) continue;
+                if(piece.shape[dy][dx] === 0) continue;
                 const bx = x + dx;
                 const by = y + dy;
 
@@ -80,7 +81,7 @@ export default function page(){
         return () => clearInterval(gameLoop);
     }, [curPiece, boardState, piecePos]);
 
-    //srs
+    //rotate 90 clockwise
     const rotateClockwise = (piece: typeof curPiece)=>{
         const rotated = Array(piece.shape[0].length)
         .fill(null)
@@ -90,6 +91,17 @@ export default function page(){
         return {...piece, shape: rotated}
     }
 
+    //rotate 90 counter clockwise
+    const rotateCounterClockwise = (piece: typeof curPiece)=>{
+        const rotated = Array(piece.shape[0].length)
+        .fill(null)
+        .map((_,i) =>
+            piece.shape.map(row=> row[row.length-1-i])
+        )
+        return {...piece, shape: rotated}
+    }
+
+    //rotation system
     const handleRotateClockwise = () =>{
         const rotated = rotateClockwise(curPiece)
 
@@ -99,6 +111,32 @@ export default function page(){
         }
 
         const kicks = [
+            {x:0, y:0},
+            {x:1, y:0},
+            {x: -1, y:0},
+            {x:2, y:0},
+            {x: -2, y:0},
+        ]
+
+        for(const kick of kicks){
+            if(canPlace(rotated, piecePos.x + kick.x, piecePos.y+kick.y, boardState)){
+                setCurPiece(rotated);
+                setPiecePos(p => ({x: p.x + kick.x, y: p.y+kick.y}));
+                return;
+            }
+        }
+    }
+
+    const handleRotateCounterClockwise = () =>{
+        const rotated = rotateCounterClockwise(curPiece)
+
+        if (canPlace(rotated, piecePos.x, piecePos.y, boardState)){
+            setCurPiece(rotated);
+            return;
+        }
+
+        const kicks = [
+            {x:0, y:0},
             {x:1, y:0},
             {x: -1, y:0},
             {x:2, y:0},
@@ -114,6 +152,7 @@ export default function page(){
         }
     }
     
+    //move left or right
     const handleMove = (direction: number) =>{
         const newX = piecePos.x + direction;
         if (canPlace(curPiece, newX, piecePos.y, boardState)){
@@ -121,17 +160,35 @@ export default function page(){
         }
     };
 
+
+    //harddrop
+    const hardDrop = () => {
+        let newY = piecePos.y
+        for(const row of boardState){
+            if(canPlace(curPiece, piecePos.x, newY, boardState)){
+                newY += 1;
+                continue;
+            }
+            else(
+                setPiecePos(p=>({...p, y: newY-1}))
+            )
+        }
+    }
+
+    //check kb inputs
     useEffect(()=>{
         const handleKey = (e: KeyboardEvent) =>{
             if (e.key === 'ArrowLeft') handleMove(-1)
             if (e.key === 'ArrowRight') handleMove(1)
             if (e.key === 'ArrowUp') handleRotateClockwise()
-            //if (e.key === ' ') hardDrop();
+            if (e.key === 'z') handleRotateCounterClockwise()
+            if (e.key === ' ') hardDrop();
         }
         window.addEventListener('keydown', handleKey);
         return () => window.removeEventListener('keydown', handleKey);
     }, [piecePos, curPiece])
 
+    //set piece position
     const handleLockPiece = () => {
         const lockedBoard = gameBoard.map(row => [...row]);
         curPiece.shape.forEach((row,dy) => {
@@ -166,6 +223,7 @@ export default function page(){
         setPiecePos({x:3, y:0});
     }
 
+    //shuffle pieces
     const handleShuffle = () =>{
         let shuffled = [...initialPieces];
 
@@ -177,6 +235,7 @@ export default function page(){
         return shuffled;
     }
 
+    //remove pieces from queue and change cur piece
     const handlePopQueue = () =>{
         const nextPiece = queue[0];
         let nextQueue = queue.slice(1);
@@ -191,6 +250,7 @@ export default function page(){
         setQueue(nextQueue);
     }
 
+    
     useEffect(()=>{
         const shuffled = handleShuffle();
         const nextBatch = handleShuffle();
