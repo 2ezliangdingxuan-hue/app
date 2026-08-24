@@ -1,7 +1,7 @@
 import { Header } from "~/header/header"
 import {pieces, colours} from "~/page/pieces"
 import { board } from "~/page/board"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 
 const initialPieces: { name: keyof typeof colours; shape: number[][] }[] = [
     { name: "I", shape: pieces.I },
@@ -261,6 +261,27 @@ export default function page(){
         setPiecePos(defaultPos);
     }
 
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const handleSoftDrop = () =>{
+        //const softDrop = 
+        if (!intervalRef.current){
+            intervalRef.current = setInterval(()=>{
+            const newY = piecePos.y + 1;
+            if (canPlace(curPiece, piecePos.x, newY, boardState)){
+                setPiecePos(prev => ({...prev, y: newY}));
+            } else {
+                handleLockPiece();
+            }
+        },100)}
+    }
+
+    const stopSoftDrop = ()=>{
+        if(intervalRef.current){
+            clearInterval(intervalRef.current)
+            intervalRef.current = null;
+        }
+    }
+
     //check kb inputs
     useEffect(()=>{
         if (!playingState) return;
@@ -268,12 +289,30 @@ export default function page(){
             if (e.key === 'ArrowLeft') handleMove(-1)
             if (e.key === 'ArrowRight') handleMove(1)
             if (e.key === 'ArrowUp') handleRotateClockwise()
+            if (e.key === 'ArrowDown') handleSoftDrop()
             if (e.key === 'z') handleRotateCounterClockwise()
             if (e.key === ' ') {hardDrop()}
             if (e.key === 'Shift') handleHoldPiece();
         }
         window.addEventListener('keydown', handleKey);
         return () => window.removeEventListener('keydown', handleKey);
+        
+    }, [piecePos, curPiece])
+
+    useEffect(()=>{
+        if (!playingState) return;
+        const handleKey = (e: KeyboardEvent) =>{
+            if (e.key === 'ArrowDown') handleSoftDrop()
+        }
+        const handleKeyUp = (e: KeyboardEvent) =>{
+            if (e.key === 'ArrowDown') stopSoftDrop()
+        }
+        window.addEventListener('keydown', handleKey);
+        window.addEventListener('keyup', handleKeyUp);
+        return () => {
+            window.removeEventListener('keydown', handleKey)
+            window.removeEventListener('keyup', handleKeyUp)
+        };
         
     }, [piecePos, curPiece])
 
@@ -339,7 +378,6 @@ export default function page(){
             const newItems = handleShuffle();
             nextQueue = [...nextQueue, ...newItems];
         }
-
         
         if(!canPlace(nextPiece, overPos.x, overPos.y, boardState)){
             handleStop();

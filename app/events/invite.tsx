@@ -5,6 +5,7 @@ import { addGuest } from "../../src/data/events"
 import { FormField } from "~/components/FormField";
 import { Input } from "~/components/Input";
 import { Button } from "~/components/Button";
+import { Copy } from "~/components/CopyToClipboard";
 
 export default function Invite() {
     const{ eventId } = useParams();
@@ -44,8 +45,6 @@ export default function Invite() {
             setStatusMessage("Failed to add guest.");
         }
     }
-
-
     return(
         <div className="mx-auto flex w-full max-w-lg flex-col items-center gap-6 px-4 py-10">
             <h1 className="text-2xl font-bold text-neutral-800">Invite a guest</h1>
@@ -78,6 +77,7 @@ export default function Invite() {
                 </Button>
             </form>
 
+            <Copy eventId={String(eventId) ?? ""}/>
             {statusMessage ? (
                 <p className={`text-sm ${isError ? "text-danger-500" : "text-success-500"}`}>{statusMessage}</p>
             ) : null}
