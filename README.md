@@ -41,7 +41,7 @@ Create a production build:
 ```bash
 npm run build
 ```
-###env
+### Env File:
 
 ```bash
 SMTP_USER=YourEmail@Gmail.com
