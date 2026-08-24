@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import { getCollaborators, inviteCollaborator, removeCollaborator, type CollaboratorAccount } from "../../src/data/events";
+import { getCollaborators, inviteCollaborator, removeCollaborator, type CollaboratorAccount } from "../../server/events";
 import { useAuth } from "~/auth/AuthContext";
 import { PageHeader } from "~/components/PageHeader";
 import { FormField } from "~/components/FormField";

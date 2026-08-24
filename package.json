@@ -5,7 +5,7 @@
   "scripts": {
     "build": "react-router build",
     "dev": "concurrently \"react-router dev\" \"npm run dev:server\"",
-    "dev:server": "node --env-file=.env server.js",
+    "dev:server": "node --env-file=.env server/server.js",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc"
   },

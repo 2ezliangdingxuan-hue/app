@@ -1,6 +1,6 @@
 import { useOutletContext, useParams } from "react-router";
 import {useRef, useState} from "react";
-import { events, checkInGuest, addGuest } from "../../src/data/events";
+import { events, checkInGuest, addGuest } from "../../server/events";
 import InviteForm from "./inviteFloat";
 import { PageHeader } from "~/components/PageHeader";
 import { Button } from "~/components/Button";

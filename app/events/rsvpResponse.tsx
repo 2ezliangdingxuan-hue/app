@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import { getGuestRsvp, submitRsvp } from "../../src/data/events";
+import { getGuestRsvp, submitRsvp } from "../../server/events";
 import { Button } from "~/components/Button";
 
 type RsvpGuest = { name: string; rsvp: "Pending" | "Going" | "Declined"; rsvpAt: string | null };

@@ -1,4 +1,4 @@
-import { getEvents } from "../../src/data/events"
+import { getEvents } from "../../server/events"
 import { useEffect, useState } from "react"
 import { Card } from "~/components/Card"
 import { PageHeader } from "~/components/PageHeader"

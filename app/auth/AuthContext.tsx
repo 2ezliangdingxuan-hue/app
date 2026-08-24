@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { signIn as signInRequest, getMe, type Account } from "../../src/data/accounts";
+import { signIn as signInRequest, getMe, type Account } from "../../server/accounts";
 
 const TOKEN_KEY = "authToken";
 

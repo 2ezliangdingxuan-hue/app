@@ -1,5 +1,5 @@
 import { useParams } from "react-router";
-import { events, updateEvent, CATEGORY_OPTIONS } from "../../src/data/events";
+import { events, updateEvent, CATEGORY_OPTIONS } from "../../server/events";
 import { useState } from "react";
 import { EditableField } from "~/components/EditableField";
 import { Input } from "~/components/Input";

@@ -1,6 +1,6 @@
 import { useParams } from "react-router";
 import { useState } from "react";
-import { events } from "../../src/data/events";
+import { events } from "../../server/events";
 import { PageHeader } from "~/components/PageHeader";
 import { Button } from "~/components/Button";
 import { Input } from "~/components/Input";

@@ -1,4 +1,4 @@
-import data from "../events.json";
+import data from "../src/events.json";
 const API_BASE = typeof window !== "undefined"
     ? `http://${window.location.hostname}:3001`
     : "http://localhost:3001";

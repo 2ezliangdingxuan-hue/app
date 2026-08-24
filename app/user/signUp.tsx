@@ -1,4 +1,4 @@
-import {createAccount} from "../../src/data/accounts"
+import {createAccount} from "../../server/accounts"
 import { useState } from "react"
 import { Link, useNavigate } from "react-router";
 import { FormField } from "~/components/FormField";

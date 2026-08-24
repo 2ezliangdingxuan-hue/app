@@ -1,6 +1,6 @@
 import { Html5Qrcode, Html5QrcodeScannerState } from "html5-qrcode"
 import { useEffect, useState, useRef } from "react"
-import {events, checkInGuest, getGuest} from "../../src/data/events"
+import {events, checkInGuest, getGuest} from "../../server/events"
 import { Select } from "~/components/Select"
 
 

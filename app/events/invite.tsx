@@ -1,7 +1,7 @@
 import { useState, type FormEvent} from "react";
 import { QRCodeSVG } from "qrcode.react"
 import { useParams } from "react-router";
-import { addGuest } from "../../src/data/events"
+import { addGuest } from "../../server/events"
 import { FormField } from "~/components/FormField";
 import { Input } from "~/components/Input";
 import { Button } from "~/components/Button";

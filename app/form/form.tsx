@@ -1,5 +1,5 @@
 import { useParams } from "react-router"
-import {events} from "../../src/data/events"
+import {events} from "../../server/events"
 import { useEffect } from "react";
 
 export function Form (){

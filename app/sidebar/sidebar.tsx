@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import{getEventById} from "../../src/data/events";
+import{getEventById} from "../../server/events";
 import{useState, useEffect} from "react";
 import{useParams} from "react-router"
 

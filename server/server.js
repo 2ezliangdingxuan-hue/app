@@ -4,7 +4,7 @@ import path from "node:path";
 import cors from "cors";
 import { configDotenv } from "dotenv";
 import { randomBytes, scryptSync, timingSafeEqual, createHmac } from "node:crypto";
-import { sendGuestInviteEmail } from "./src/services/mailer.js";
+import { sendGuestInviteEmail } from "../src/services/mailer.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
 const TOKEN_TTL_SECONDS = 60 * 60 * 24 * 7;

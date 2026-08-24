@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { createEvent, CATEGORY_OPTIONS } from "../../src/data/events";
+import { createEvent, CATEGORY_OPTIONS } from "../../server/events";
 import { useAuth } from "~/auth/AuthContext";
 import { FormField } from "~/components/FormField";
 import { Input } from "~/components/Input";
