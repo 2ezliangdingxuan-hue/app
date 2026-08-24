@@ -1,5 +1,6 @@
 import { useOutletContext, useParams } from "react-router";
 import {useRef, useState} from "react";
+import { read as readXlsx, utils as xlsxUtils } from "xlsx";
 import { events, checkInGuest, addGuest } from "../../server/events";
 import InviteForm from "./inviteFloat";
 import { PageHeader } from "~/components/PageHeader";
@@ -84,6 +85,15 @@ export default function GuestList() {
         return rows.filter((r) => r.some((cell) => cell.trim() !== ""));
     }
 
+    function parseXlsx(buffer: ArrayBuffer): string[][] {
+        const workbook = readXlsx(buffer, { type: "array" });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = xlsxUtils.sheet_to_json<string[]>(firstSheet, { header: 1, raw: false, defval: "" });
+        return rows
+            .map((row) => row.map((cell) => String(cell ?? "")))
+            .filter((row) => row.some((cell) => cell.trim() !== ""));
+    }
+
     function handleImportClick(){
         fileInputRef.current?.click();
     }
@@ -97,10 +107,15 @@ export default function GuestList() {
         setImportStatus(null);
 
         try {
-            const text = await file.text();
-            const rows = parseCsv(text);
+            const isXlsx = file.name.toLowerCase().endsWith(".xlsx")
+                || file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+            const rows = isXlsx
+                ? parseXlsx(await file.arrayBuffer())
+                : parseCsv(await file.text());
+
             if (rows.length === 0){
-                throw new Error("The CSV file is empty.");
+                throw new Error(isXlsx ? "The XLSX file is empty." : "The CSV file is empty.");
             }
 
             const header = rows[0].map((cell) => cell.trim().toLowerCase());
@@ -108,7 +123,7 @@ export default function GuestList() {
             const emailIndex = header.indexOf("email");
 
             if (nameIndex === -1 || emailIndex === -1){
-                throw new Error('CSV must include a "name" and an "email" column.');
+                throw new Error(`${isXlsx ? "XLSX" : "CSV"} must include a "name" and an "email" column.`);
             }
 
             const guestsToImport = rows
@@ -120,7 +135,7 @@ export default function GuestList() {
                 .filter((guest) => guest.name);
 
             if (guestsToImport.length === 0){
-                throw new Error("No valid guest rows found in the CSV.");
+                throw new Error(`No valid guest rows found in the ${isXlsx ? "XLSX" : "CSV"}.`);
             }
 
             setIsImporting(true);
@@ -189,7 +204,7 @@ export default function GuestList() {
                         <input
                             ref={fileInputRef}
                             type="file"
-                            accept=".csv,text/csv"
+                            accept=".xlsx, .csv, text/csv"
                             onChange={handleImportFile}
                             className="hidden"
                         />

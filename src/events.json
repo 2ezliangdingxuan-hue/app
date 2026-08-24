@@ -305,6 +305,16 @@
           "arrivalTime": "4:03:50 PM",
           "rsvp": "Pending",
           "rsvpAt": null
+        },
+        "4": {
+          "name": "testxlsx",
+          "email": "liangdingxuan@gmail.com",
+          "number": "",
+          "arrived": false,
+          "status": "Not-Arrived",
+          "arrivalTime": null,
+          "rsvp": "Pending",
+          "rsvpAt": null
         }
       },
       "maxGuests": 40
