@@ -41,6 +41,14 @@ Create a production build:
 ```bash
 npm run build
 ```
+##env
+
+```bash
+SMTP_USER=YourEmail@Gmail.com
+SMTP_PASS=Your google email App password
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+```
 
 ## Deployment
 
