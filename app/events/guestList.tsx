@@ -227,7 +227,7 @@ export default function GuestList() {
                                 <path d="M12 21V9m0 0l-4 4m4-4l4 4" />
                                 <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
                             </svg>
-                            {isImporting ? "Importing..." : "Import CSV"}
+                            {isImporting ? "Importing..." : "Import CSV/EXCEL"}
                         </Button>
                         <Button
                             variant="secondary"
