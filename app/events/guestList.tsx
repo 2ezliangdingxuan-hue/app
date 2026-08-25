@@ -1,5 +1,5 @@
 import { useOutletContext, useParams } from "react-router";
-import {useRef, useState} from "react";
+import {useRef, useState, useEffect} from "react";
 import { read as readXlsx, utils as xlsxUtils } from "xlsx";
 import { events, checkInGuest, addGuest } from "../../server/events";
 import InviteForm from "./inviteFloat";
@@ -8,16 +8,20 @@ import { Button } from "~/components/Button";
 import { Input } from "~/components/Input";
 import { StatTile } from "~/components/StatTile";
 import { EditIcon } from "~/components/EditIcon";
+import EditGuestFloat from "./editGuestFloat";
 
 export default function GuestList() {
     const {event} = useOutletContext<{event: any }>();
     const{eventId} = useParams();
-    const curEvent = events.find((event) => String(event.id) === eventId);
+    const [curEvent,setCurEvent] = useState(events.find((event) => String(event.id) === eventId))
+    useEffect(()=>{
+        setCurEvent(events.find((event) => String(event.id) === eventId))
+    })
     const guestList = curEvent?.guests;
     const guestValues = guestList ? Object.values(guestList) : [];
     const arrivedCount = guestValues.filter((guest) => guest.arrived).length;
     const notArrivedCount = guestValues.length - arrivedCount;
-    const [checkedInGuestIds, setCheckedInGuestIds] = useState<string[]>([]);
+    //const [checkedInGuestIds, setCheckedInGuestIds] = useState<string[]>([]);
     const [search, setSearch] = useState("");
     const [statusSort, setStatusSort] = useState<"none" | "arrived" | "notArrived">("none");
     const [importStatus, setImportStatus] = useState<string | null>(null);
@@ -26,6 +30,8 @@ export default function GuestList() {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const[isInviteOpen, setIsInviteOpen] = useState(false)
+    const[isEditGuestOpen, setIsEditGuestOpen] = useState(false)
+    const[editGuestId, setEditGuestId]=useState("")
 
     function cycleStatusSort(){
         setStatusSort((current) =>
@@ -33,6 +39,7 @@ export default function GuestList() {
         );
     }
 
+    
     function checkIn(eventId: string, guestId: string){
         if (!eventId) return;
         const success = checkInGuest(eventId, guestId);
@@ -97,6 +104,11 @@ export default function GuestList() {
 
     function handleImportClick(){
         fileInputRef.current?.click();
+    }
+
+    function handleOpenEditGuest(guestId:string){
+        setEditGuestId(guestId);
+        setIsEditGuestOpen(true);
     }
 
     async function handleImportFile(event: React.ChangeEvent<HTMLInputElement>){
@@ -195,6 +207,9 @@ export default function GuestList() {
         URL.revokeObjectURL(url);
     }
 
+    if(!curEvent){
+        return;
+    }
     return(
         <main className="flex w-full flex-col px-4 pb-4 pt-8 sm:px-6">
 
@@ -273,6 +288,12 @@ export default function GuestList() {
                 onClose={() => setIsInviteOpen(false)}
                 onSubmit={handleInviteSubmit}
             />
+            <EditGuestFloat
+                isOpen = {isEditGuestOpen}
+                onClose={()=>setIsEditGuestOpen(false)}
+                event={curEvent}
+                guestId={editGuestId}
+            />
             <div className="mb-4 flex justify-end">
                 <Input
                     type="text"
@@ -335,7 +356,7 @@ export default function GuestList() {
                             <span className="truncate">{guest.name}</span>
                             <span className="truncate text-sm text-neutral-500">{guest.email || "-"}</span>
                             <span className="text-neutral-400">{guest.number || "-"}</span>
-                            <span>{guest.remarks}</span>{/**======================================================== */}
+                            <span>{guest.remarks || "-"}</span>{/**======================================================== */}
                             <span className="text-sm  text-neutral-500">{guest.arrivalTime}</span>
                             <span className="text-sm font-medium text-neutral-600">{guest.status}</span>
                             <span
@@ -362,6 +383,7 @@ export default function GuestList() {
                                 <Button
                                 variant = "secondary"
                                 size="sm"
+                                onClick={() =>handleOpenEditGuest(id)}
                                 className="w-11 h-11 items-center justify-center">
                                     <EditIcon/>
                                 </Button>

@@ -284,7 +284,8 @@
           "name": "John Doe",
           "arrived": true,
           "status": "Arrived",
-          "arrivalTime": null
+          "arrivalTime": "4:49:00 PM",
+          "email": "testUpdate@email.co"
         },
         "2": {
           "name": "test smth",
@@ -310,9 +311,9 @@
           "name": "testxlsx",
           "email": "liangdingxuan@gmail.com",
           "number": "",
-          "arrived": false,
-          "status": "Not-Arrived",
-          "arrivalTime": null,
+          "arrived": true,
+          "status": "Arrived",
+          "arrivalTime": "4:49:03 PM",
           "rsvp": "Pending",
           "rsvpAt": null
         },

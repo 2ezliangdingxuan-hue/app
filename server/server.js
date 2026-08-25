@@ -171,15 +171,23 @@ app.put("/api/events/:eventId", (req, res) => {
     res.json({ok: true, event});
 })
 
-// app.put("/api/:eventId/:guestId/editGuest", (req,res) => {
-//     const data = readData();
-//     const event=data.events.find((event)=>String(event.id) == req.params.eventId);
-//     const guestId = req.params.guestId;
-//     const guest=event.guests.guestId;
-//     if(!guest){
-//         return res.status(404).json({error: "Guest not found"});
-//     }
-// })
+app.put("/api/:eventId/:guestId/editGuest", (req,res) => {
+    const data = readData();
+    const event = data.events.find((event)=>String(event.id) === req.params.eventId);
+    const curGuestId = req.params.guestId
+    const guest = event.guests[curGuestId];
+    if(!guest){
+        return res.status(404).json({error: "Guest not found"});
+    }
+    if(req.body?.name) guest.name = req.body.name;
+    if(req.body?.email) guest.email = req.body.email;
+    if(req.body?.number) guest.number = req.body.number;
+    if(req.body?.remark) guest.remark = req.body.remark;
+    if(req.body?.rsvp) guest.rsvp = req.body.rsvp;
+    
+    writeData(data);
+    res.json({ok: true, res})
+})
 
 app.get("/api/events/:id", (req, res) => {
     const event = readData().events.find((event) => String(event.id) === req.params.id);

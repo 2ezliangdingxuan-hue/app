@@ -102,6 +102,7 @@ const updateEvent = async (
 }
 
 const editGuest = async (
+    eventId:string,
     guestId: string,
     details:{
         name: string;
@@ -111,7 +112,14 @@ const editGuest = async (
         rsvp:string;
     }
 ) => {
-    
+    const res = await fetch(`${API_BASE}/api/${eventId}/${guestId}/editGuest`,{
+        method:"PUT",
+        headers:{
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(details),
+    });
+    return res.json();
 }
 
 const addGuest = async (eventId: string, guest: Partial<Guest> & {name:string; selfSignup?: boolean}) => {

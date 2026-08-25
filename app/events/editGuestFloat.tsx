@@ -3,8 +3,8 @@ import { FormField } from "~/components/FormField"
 import { Input } from "~/components/Input"
 import { Modal } from "~/components/Modal"
 import { useParams } from "react-router"
-import { events } from "../../server/events"
-import { useState, type FormEvent, type ChangeEvent } from "react"
+import { events, editGuest } from "../../server/events"
+import { useState, useEffect, type FormEvent, type ChangeEvent } from "react"
 
 
 type GuestFormData = {
@@ -18,22 +18,45 @@ type GuestFormData = {
 type GuestFormProps = {
     isOpen: boolean;
     onClose: () => void;
+    event: typeof events[0];
+    guestId:string
 }
 
-export default function editGuestFloat({isOpen, onClose}: GuestFormProps, event: typeof events[0], guestId:string){
+export default function EditGuestFloat({isOpen, onClose, event, guestId}: GuestFormProps){
 
-
+    const {eventId} = useParams()
+    const curEvent = events.find((event)=>eventId === String(event.id))
+    const guest = curEvent?.guests?.[guestId]
     const [formData, setFormData] = useState<GuestFormData>({
-        name: event.guests?.guestId.name || "",
-        email: event.guests?.guestId.email || "",
-        number: event.guests?.guestId.number || "",
-        remark: event.guests?.guestId.remarks || "",
-        rsvp: event.guests?.guestId.rsvp || ""
+        name: guest?.name ?? "",
+        email: guest?.email ?? "",
+        number: guest?.number ?? "",
+        remark: guest?.remarks ?? "",
+        rsvp: guest?.rsvp ?? ""
     })
+
+    useEffect(() =>{
+        setFormData({
+            name: guest?.name ?? "",
+            email: guest?.email ?? "",
+            number: guest?.number ?? "",
+            remark: guest?.remarks ?? "",
+            rsvp: guest?.rsvp ?? ""
+        })
+    },[guestId, guest])
 
     const handleSubmit = async (e:FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if(!eventId) return;
+        editGuest(eventId, guestId, formData);
         onClose();
+    }
+
+    const handleDeleteGuest = () =>{
+        const confirmation = window.confirm(
+            "Are you sure you want to delete this guest?"
+        )
+        if(!confirmation) return;
     }
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) =>{
@@ -41,8 +64,10 @@ export default function editGuestFloat({isOpen, onClose}: GuestFormProps, event:
         setFormData((prev) => ({...prev,[name]:value}))
     }
     
+    
     return(
-        <Modal open={isOpen} onClose={onClose}>
+        <Modal open={isOpen} onClose={onClose} title="Edit Guest">
+            <p>Editing: {guestId} {guest?.name}</p>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <FormField label="Name" htmlFor="invite-name">
                     <Input
@@ -83,7 +108,7 @@ export default function editGuestFloat({isOpen, onClose}: GuestFormProps, event:
                         placeholder="Remarks(Optional)"
                         value={formData.remark}
                         onChange={handleChange}
-                        required
+                        
                     />
                 </FormField>
 
@@ -91,6 +116,9 @@ export default function editGuestFloat({isOpen, onClose}: GuestFormProps, event:
                     Save Guest
                 </Button>
             </form>
+            <button onClick={handleDeleteGuest} className=" mt-4 w-full h-10 text-white font-medium rounded-full bg-red-700">
+                    Delete Guest
+            </button>
         </Modal>
     )
 }
