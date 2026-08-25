@@ -7,6 +7,7 @@ import { PageHeader } from "~/components/PageHeader";
 import { Button } from "~/components/Button";
 import { Input } from "~/components/Input";
 import { StatTile } from "~/components/StatTile";
+import { EditIcon } from "~/components/EditIcon";
 
 export default function GuestList() {
     const {event} = useOutletContext<{event: any }>();
@@ -283,12 +284,14 @@ export default function GuestList() {
             </div>
             <div className="overflow-hidden border border-neutral-200 shadow-card">
                 <ul>
-                    <li className="grid grid-cols-[40px_minmax(120px,1fr)_minmax(120px,1fr)_90px_90px_90px_110px] items-center gap-2 bg-brand-500 py-3 text-white">
+                    <li className="grid grid-cols-[40px_minmax(120px,1fr)_minmax(120px,1fr)_minmax(120px,1fr)_minmax(120px,1fr)_90px_90px_90px_110px_90px] items-center gap-2 bg-brand-500 py-3 text-white">
                         <span className="pl-4">#</span>
                         <span>Guest</span>
                         <span>Email</span>
-                        <span>Time</span>
-                        <span className="flex items-center gap-1.5">
+                        <span>Number</span>
+                        <span>Remark</span>
+                        <span className="">Time</span>
+                        <span className="flex items-center text-center gap-1.5">
                             Status
                             <button
                                 type="button"
@@ -321,16 +324,19 @@ export default function GuestList() {
                                 </svg>
                             </button>
                         </span>
-                        <span>RSVP</span>
-                        <span className="pr-4 text-right">Action</span>
+                        <span className="text-center">RSVP</span>
+                        <span className="text-center">Action</span>
+                  
                     </li>
 
                     {visibleGuests.map(([id,guest], index) => (
-                        <li key={id} className="grid grid-cols-[40px_minmax(120px,1fr)_minmax(120px,1fr)_90px_90px_90px_110px] items-center gap-2 border-b border-neutral-200 bg-neutral-0 py-2 last:border-b-0">
+                        <li key={id} className="grid grid-cols-[40px_minmax(120px,1fr)_minmax(120px,1fr)_minmax(120px,1fr)_minmax(120px,1fr)_90px_90px_90px_110px_90px]  items-center gap-2 border-b border-neutral-200 bg-neutral-0 py-2 last:border-b-0">
                             <span className="pl-4 text-sm text-neutral-400">{index + 1}</span>
                             <span className="truncate">{guest.name}</span>
-                            <span className="truncate text-sm text-neutral-500">{guest.email || "—"}</span>
-                            <span className="text-sm text-neutral-500">{guest.arrivalTime}</span>
+                            <span className="truncate text-sm text-neutral-500">{guest.email || "-"}</span>
+                            <span className="text-neutral-400">{guest.number || "-"}</span>
+                            <span>{guest.remarks}</span>{/**======================================================== */}
+                            <span className="text-sm  text-neutral-500">{guest.arrivalTime}</span>
                             <span className="text-sm font-medium text-neutral-600">{guest.status}</span>
                             <span
                                 className={`text-sm font-medium ${
@@ -350,6 +356,14 @@ export default function GuestList() {
                                     size="sm"
                                 >
                                     Check-In
+                                </Button>
+                            </span>
+                            <span>
+                                <Button
+                                variant = "secondary"
+                                size="sm"
+                                className="w-11 h-11 items-center justify-center">
+                                    <EditIcon/>
                                 </Button>
                             </span>
                         </li>

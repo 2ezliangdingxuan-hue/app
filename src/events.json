@@ -315,6 +315,38 @@
           "arrivalTime": null,
           "rsvp": "Pending",
           "rsvpAt": null
+        },
+        "5": {
+          "name": "test new fields",
+          "email": "2ezliangdingxuan@gmail.com",
+          "number": "87654321",
+          "arrived": false,
+          "status": "Not-Arrived",
+          "arrivalTime": null,
+          "rsvp": "Pending",
+          "rsvpAt": null
+        },
+        "6": {
+          "name": "retestFields",
+          "email": "2ezlinagdingxuan@gmail.com",
+          "remarks": "banana2",
+          "number": "87654321",
+          "arrived": false,
+          "status": "Not-Arrived",
+          "arrivalTime": null,
+          "rsvp": "Pending",
+          "rsvpAt": null
+        },
+        "7": {
+          "name": "sdsds",
+          "email": "sdsds@email.com",
+          "remarks": "",
+          "number": "",
+          "arrived": false,
+          "status": "Not-Arrived",
+          "arrivalTime": null,
+          "rsvp": "Pending",
+          "rsvpAt": null
         }
       },
       "maxGuests": 40

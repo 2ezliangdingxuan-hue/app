@@ -1,42 +1,48 @@
-import { useState, type ChangeEvent, type FormEvent } from "react";
-import { Modal } from "~/components/Modal";
-import { FormField } from "~/components/FormField";
-import { Input } from "~/components/Input";
-import { Button } from "~/components/Button";
+import { Button } from "~/components/Button"
+import { FormField } from "~/components/FormField"
+import { Input } from "~/components/Input"
+import { Modal } from "~/components/Modal"
+import { useParams } from "react-router"
+import { events } from "../../server/events"
+import { useState, type FormEvent, type ChangeEvent } from "react"
 
-type GuestFormData ={
+
+type GuestFormData = {
     name: string;
     email: string;
     number: string;
-    remarks: string;
+    remark: string;
+    rsvp:string;
 }
-type InviteFormProps={
+
+type GuestFormProps = {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit?:(guest: GuestFormData) => Promise<void> | void;
 }
 
-export default function InviteForm({isOpen, onClose, onSubmit}:InviteFormProps){
-    const [formData, setFormData] = useState<GuestFormData>({
-        name:"",
-        email:"",
-        number:"",
-        remarks:""
-    });
+export default function editGuestFloat({isOpen, onClose}: GuestFormProps, event: typeof events[0], guestId:string){
 
-    const handleChange = (e :ChangeEvent<HTMLInputElement>) => {
-        const {name, value} = e.target;
-        setFormData((prev) => ({...prev, [name]: value}));
+
+    const [formData, setFormData] = useState<GuestFormData>({
+        name: event.guests?.guestId.name || "",
+        email: event.guests?.guestId.email || "",
+        number: event.guests?.guestId.number || "",
+        remark: event.guests?.guestId.remarks || "",
+        rsvp: event.guests?.guestId.rsvp || ""
+    })
+
+    const handleSubmit = async (e:FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        onClose();
     }
 
-    const handleSubmit = async (e : FormEvent<HTMLFormElement>) =>{
-        e.preventDefault();
-        await onSubmit?.(formData);
-        onClose();
-    };
-
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) =>{
+        const {name, value} = e.target;
+        setFormData((prev) => ({...prev,[name]:value}))
+    }
+    
     return(
-        <Modal open={isOpen} onClose={onClose} title="Invite Guest">
+        <Modal open={isOpen} onClose={onClose}>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <FormField label="Name" htmlFor="invite-name">
                     <Input
@@ -75,7 +81,7 @@ export default function InviteForm({isOpen, onClose, onSubmit}:InviteFormProps){
                         name="remarks"
                         type="remarks"
                         placeholder="Remarks(Optional)"
-                        value={formData.remarks}
+                        value={formData.remark}
                         onChange={handleChange}
                         required
                     />

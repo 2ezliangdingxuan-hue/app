@@ -171,6 +171,16 @@ app.put("/api/events/:eventId", (req, res) => {
     res.json({ok: true, event});
 })
 
+// app.put("/api/:eventId/:guestId/editGuest", (req,res) => {
+//     const data = readData();
+//     const event=data.events.find((event)=>String(event.id) == req.params.eventId);
+//     const guestId = req.params.guestId;
+//     const guest=event.guests.guestId;
+//     if(!guest){
+//         return res.status(404).json({error: "Guest not found"});
+//     }
+// })
+
 app.get("/api/events/:id", (req, res) => {
     const event = readData().events.find((event) => String(event.id) === req.params.id);
     if (!event) {
@@ -290,6 +300,7 @@ app.post("/api/events/:eventId/newguest", (req, res) => {
     const guest = {
         name: guestName,
         email: req.body?.email?.trim() || "",
+        remarks: req.body?.remarks || "",
         number: req.body?.number?.trim() || "",
         arrived: false,
         status: "Not-Arrived",

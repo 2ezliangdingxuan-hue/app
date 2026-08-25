@@ -10,6 +10,7 @@ type Guest = {
     status?:string;
     arrivalTime?:string|null;
     email?:string;
+    remarks?:string;
     number?: string;
     rsvp?: "Pending" | "Going" | "Declined";
     rsvpAt?: string | null;
@@ -98,6 +99,19 @@ const updateEvent = async (
         body: JSON.stringify(updates),
     });
     return res.json();
+}
+
+const editGuest = async (
+    guestId: string,
+    details:{
+        name: string;
+        email: string;
+        number: string;
+        remark: string;
+        rsvp:string;
+    }
+) => {
+    
 }
 
 const addGuest = async (eventId: string, guest: Partial<Guest> & {name:string; selfSignup?: boolean}) => {
@@ -232,5 +246,5 @@ const removeCollaborator = async (eventId: string, accountId: number, token: str
     return { ok: res.ok, error: payload.error as string | undefined };
 };
 
-export {events, getEvents, createEvent, getEventById, checkInGuest, addGuest, updateEvent, getGuest, getGuestRsvp, submitRsvp, getCollaborators, inviteCollaborator, removeCollaborator, CATEGORY_OPTIONS};
+export {events, getEvents, createEvent, getEventById, checkInGuest, addGuest, updateEvent, getGuest, getGuestRsvp, submitRsvp, getCollaborators, inviteCollaborator, removeCollaborator, editGuest, CATEGORY_OPTIONS};
 export type { CollaboratorAccount };

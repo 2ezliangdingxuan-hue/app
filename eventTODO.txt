@@ -1,9 +1,9 @@
 TODO:
 add edit/delete guests
-Add guest remarks
-add phone number
 add search by email
 
 Done:
 add form
-allow xlsx
+allow xlsx 
+Add guest remarks
+add phone number
