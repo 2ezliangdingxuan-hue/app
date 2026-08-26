@@ -3,7 +3,7 @@ import { FormField } from "~/components/FormField"
 import { Input } from "~/components/Input"
 import { Modal } from "~/components/Modal"
 import { useParams } from "react-router"
-import { events, editGuest } from "../../server/events"
+import { events, editGuest, deleteGuest } from "../../server/events"
 import { useState, useEffect, type FormEvent, type ChangeEvent } from "react"
 
 
@@ -52,11 +52,14 @@ export default function EditGuestFloat({isOpen, onClose, event, guestId}: GuestF
         onClose();
     }
 
-    const handleDeleteGuest = () =>{
+    const handleDeleteGuest = (guestId: string) =>{
         const confirmation = window.confirm(
             "Are you sure you want to delete this guest?"
         )
         if(!confirmation) return;
+        if(!eventId) return;
+        deleteGuest(eventId, guestId)
+        onClose();
     }
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) =>{
@@ -116,7 +119,7 @@ export default function EditGuestFloat({isOpen, onClose, event, guestId}: GuestF
                     Save Guest
                 </Button>
             </form>
-            <button onClick={handleDeleteGuest} className=" mt-4 w-full h-10 text-white font-medium rounded-full bg-red-700">
+            <button onClick={()=>handleDeleteGuest(guestId)} className=" mt-4 w-full h-10 text-white font-medium rounded-full bg-red-700">
                     Delete Guest
             </button>
         </Modal>

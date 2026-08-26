@@ -186,7 +186,23 @@ app.put("/api/:eventId/:guestId/editGuest", (req,res) => {
     if(req.body?.rsvp) guest.rsvp = req.body.rsvp;
     
     writeData(data);
-    res.json({ok: true, res})
+    res.json({ok: true, guest})
+})
+
+app.delete("/api/:eventId/:guestId/deleteGuest",(req,res)=>{
+    const data = readData();
+    const {eventId, guestId} = req.params;
+    const event = data.events.find((event)=>eventId === String(event.id));
+
+    if(!event) return;
+    if(!event.guests || !event.guests[guestId]) return;
+
+    const deletedGuest = event.guests[guestId]
+    delete event.guests[guestId];
+
+    writeData(data)
+
+    res.json({ok: true})
 })
 
 app.get("/api/events/:id", (req, res) => {

@@ -122,6 +122,22 @@ const editGuest = async (
     return res.json();
 }
 
+const deleteGuest = async(eventId: string, guestId: string) => {
+    const res = await fetch(`${API_BASE}/api/${eventId}/${guestId}/deleteGuest`,{
+        method:"DELETE",
+    })
+    const payload = await res.json;
+    if (!res.ok) {
+        throw new Error("Failed to delete guest");
+    }
+
+    const event = events.find((item) => String(item.id) === eventId);
+    if (event?.guests) {
+        delete event.guests[guestId];
+    }
+    return res.json();
+}
+
 const addGuest = async (eventId: string, guest: Partial<Guest> & {name:string; selfSignup?: boolean}) => {
     const res = await fetch(`${API_BASE}/api/events/${eventId}/newguest`,{
         method: "POST",
@@ -254,5 +270,5 @@ const removeCollaborator = async (eventId: string, accountId: number, token: str
     return { ok: res.ok, error: payload.error as string | undefined };
 };
 
-export {events, getEvents, createEvent, getEventById, checkInGuest, addGuest, updateEvent, getGuest, getGuestRsvp, submitRsvp, getCollaborators, inviteCollaborator, removeCollaborator, editGuest, CATEGORY_OPTIONS};
+export {events, getEvents, createEvent, getEventById, checkInGuest, addGuest, deleteGuest, updateEvent, getGuest, getGuestRsvp, submitRsvp, getCollaborators, inviteCollaborator, removeCollaborator, editGuest, CATEGORY_OPTIONS};
 export type { CollaboratorAccount };
