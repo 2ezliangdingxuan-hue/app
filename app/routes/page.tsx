@@ -2,6 +2,7 @@ import { Header } from "~/header/header"
 import {pieces, colours} from "~/page/pieces"
 import { board } from "~/page/board"
 import { useState, useEffect, useRef } from "react"
+import { kicks, iKicks } from "~/page/kicks"
 
 const initialPieces: { name: keyof typeof colours; shape: number[][] }[] = [
     { name: "I", shape: pieces.I },
@@ -12,6 +13,25 @@ const initialPieces: { name: keyof typeof colours; shape: number[][] }[] = [
     { name: "L", shape: pieces.L },
     { name: "J", shape: pieces.J },
 ];
+
+const delay = (ms: number) => new Promise((resolve)=> setTimeout(resolve, ms))
+
+// const clockwiseKicks = {
+//     kicks: [
+//         "0>R",
+//         "R>2",
+//         "2>L",
+//         "L>0",
+//     ]
+// }
+// const counterclockwiseKicks = {
+//     kicks: [
+//         "R>0",
+//         "2>R",
+//         "L>2",
+//         "0>L",
+//     ]
+// }
 
 const states = ["0", "R", "2", "L"]
 
@@ -36,13 +56,18 @@ export default function page(){
     
     const handleRotatePieceState = (direction:number) =>{
         const index = states.indexOf(pieceState)
+        const startState = pieceState
         if(direction === 1){ //clockwise
-             const nextIndex = (index + 1) % states.length;
+            const nextIndex = (index + 1) % states.length;
             setPieceState(states[nextIndex])
+            //console.log(startState+">"+states[nextIndex])
+            return (startState+">"+states[nextIndex])
         }
         else if (direction === 0){ //counter clockwise
             const prevIndex = (index - 1 + states.length) % states.length;
             setPieceState(states[prevIndex])
+            //console.log(startState+">"+states[prevIndex])
+            return (startState+">"+states[prevIndex])
         }
     }
 
@@ -174,22 +199,17 @@ export default function page(){
     //rotation system
     const handleRotateClockwise = () =>{
         const rotated = rotateClockwise(curPiece)
-        handleRotatePieceState(1);
+        const table = handleRotatePieceState(1);
 
         if (canPlace(rotated, piecePos.x, piecePos.y, boardState)){
             setCurPiece(rotated);
             return;
         }
 
-        const kicks = [
-            {x:0, y:0},
-            {x:1, y:0},
-            {x: -1, y:0},
-            {x:2, y:0},
-            {x: -2, y:0},
-        ]
+        if(!table) return;
+        const kicksTable = kicks[table as keyof typeof kicks]
 
-        for(const kick of kicks){
+        for(const kick of kicksTable){
             if(canPlace(rotated, piecePos.x + kick.x, piecePos.y+kick.y, boardState)){
                 setCurPiece(rotated);
                 setPiecePos(p => ({x: p.x + kick.x, y: p.y+kick.y}));
@@ -200,22 +220,17 @@ export default function page(){
 
     const handleRotateCounterClockwise = () =>{
         const rotated = rotateCounterClockwise(curPiece)
-        handleRotatePieceState(0);
+        const table = handleRotatePieceState(0);
 
         if (canPlace(rotated, piecePos.x, piecePos.y, boardState)){
             setCurPiece(rotated);
             return;
         }
 
-        const kicks = [
-            {x:0, y:0},
-            {x:1, y:0},
-            {x: -1, y:0},
-            {x:2, y:0},
-            {x: -2, y:0},
-        ]
+        if(!table) return;
+        const kicksTable = kicks[table as keyof typeof kicks]
 
-        for(const kick of kicks){
+        for(const kick of kicksTable){
             if(canPlace(rotated, piecePos.x + kick.x, piecePos.y+kick.y, boardState)){
                 setCurPiece(rotated);
                 setPiecePos(p => ({x: p.x + kick.x, y: p.y+kick.y}));
@@ -285,7 +300,7 @@ export default function page(){
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const handleSoftDrop = () =>{
         let newY = piecePos.y
-        //const softDrop = 
+        
         if (!intervalRef.current){
             intervalRef.current = setInterval(()=>{
             newY += 1;
@@ -297,10 +312,40 @@ export default function page(){
                 handleLockPos(newY);
                 return;
             }
-        },100)}
+        },50)}
     }
 
     const stopSoftDrop = ()=>{
+        if(intervalRef.current){
+            clearInterval(intervalRef.current)
+            intervalRef.current = null;
+        }
+    }
+
+    const handleDas = (direction: number) =>{
+        //let newY = piecePos.y
+        
+        let newX = piecePos.x;
+        // if (canPlace(curPiece, newX, piecePos.y, boardState)){
+        //     setPiecePos(p=>({...p, x: newX}));
+        // }
+
+        if (!intervalRef.current){
+            intervalRef.current = setInterval(()=>{
+            newX += direction;
+            if (canPlace(curPiece, newX, piecePos.y, boardState)){
+                setPiecePos(prev => ({...prev, x: newX}));
+                
+            } else {
+                clearInterval(intervalRef.current!);
+                intervalRef.current = null;
+                //handleLockPos(newX);
+                return;
+            }
+        },70)}
+    }
+
+    const stopDas = ()=>{
         if(intervalRef.current){
             clearInterval(intervalRef.current)
             intervalRef.current = null;
@@ -311,8 +356,8 @@ export default function page(){
     useEffect(()=>{
         if (!playingState) return;
         const handleKey = (e: KeyboardEvent) =>{
-            if (e.key === 'ArrowLeft') handleMove(-1)
-            if (e.key === 'ArrowRight') handleMove(1)
+            if (e.key === 'ArrowLeft') handleDas(-1)
+            if (e.key === 'ArrowRight') handleDas(1)
             if (e.key === 'ArrowUp') handleRotateClockwise()
             if (e.key === 'ArrowDown') handleSoftDrop()
             if (e.key === 'z') handleRotateCounterClockwise()
@@ -321,6 +366,8 @@ export default function page(){
         }
         const handleKeyUp = (e: KeyboardEvent) =>{
             if (e.key === 'ArrowDown') stopSoftDrop()
+            if (e.key === 'ArrowLeft') stopDas()
+            if (e.key === 'ArrowRight') stopDas()
         }
         window.addEventListener('keyup', handleKeyUp);
         window.addEventListener('keydown', handleKey);
@@ -412,8 +459,6 @@ export default function page(){
         setQueue([...shuffled.slice(1), ...nextBatch]);
         setCurPiece(shuffled[0]);
     },[]);
-
-    
 
     const shuffledPieces = queue.slice(0, 6).map(({name,shape},pieceIndex)=>
         <div key={`${name}-${pieceIndex}`}className="space-x-3">

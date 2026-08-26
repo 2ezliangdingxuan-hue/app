@@ -319,10 +319,10 @@
           "rsvpAt": null
         },
         "7": {
-          "name": "sdsds",
-          "email": "sdsds@email.com",
-          "remarks": "",
-          "number": "",
+          "name": "testformdetails",
+          "email": "2ezliangdingxuan@gmail.com",
+          "remarks": "testformdetails",
+          "number": "87654321",
           "arrived": false,
           "status": "Not-Arrived",
           "arrivalTime": null,

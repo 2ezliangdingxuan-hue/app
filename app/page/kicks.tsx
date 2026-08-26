@@ -1,5 +1,5 @@
 export const kicks = {
-    "0>R": [
+    "0>R": [ //clockwise
         { x: 0, y: 0 },
         { x: -1, y: 0 },
         { x: -1, y: 1 },
@@ -7,7 +7,7 @@ export const kicks = {
         { x: -1, y: -2 },
     ],
 
-    "R>0": [
+    "R>0": [ //counter
         { x: 0, y: 0 },
         { x: 1, y: 0 },
         { x: 1, y: -1 },
@@ -15,7 +15,7 @@ export const kicks = {
         { x: 1, y: 2 },
     ],
 
-    "R>2": [
+    "R>2": [ //clockwise
         { x: 0, y: 0 },
         { x: 1, y: 0 },
         { x: 1, y: -1 },
@@ -23,7 +23,7 @@ export const kicks = {
         { x: 1, y: 2 },
     ],
 
-    "2>R": [
+    "2>R": [ //counter
         { x: 0, y: 0 },
         { x: -1, y: 0 },
         { x: -1, y: 1 },
@@ -31,7 +31,7 @@ export const kicks = {
         { x: -1, y: -2 },
     ],
 
-    "2>L": [
+    "2>L": [ //clockwise
         { x: 0, y: 0 },
         { x: 1, y: 0 },
         { x: 1, y: 1 },
@@ -39,7 +39,7 @@ export const kicks = {
         { x: 1, y: -2 },
     ],
 
-    "L>2": [
+    "L>2": [ //counter
         { x: 0, y: 0 },
         { x: -1, y: 0 },
         { x: -1, y: -1 },
@@ -47,7 +47,7 @@ export const kicks = {
         { x: -1, y: 2 },
     ],
 
-    "L>0": [
+    "L>0": [ //clockwise
         { x: 0, y: 0 },
         { x: -1, y: 0 },
         { x: -1, y: -1 },
@@ -55,7 +55,7 @@ export const kicks = {
         { x: -1, y: 2 },
     ],
 
-    "0>L": [
+    "0>L": [ //counter
         { x: 0, y: 0 },
         { x: 1, y: 0 },
         { x: 1, y: 1 },
@@ -65,7 +65,7 @@ export const kicks = {
 };
 
 export const iKicks = {
-    "0>R": [
+    "0>R": [ //clockwise
         { x: 0, y: 0 },
         { x: -2, y: 0 },
         { x: 1, y: 0 },
@@ -73,7 +73,7 @@ export const iKicks = {
         { x: 1, y: 2 },
     ],
 
-    "R>0": [
+    "R>0": [//counter
         { x: 0, y: 0 },
         { x: 2, y: 0 },
         { x: -1, y: 0 },
@@ -81,7 +81,7 @@ export const iKicks = {
         { x: -1, y: -2 },
     ],
 
-    "R>2": [
+    "R>2": [//clockwise
         { x: 0, y: 0 },
         { x: -1, y: 0 },
         { x: 2, y: 0 },
@@ -89,7 +89,7 @@ export const iKicks = {
         { x: 2, y: -1 },
     ],
 
-    "2>R": [
+    "2>R": [//counter
         { x: 0, y: 0 },
         { x: 1, y: 0 },
         { x: -2, y: 0 },
@@ -97,7 +97,7 @@ export const iKicks = {
         { x: -2, y: 1 },
     ],
 
-    "2>L": [
+    "2>L": [//clockwise
         { x: 0, y: 0 },
         { x: 2, y: 0 },
         { x: -1, y: 0 },
@@ -105,7 +105,7 @@ export const iKicks = {
         { x: -1, y: -2 },
     ],
 
-    "L>2": [
+    "L>2": [//counter
         { x: 0, y: 0 },
         { x: -2, y: 0 },
         { x: 1, y: 0 },
@@ -113,7 +113,7 @@ export const iKicks = {
         { x: 1, y: 2 },
     ],
 
-    "L>0": [
+    "L>0": [//clockwise
         { x: 0, y: 0 },
         { x: 1, y: 0 },
         { x: -2, y: 0 },
@@ -121,7 +121,7 @@ export const iKicks = {
         { x: -2, y: 1 },
     ],
 
-    "0>L": [
+    "0>L": [//counter
         { x: 0, y: 0 },
         { x: -1, y: 0 },
         { x: 2, y: 0 },

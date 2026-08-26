@@ -11,7 +11,7 @@ import { QRCodeSVG } from "qrcode.react";
 
 export function Form (){
     const {eventId} = useParams();
-    const [formData, setFormData] = useState({name:"", email:""})
+    const [formData, setFormData] = useState({name:"", email:"", number:"", remarks:""})
     const [isError, setIsError] = useState(false);
     const [statusMessage, setStatusMessage] = useState("")
     const curEvent = events.find((event) => String(event.id) === eventId);
@@ -31,13 +31,15 @@ export function Form (){
             const payload = await addGuest(currentEventId, {
                 name,
                 email: formData.email.trim(),
+                number: formData.number.trim(),
+                remarks: formData.remarks.trim()
             });
 
             const guestId = payload.guestId ?? payload.guest?.id ?? "";
 
             setIsError(false);
             setStatusMessage(`Added ${name}`);
-            setFormData({name:"", email:""});
+            setFormData({name:"", email:"", number:"", remarks:""});
             setLatestQrValue(eventId + ":" + guestId)
         }
         catch (err){
@@ -74,6 +76,27 @@ export function Form (){
                         name="email"
                         value={formData.email}
                         onChange={(event) => setFormData((current) => ({ ...current, email: event.target.value }))}
+                        />
+                    </FormField>
+                    <FormField label="Number(Optional)" htmlFor="invite-number">
+                    <Input
+                        id="invite-number"
+                        name="number"
+                        type="tel"
+                        placeholder="Number(Optional)"
+                        value={formData.number}
+                        onChange={(event) => setFormData((current) => ({ ...current, number: event.target.value }))}
+                    />
+                    </FormField>
+                    <FormField label="Remarks(Optional)" htmlFor="invite-remarks">
+                        <Input
+                            id="invite-remarks"
+                            name="remarks"
+                            type="remarks"
+                            placeholder="Remarks(Optional)"
+                            value={formData.remarks}
+                            onChange={(event) => setFormData((current) => ({ ...current, remarks: event.target.value }))}
+                            required
                         />
                     </FormField>
     

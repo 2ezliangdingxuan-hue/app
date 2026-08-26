@@ -1,5 +1,6 @@
 TODO:
-add edit/delete guests
+UUID for IDs
+add description to form
 add search by email
 
 Done:
@@ -7,3 +8,19 @@ add form
 allow xlsx 
 Add guest remarks
 add phone number
+
+
+route("view/:eventId", "routes/viewEvent.tsx"),
+route("rsvp/:eventId/:guestId", "routes/rsvpResponse.tsx"),
+route("form/:eventId", "routes/form.tsx"),
+route("events/:eventId", "routes/event.tsx",[
+    index("events/eventDetails.tsx"),
+    route("invite", "events/invite.tsx"),
+    route("guestList", "events/guestList.tsx"),
+    route("activities", "events/activities.tsx"),
+    route("gifts", "events/gifts.tsx"),
+    route("ratings", "events/ratings.tsx"),
+    route("edit", "events/edit.tsx"),
+    route("rsvp", "events/rsvp.tsx"),
+    route("collaborators", "events/collaborators.tsx")
+]),
