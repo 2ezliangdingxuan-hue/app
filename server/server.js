@@ -39,6 +39,8 @@ function signToken(payload){
     return `${encodedHeader}.${encodedBody}.${signature}`;
 }
 
+
+
 function verifyToken(token){
     if (!token || typeof token !== "string") return null;
     const parts = token.split(".");
@@ -80,6 +82,19 @@ function canManageEvent(data, event, account){
     return (event.collaboratorIds || []).includes(account.id);
 }
 
+function initDataIfEmpty(){
+    const data = readData();
+    if(!data.events){
+        data["events"] = []
+        writeData(data);
+    }
+    if(!data.accounts){
+        data["accounts"] = []
+        writeData(data);
+    }
+    return data;
+}
+
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "100mb" }));
@@ -102,6 +117,8 @@ function findMaxEvent(){
     const data = readData();
     const nextId= Math.max(0, ...data.events.map((event) => Number(event.id) || 0)) + 1;
 }
+
+
 
 app.get("/api/events", (req, res) => {
     const events = readData().events;
@@ -524,6 +541,7 @@ app.get("/api/me", (req, res) => {
     res.json({ok: true, account: accountWithoutPassword});
 });
 
+initDataIfEmpty();
 app.listen(3001, () => {
     console.log("Server Express Running")
 });

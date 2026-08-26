@@ -234,16 +234,6 @@
           "status": "Not-Arrived",
           "arrivalTime": null
         },
-        "34": {
-          "name": "Self Signup Guest",
-          "email": "selfsignup@example.com",
-          "number": "",
-          "arrived": false,
-          "status": "Not-Arrived",
-          "arrivalTime": null,
-          "rsvp": "Going",
-          "rsvpAt": "2026-08-12T05:58:58.392Z"
-        },
         "35": {
           "name": "rsvp test",
           "email": "liangdingxuan@gmail.com",
