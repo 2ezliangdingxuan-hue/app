@@ -13,6 +13,8 @@ const initialPieces: { name: keyof typeof colours; shape: number[][] }[] = [
     { name: "J", shape: pieces.J },
 ];
 
+const states = ["0", "R", "2", "L"]
+
 type BoardCell = 0 | keyof typeof colours;
 
 const createEmptyBoard = (): BoardCell[][] =>
@@ -30,7 +32,20 @@ export default function page(){
     const [holdPiece, setHoldPiece] = useState<typeof curPiece|null>(null);
     const [holdState, setHoldState] = useState(false);
     const [playingState, setPlayingState] = useState(true)
+    const [pieceState, setPieceState] = useState("0")
     
+    const handleRotatePieceState = (direction:number) =>{
+        const index = states.indexOf(pieceState)
+        if(direction === 1){ //clockwise
+             const nextIndex = (index + 1) % states.length;
+            setPieceState(states[nextIndex])
+        }
+        else if (direction === 0){ //counter clockwise
+            const prevIndex = (index - 1 + states.length) % states.length;
+            setPieceState(states[prevIndex])
+        }
+    }
+
     const handleHoldPiece = () =>{
         const newHoldPiece: typeof curPiece | null = items.find(item => item.name === curPiece.name) ?? null
         if (holdPiece === null && holdState === false){
@@ -159,6 +174,7 @@ export default function page(){
     //rotation system
     const handleRotateClockwise = () =>{
         const rotated = rotateClockwise(curPiece)
+        handleRotatePieceState(1);
 
         if (canPlace(rotated, piecePos.x, piecePos.y, boardState)){
             setCurPiece(rotated);
@@ -184,6 +200,7 @@ export default function page(){
 
     const handleRotateCounterClockwise = () =>{
         const rotated = rotateCounterClockwise(curPiece)
+        handleRotatePieceState(0);
 
         if (canPlace(rotated, piecePos.x, piecePos.y, boardState)){
             setCurPiece(rotated);
@@ -224,7 +241,11 @@ export default function page(){
         }
         setPiecePos(p=>({...p, y: newY-1}))
         
-        const lockedBoard = boardState.map(row => [...row]);
+       handleLockPos(newY)
+    }
+
+    const handleLockPos = (newY: number) =>{
+         const lockedBoard = boardState.map(row => [...row]);
         curPiece.shape.forEach((row,dy) => {
             row.forEach((cell,dx) =>{
                 if (cell !== 1) return;
@@ -259,18 +280,22 @@ export default function page(){
         }
         
         setPiecePos(defaultPos);
+        return;
     }
-
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const handleSoftDrop = () =>{
+        let newY = piecePos.y
         //const softDrop = 
         if (!intervalRef.current){
             intervalRef.current = setInterval(()=>{
-            const newY = piecePos.y + 1;
+            newY += 1;
             if (canPlace(curPiece, piecePos.x, newY, boardState)){
                 setPiecePos(prev => ({...prev, y: newY}));
             } else {
-                handleLockPiece();
+                clearInterval(intervalRef.current!);
+                intervalRef.current = null;
+                handleLockPos(newY);
+                return;
             }
         },100)}
     }
@@ -294,25 +319,16 @@ export default function page(){
             if (e.key === ' ') {hardDrop()}
             if (e.key === 'Shift') handleHoldPiece();
         }
-        window.addEventListener('keydown', handleKey);
-        return () => window.removeEventListener('keydown', handleKey);
-        
-    }, [piecePos, curPiece])
-
-    useEffect(()=>{
-        if (!playingState) return;
-        const handleKey = (e: KeyboardEvent) =>{
-            if (e.key === 'ArrowDown') handleSoftDrop()
-        }
         const handleKeyUp = (e: KeyboardEvent) =>{
             if (e.key === 'ArrowDown') stopSoftDrop()
         }
-        window.addEventListener('keydown', handleKey);
         window.addEventListener('keyup', handleKeyUp);
+        window.addEventListener('keydown', handleKey);
         return () => {
-            window.removeEventListener('keydown', handleKey)
-            window.removeEventListener('keyup', handleKeyUp)
-        };
+            window.removeEventListener('keydown', handleKey);
+            window.removeEventListener('keyup', handleKeyUp);
+
+        }
         
     }, [piecePos, curPiece])
 
