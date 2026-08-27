@@ -10,6 +10,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { decryptId } from "~/utils/idCrypto";
 
 
+
 export function Form (){
     const {eventId: rawEventId} = useParams();
     const eventId = decryptId(rawEventId);
@@ -18,6 +19,13 @@ export function Form (){
     const [statusMessage, setStatusMessage] = useState("")
     const curEvent = events.find((event) => String(event.id) === eventId);
     const [latestQrValue, setLatestQrValue] = useState<string | null>(null);
+
+    const [baseUrl, setBaseUrl] = useState("");
+    // const curID = encryptId(String(eventId))
+    
+    useEffect(() => {
+        setBaseUrl(window.location.origin);
+    }, []);
     
     async function handleNewGuest(event: FormEvent<HTMLFormElement>){
         event.preventDefault();
@@ -43,6 +51,7 @@ export function Form (){
             setStatusMessage(`Added ${name}`);
             setFormData({name:"", email:"", number:"", remarks:""});
             setLatestQrValue(eventId + ":" + guestId)
+            window.location.href=`${baseUrl}/view/${rawEventId}`
         }
         catch (err){
             console.error(err);
@@ -56,6 +65,9 @@ export function Form (){
         <div className="p-4 m-6">
             <div>
                 <h1 className="text-2xl font-bold">Sign up for {curEvent?.title}</h1>
+                <h1 className="text-2xl font-bold">{curEvent?.location}</h1>
+                <h1 className="text-2xl font-bold">{curEvent?.date}</h1>
+                <img src={curEvent?.img}></img>
             </div>
             <div className="mt-6">
                 <form
@@ -98,13 +110,14 @@ export function Form (){
                             placeholder="Remarks(Optional)"
                             value={formData.remarks}
                             onChange={(event) => setFormData((current) => ({ ...current, remarks: event.target.value }))}
-                            required
+                            
                         />
                     </FormField>
     
-                    <Button type="submit" variant="primary" className="mt-2 w-full">
+                    <a href={"/"}><Button type="submit" variant="primary" className="mt-2 w-full">
                         Sign up for event
                     </Button>
+                    </a>
                 </form>
             </div>
         </div>
