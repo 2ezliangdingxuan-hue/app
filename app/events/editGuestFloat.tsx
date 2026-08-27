@@ -14,7 +14,7 @@ type GuestFormData = {
     name: string;
     email: string;
     number: string;
-    remark: string;
+    remarks: string;
     rsvp: string;
 };
 
@@ -38,7 +38,7 @@ export default function EditGuestFloat({ isOpen, onClose, event, guestId }: Gues
         name: guest?.name ?? "",
         email: guest?.email ?? "",
         number: guest?.number ?? "",
-        remark: guest?.remarks ?? "",
+        remarks: guest?.remarks ?? "",
         rsvp: guest?.rsvp ?? "Pending",
     });
 
@@ -47,7 +47,7 @@ export default function EditGuestFloat({ isOpen, onClose, event, guestId }: Gues
             name: guest?.name ?? "",
             email: guest?.email ?? "",
             number: guest?.number ?? "",
-            remark: guest?.remarks ?? "",
+            remarks: guest?.remarks ?? "",
             rsvp: guest?.rsvp ?? "Pending",
         });
     }, [guestId, guest]);
@@ -61,7 +61,7 @@ export default function EditGuestFloat({ isOpen, onClose, event, guestId }: Gues
                 name: formData.name,
                 email: formData.email,
                 number: formData.number,
-                remark: formData.remark,
+                remarks: formData.remarks,
                 rsvp: formData.rsvp,
             });
             showToast("Guest details updated!");
@@ -148,10 +148,10 @@ export default function EditGuestFloat({ isOpen, onClose, event, guestId }: Gues
                 <FormField label="Remarks / Notes (Optional)" htmlFor="edit-guest-remarks">
                     <Textarea
                         id="edit-guest-remarks"
-                        name="remark"
+                        name="remarks"
                         rows={2}
                         placeholder="Special requests, dietary preferences..."
-                        value={formData.remark}
+                        value={formData.remarks}
                         onChange={handleChange}
                     />
                 </FormField>

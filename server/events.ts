@@ -108,7 +108,7 @@ const editGuest = async (
         name: string;
         email: string;
         number: string;
-        remark: string;
+        remarks: string;
         rsvp:string;
     }
 ) => {

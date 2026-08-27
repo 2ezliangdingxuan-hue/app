@@ -199,7 +199,7 @@ app.put("/api/:eventId/:guestId/editGuest", (req,res) => {
     if(req.body?.name) guest.name = req.body.name;
     if(req.body?.email) guest.email = req.body.email;
     if(req.body?.number) guest.number = req.body.number;
-    if(req.body?.remark) guest.remark = req.body.remark;
+    if(req.body?.remarks) guest.remarks = req.body.remarks;
     if(req.body?.rsvp) guest.rsvp = req.body.rsvp;
     
     writeData(data);
