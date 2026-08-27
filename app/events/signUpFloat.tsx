@@ -2,12 +2,14 @@ import { useState, type ChangeEvent, type FormEvent } from "react";
 import { Modal } from "~/components/Modal";
 import { FormField } from "~/components/FormField";
 import { Input } from "~/components/Input";
+import { Textarea } from "~/components/Textarea";
 import { Button } from "~/components/Button";
 
 type SignUpFormData = {
     name: string;
     email: string;
     number: string;
+    remarks: string;
 };
 
 type SignUpFormProps = {
@@ -21,23 +23,31 @@ export default function SignUpForm({ isOpen, onClose, onSubmit }: SignUpFormProp
         name: "",
         email: "",
         number: "",
+        remarks: "",
     });
     const [submitted, setSubmitted] = useState(false);
+    const [error, setError] = useState("");
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        await onSubmit?.(formData);
-        setSubmitted(true);
+        setError("");
+        try {
+            await onSubmit?.(formData);
+            setSubmitted(true);
+        } catch {
+            setError("Failed to complete sign-up. Please try again.");
+        }
     };
 
     const handleClose = () => {
         setSubmitted(false);
-        setFormData({ name: "", email: "", number: "" });
+        setError("");
+        setFormData({ name: "", email: "", number: "", remarks: "" });
         onClose();
     };
 
@@ -85,6 +95,18 @@ export default function SignUpForm({ isOpen, onClose, onSubmit }: SignUpFormProp
                             onChange={handleChange}
                         />
                     </FormField>
+                    <FormField label="Remarks / Notes (optional)" htmlFor="signup-remarks">
+                        <Textarea
+                            id="signup-remarks"
+                            name="remarks"
+                            rows={2}
+                            placeholder="Special requests, dietary preferences..."
+                            value={formData.remarks}
+                            onChange={handleChange}
+                        />
+                    </FormField>
+
+                    {error && <p className="text-sm text-red-600">{error}</p>}
 
                     <Button type="submit" variant="primary" className="mt-2 w-full">
                         Sign Up

@@ -30,12 +30,13 @@ export default function EventView() {
     const capacityPercent = maxCapacity > 0 ? Math.min(100, Math.round((guestCount / maxCapacity) * 100)) : 0;
     const spotsLeft = maxCapacity > 0 ? Math.max(0, maxCapacity - guestCount) : null;
 
-    const handleSignUp = async (guest: { name: string; email: string; number: string }) => {
+    const handleSignUp = async (guest: { name: string; email: string; number: string; remark: string }) => {
         try {
             await addGuest(String(curEvent.id), { ...guest, selfSignup: true });
             showToast(`Registered ${guest.name} for ${curEvent.title}!`);
-        } catch {
+        } catch (err) {
             showToast("Failed to complete sign-up.", "error");
+            throw err;
         }
     };
 

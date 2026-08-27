@@ -396,7 +396,7 @@ export default function GuestList() {
             {/* Desktop Table View */}
             <div className="hidden sm:block overflow-hidden rounded-xl border border-neutral-200 bg-neutral-0 shadow-card">
                 <div className="overflow-x-auto">
-                    <table className="w-full min-w-[700px] text-left text-sm">
+                    <table className="w-full min-w-175 text-left text-sm">
                         <thead className="bg-brand-500 text-xs font-semibold uppercase tracking-wider text-white">
                             <tr>
                                 <th className="py-3.5 pl-4 pr-2 w-10">#</th>

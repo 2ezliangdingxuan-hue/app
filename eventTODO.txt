@@ -23,4 +23,15 @@ route("events/:eventId", "routes/event.tsx",[
     route("edit", "events/edit.tsx"),
     route("rsvp", "events/rsvp.tsx"),
     route("collaborators", "events/collaborators.tsx")
-]),
+])
+
+flow:
+create event, 
+view event, 
+sign up from view, 
+edit event, 
+invite guest, 
+sign up from form, 
+edit guest,
+ import/export 
+ add collaborators

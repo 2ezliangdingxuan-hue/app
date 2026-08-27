@@ -53,6 +53,14 @@ export default function page(){
     const [holdState, setHoldState] = useState(false);
     const [playingState, setPlayingState] = useState(true)
     const [pieceState, setPieceState] = useState("0")
+
+    const stateRef = useRef({
+        curPiece, piecePos, boardState, playingState, pieceState
+    })
+
+    stateRef.current={
+        curPiece, piecePos, boardState, playingState, pieceState
+    }
     
     const handleRotatePieceState = (direction:number) =>{
         const index = states.indexOf(pieceState)
@@ -161,9 +169,26 @@ export default function page(){
     }
 
     //gravity
+    // useEffect(()=>{
+    //     if (!playingState) return;
+    //     const gameLoop = setInterval (()=>{
+    //         const newY = piecePos.y + 1;
+
+    //         if (canPlace(curPiece, piecePos.x, newY, boardState)){
+    //             setPiecePos(prev => ({...prev, y: newY}));
+    //         } else {
+    //             handleLockPiece();
+    //         }
+    //     }, 500);
+    //     return () => clearInterval(gameLoop);
+    
+    // }, [curPiece, boardState, piecePos]);
+
+    //gravity
     useEffect(()=>{
         if (!playingState) return;
         const gameLoop = setInterval (()=>{
+            const { curPiece, piecePos, boardState } = stateRef.current;
             const newY = piecePos.y + 1;
 
             if (canPlace(curPiece, piecePos.x, newY, boardState)){
@@ -174,7 +199,7 @@ export default function page(){
         }, 500);
         return () => clearInterval(gameLoop);
     
-    }, [curPiece, boardState, piecePos]);
+    }, [playingState]);
 
     //rotate 90 clockwise
     const rotateClockwise = (piece: typeof curPiece)=>{
@@ -374,13 +399,13 @@ export default function page(){
         return () => {
             window.removeEventListener('keydown', handleKey);
             window.removeEventListener('keyup', handleKeyUp);
-
         }
         
     }, [piecePos, curPiece])
 
     //set piece position
     const handleLockPiece = () => {
+        const { curPiece, piecePos, boardState } = stateRef.current;
         const lockedBoard = boardState.map(row => [...row]);
         curPiece.shape.forEach((row,dy) => {
             row.forEach((cell,dx) =>{
