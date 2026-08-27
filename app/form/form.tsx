@@ -63,13 +63,22 @@ export function Form (){
     return(
         <>
         <div className="p-4 m-6">
-            <div>
+            <div className="flex flex-col items-center">
                 <h1 className="text-2xl font-bold">Sign up for {curEvent?.title}</h1>
-                <h1 className="text-2xl font-bold">{curEvent?.location}</h1>
-                <h1 className="text-2xl font-bold">{curEvent?.date}</h1>
-                <img src={curEvent?.img}></img>
+                <div className="gap-2 items-center justify-between w-full px-40">
+                    <h1 className="text-center">{curEvent?.location}</h1>
+                    <h1 className="text-center">{curEvent?.date}</h1>
+                    
+                </div>
             </div>
             <div className="mt-6">
+                <div className="mb-6 overflow-hidden rounded-xl border border-neutral-200 shadow-card">
+                <img
+                    className="aspect-2/1 w-full object-cover"
+                    src={curEvent?.img}
+                    alt={curEvent?.title}
+                />
+            </div>
                 <form
                     className="flex w-full flex-col gap-4 rounded-xl border border-neutral-200 bg-neutral-0 p-6 shadow-card"
                     onSubmit={handleNewGuest}>
