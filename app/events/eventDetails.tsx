@@ -8,11 +8,13 @@ import { Select } from "~/components/Select";
 import { IconButton } from "~/components/IconButton";
 import { EditIcon } from "~/components/EditIcon";
 import { SaveCancelBar } from "~/components/SaveCancelBar";
+import { decryptId } from "~/utils/idCrypto";
 
 type EditField = "date" | "location" | "capacity" | "category" | "description" | "image" | null;
 
 export default function EventDetails() {
-    let { eventId } = useParams();
+    let { eventId: rawEventId } = useParams();
+    const eventId = decryptId(rawEventId);
     const curEvent = events.find((event) => String(event.id) === eventId);
 
     const [editing, setEditing] = useState<EditField>(null);

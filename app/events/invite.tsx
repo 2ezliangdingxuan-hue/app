@@ -6,9 +6,11 @@ import { FormField } from "~/components/FormField";
 import { Input } from "~/components/Input";
 import { Button } from "~/components/Button";
 import { Copy } from "~/components/CopyToClipboard";
+import { decryptId } from "~/utils/idCrypto";
 
 export default function Invite() {
-    const{ eventId } = useParams();
+    const{ eventId: rawEventId } = useParams();
+    const eventId = decryptId(rawEventId);
     const[formData, setFormData] = useState({name: "", email: "", number:"", remarks:""});
     const[statusMessage, setStatusMessage] = useState("");
     const[isError, setIsError] = useState(false);

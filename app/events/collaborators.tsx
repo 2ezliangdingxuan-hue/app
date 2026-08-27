@@ -6,9 +6,11 @@ import { PageHeader } from "~/components/PageHeader";
 import { FormField } from "~/components/FormField";
 import { Input } from "~/components/Input";
 import { Button } from "~/components/Button";
+import { decryptId } from "~/utils/idCrypto";
 
 export default function Collaborators() {
-    const { eventId } = useParams();
+    const { eventId: rawEventId } = useParams();
+    const eventId = decryptId(rawEventId);
     const { account, token } = useAuth();
 
     const [owner, setOwner] = useState<CollaboratorAccount | null>(null);

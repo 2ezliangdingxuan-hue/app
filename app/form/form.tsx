@@ -7,10 +7,12 @@ import { useState, type FormEvent } from "react";
 import { addGuest } from "../../server/events";
 import { Button } from "~/components/Button";
 import { QRCodeSVG } from "qrcode.react";
+import { decryptId } from "~/utils/idCrypto";
 
 
 export function Form (){
-    const {eventId} = useParams();
+    const {eventId: rawEventId} = useParams();
+    const eventId = decryptId(rawEventId);
     const [formData, setFormData] = useState({name:"", email:"", number:"", remarks:""})
     const [isError, setIsError] = useState(false);
     const [statusMessage, setStatusMessage] = useState("")

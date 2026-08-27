@@ -7,6 +7,7 @@ import { Input } from "~/components/Input";
 import { Textarea } from "~/components/Textarea";
 import { Select } from "~/components/Select";
 import { Button } from "~/components/Button";
+import { encryptId } from "~/utils/idCrypto";
 
 const initialForm = {
     title:"",
@@ -60,7 +61,7 @@ export function CreateEvent(){
                 return;
             }
 
-            navigate(`/events/${payload.event.id}`);
+            navigate(`/events/${encryptId(payload.event.id)}`);
         } catch{
             setError("Something went wrong while creating the event.");
         } finally{

@@ -2,9 +2,11 @@ import { Link } from "react-router";
 import{getEventById} from "../../server/events";
 import{useState, useEffect} from "react";
 import{useParams} from "react-router"
+import { decryptId } from "~/utils/idCrypto";
 
 export function Sidebar(){
-    let {eventId} = useParams();
+    let {eventId: rawEventId} = useParams();
+    const eventId = decryptId(rawEventId);
     useEffect (() =>{
         
         if(!eventId){return};

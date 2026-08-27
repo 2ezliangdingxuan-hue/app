@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { getGuestRsvp, submitRsvp } from "../../server/events";
 import { Button } from "~/components/Button";
+import { decryptId } from "~/utils/idCrypto";
 
 type RsvpGuest = { name: string; rsvp: "Pending" | "Going" | "Declined"; rsvpAt: string | null };
 type RsvpEvent = { title?: string; date?: string; location?: string };
 
 export default function RsvpResponse() {
-    const { eventId, guestId } = useParams();
+    const { eventId: rawEventId, guestId: rawGuestId } = useParams();
+    const eventId = decryptId(rawEventId);
+    const guestId = decryptId(rawGuestId);
     const [guest, setGuest] = useState<RsvpGuest | null>(null);
     const [event, setEvent] = useState<RsvpEvent | null>(null);
     const [loading, setLoading] = useState(true);

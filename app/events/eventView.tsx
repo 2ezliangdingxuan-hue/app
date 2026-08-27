@@ -3,9 +3,11 @@ import { useParams } from "react-router";
 import { events, addGuest } from "../../server/events";
 import { Button } from "~/components/Button";
 import SignUpForm from "./signUpFloat";
+import { decryptId } from "~/utils/idCrypto";
 
 export default function EventView() {
-    const { eventId } = useParams();
+    const { eventId: rawEventId } = useParams();
+    const eventId = decryptId(rawEventId);
     const curEvent = events.find((event) => String(event.id) === eventId);
     const [isSignUpOpen, setIsSignUpOpen] = useState(false);
 

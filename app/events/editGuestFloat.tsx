@@ -5,6 +5,7 @@ import { Modal } from "~/components/Modal"
 import { useParams } from "react-router"
 import { events, editGuest, deleteGuest } from "../../server/events"
 import { useState, useEffect, type FormEvent, type ChangeEvent } from "react"
+import { decryptId } from "~/utils/idCrypto"
 
 
 type GuestFormData = {
@@ -24,7 +25,8 @@ type GuestFormProps = {
 
 export default function EditGuestFloat({isOpen, onClose, event, guestId}: GuestFormProps){
 
-    const {eventId} = useParams()
+    const {eventId: rawEventId} = useParams()
+    const eventId = decryptId(rawEventId)
     const curEvent = events.find((event)=>eventId === String(event.id))
     const guest = curEvent?.guests?.[guestId]
     const [formData, setFormData] = useState<GuestFormData>({

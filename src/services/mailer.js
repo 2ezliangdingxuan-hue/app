@@ -1,6 +1,7 @@
 import QRCode from "qrcode";
 import nodemailer from "nodemailer";
 import { configDotenv } from "dotenv";
+import { encryptId } from "../utils/idCrypto.js";
 
 
 const APP_BASE_URL = process.env.APP_BASE_URL || "https://localhost:5173";
@@ -22,7 +23,7 @@ async function sendGuestInviteEmail({to, guestName, guestId, eventTitle, eventId
         margin:1,
     });
 
-    const rsvpLink = `${APP_BASE_URL}/rsvp/${eventId}/${guestId}`;
+    const rsvpLink = `${APP_BASE_URL}/rsvp/${encryptId(eventId)}/${encryptId(guestId)}`;
 
     return transporter.sendMail({
         from: `"Event App" <${process.env.SMTP_USER}`,

@@ -4,6 +4,7 @@ import { Card } from "~/components/Card"
 import { PageHeader } from "~/components/PageHeader"
 import { LinkButton } from "~/components/Button"
 import { useAuth } from "~/auth/AuthContext"
+import { encryptId } from "~/utils/idCrypto"
 
 export default function Events() {
 
@@ -62,7 +63,7 @@ export default function Events() {
                     {events.map((event) => (
                         <li key={event.id}>
                             <Card
-                                href={`/events/${event.id}`}
+                                href={`/events/${encryptId(event.id)}`}
                                 image={event.img}
                                 title={event.title}
                                 date={event.date}

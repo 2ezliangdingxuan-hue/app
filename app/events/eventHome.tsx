@@ -4,6 +4,7 @@ import { useState } from "react";
 import { EditableField } from "~/components/EditableField";
 import { Input } from "~/components/Input";
 import { NavLinkItem } from "~/components/NavList";
+import { decryptId } from "~/utils/idCrypto";
 
 type TabItem = {
     to: string;
@@ -21,7 +22,8 @@ const TABS: TabItem[] = [
 ];
 
 export function EventHome() {
-    let {eventId} = useParams();
+    let {eventId: rawEventId} = useParams();
+    const eventId = decryptId(rawEventId);
     const curEvent = events.find((event) => String(event.id) === eventId);
 
     const [isEditingTitle, setIsEditingTitle] = useState(false);

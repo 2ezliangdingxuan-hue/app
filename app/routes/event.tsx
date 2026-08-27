@@ -3,9 +3,11 @@ import {Sidebar} from "../sidebar/sidebar";
 import{Outlet, useLoaderData} from "react-router";
 import {events} from "../../src/events.json";
 import {EventHome} from "../events/eventHome"
+import {decryptId} from "~/utils/idCrypto";
 
 export async function loader({params}: {params: {eventId: string}}) {
-    const event = events.find((e) => String(e.id) === params.eventId);
+    const eventId = decryptId(params.eventId);
+    const event = events.find((e) => String(e.id) === eventId);
     if(!event) {throw new Response("Event not found", {status: 404})}
     return {event};
 }

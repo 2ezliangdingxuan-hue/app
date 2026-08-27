@@ -3,6 +3,7 @@ import { getEvents } from "../../server/events";
 import { useEffect, useState } from "react";
 import { Card } from "~/components/Card";
 import { PageHeader } from "~/components/PageHeader";
+import { encryptId } from "~/utils/idCrypto";
 
 export function Welcome() {
 
@@ -44,7 +45,7 @@ export function Welcome() {
             {events.map((event) => (
               <li key={event.id}>
                 <Card
-                  href={`/view/${event.id}`}
+                  href={`/view/${encryptId(event.id)}`}
                   image={event.img}
                   title={event.title}
                   date={event.date}

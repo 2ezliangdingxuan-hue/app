@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
+import { encryptId } from "~/utils/idCrypto";
 
 type CopyProps = {
     eventId: String
@@ -7,7 +8,7 @@ type CopyProps = {
 export function Copy({eventId}:CopyProps){
     const [isCopied, setIsCopied] = useState(false);
     const [baseUrl, setBaseUrl] = useState("");
-    const curID = String(eventId)
+    const curID = encryptId(String(eventId))
 
     useEffect(() => {
         setBaseUrl(window.location.origin);

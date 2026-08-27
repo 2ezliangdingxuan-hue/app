@@ -5,11 +5,13 @@ import { PageHeader } from "~/components/PageHeader";
 import { Button } from "~/components/Button";
 import { Input } from "~/components/Input";
 import { StatTile } from "~/components/StatTile";
+import { decryptId, encryptId } from "~/utils/idCrypto";
 
 type RsvpFilter = "All" | "Going" | "Declined" | "Pending";
 
 export default function Rsvp() {
-    const { eventId } = useParams();
+    const { eventId: rawEventId } = useParams();
+    const eventId = decryptId(rawEventId);
     const curEvent = events.find((event) => String(event.id) === eventId);
     const guestList = curEvent?.guests;
     const guestValues = guestList ? Object.values(guestList) : [];
@@ -32,7 +34,7 @@ export default function Rsvp() {
 
     async function handleCopyLink(guestId: string) {
         if (!eventId) return;
-        const link = `${window.location.origin}/rsvp/${eventId}/${guestId}`;
+        const link = `${window.location.origin}/rsvp/${encryptId(eventId)}/${encryptId(guestId)}`;
         try {
             await navigator.clipboard.writeText(link);
             setCopiedId(guestId);

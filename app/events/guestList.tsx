@@ -9,10 +9,12 @@ import { Input } from "~/components/Input";
 import { StatTile } from "~/components/StatTile";
 import { EditIcon } from "~/components/EditIcon";
 import EditGuestFloat from "./editGuestFloat";
+import { decryptId } from "~/utils/idCrypto";
 
 export default function GuestList() {
     const {event} = useOutletContext<{event: any }>();
-    const{eventId} = useParams();
+    const{eventId: rawEventId} = useParams();
+    const eventId = decryptId(rawEventId);
     const [curEvent,setCurEvent] = useState(events.find((event) => String(event.id) === eventId))
     useEffect(()=>{
         setCurEvent(events.find((event) => String(event.id) === eventId))
