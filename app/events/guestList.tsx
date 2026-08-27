@@ -1,5 +1,5 @@
 import { useOutletContext, useParams } from "react-router";
-import {useRef, useState, useEffect} from "react";
+import { useRef, useState, useEffect } from "react";
 import { read as readXlsx, utils as xlsxUtils } from "xlsx";
 import { events, checkInGuest, addGuest } from "../../server/events";
 import InviteForm from "./inviteFloat";
@@ -10,47 +10,79 @@ import { StatTile } from "~/components/StatTile";
 import { EditIcon } from "~/components/EditIcon";
 import EditGuestFloat from "./editGuestFloat";
 import { decryptId } from "~/utils/idCrypto";
+import { useToast } from "~/components/Toast";
+
+type FilterType = "all" | "arrived" | "notArrived" | "Going" | "Declined" | "Pending";
 
 export default function GuestList() {
-    const {event} = useOutletContext<{event: any }>();
-    const{eventId: rawEventId} = useParams();
+    const { event } = useOutletContext<{ event: any }>();
+    const { eventId: rawEventId } = useParams();
     const eventId = decryptId(rawEventId);
-    const [curEvent,setCurEvent] = useState(events.find((event) => String(event.id) === eventId))
-    useEffect(()=>{
-        setCurEvent(events.find((event) => String(event.id) === eventId))
-    })
-    const guestList = curEvent?.guests;
-    const guestValues = guestList ? Object.values(guestList) : [];
-    const arrivedCount = guestValues.filter((guest) => guest.arrived).length;
+    const { showToast } = useToast();
+
+    const [curEvent, setCurEvent] = useState(events.find((e) => String(e.id) === eventId));
+    useEffect(() => {
+        setCurEvent(events.find((e) => String(e.id) === eventId));
+    });
+
+    const guestList = curEvent?.guests || {};
+    const guestEntries = Object.entries(guestList);
+    const guestValues = Object.values(guestList) as any[];
+
+    const arrivedCount = guestValues.filter((g) => g.arrived).length;
     const notArrivedCount = guestValues.length - arrivedCount;
-    //const [checkedInGuestIds, setCheckedInGuestIds] = useState<string[]>([]);
+    const arrivalPercentage = guestValues.length > 0 ? Math.round((arrivedCount / guestValues.length) * 100) : 0;
+
     const [search, setSearch] = useState("");
-    const [statusSort, setStatusSort] = useState<"none" | "arrived" | "notArrived">("none");
+    const [filter, setFilter] = useState<FilterType>("all");
     const [importStatus, setImportStatus] = useState<string | null>(null);
     const [importError, setImportError] = useState(false);
     const [isImporting, setIsImporting] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const[isInviteOpen, setIsInviteOpen] = useState(false)
-    const[isEditGuestOpen, setIsEditGuestOpen] = useState(false)
-    const[editGuestId, setEditGuestId]=useState("")
+    const [isInviteOpen, setIsInviteOpen] = useState(false);
+    const [isEditGuestOpen, setIsEditGuestOpen] = useState(false);
+    const [editGuestId, setEditGuestId] = useState("");
 
-    function cycleStatusSort(){
-        setStatusSort((current) =>
-            current === "none" ? "arrived" : current === "arrived" ? "notArrived" : "none"
-        );
+    async function handleCheckInToggle(targetEventId: string, guestId: string) {
+        if (!targetEventId) return;
+        const currentGuest = guestList[guestId];
+        const willBeArrived = !currentGuest?.arrived;
+
+        try {
+            await checkInGuest(targetEventId, guestId);
+            setCurEvent((prev) => {
+                if (!prev || !prev.guests) return prev;
+                return {
+                    ...prev,
+                    guests: {
+                        ...prev.guests,
+                        [guestId]: {
+                            ...prev.guests[guestId],
+                            arrived: willBeArrived,
+                            status: willBeArrived ? "Arrived" : "Not arrived",
+                            arrivalTime: willBeArrived ? new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : null,
+                        },
+                    },
+                };
+            });
+            showToast(
+                willBeArrived ? `${currentGuest?.name || "Guest"} checked in!` : `Check-in reverted for ${currentGuest?.name || "Guest"}`
+            );
+        } catch {
+            showToast("Failed to update check-in status.", "error");
+        }
     }
 
-    
-    function checkIn(eventId: string, guestId: string){
+    async function handleInviteSubmit(guest: { name: string; email: string; number: string; remarks: string }) {
         if (!eventId) return;
-        const success = checkInGuest(eventId, guestId);
-        console.log(success);
-    }
-
-    async function handleInviteSubmit(guest:{name:string; email:string}){
-        if (!eventId) return;
-        await addGuest(eventId, guest);
+        try {
+            await addGuest(eventId, guest);
+            setCurEvent(events.find((e) => String(e.id) === eventId));
+            showToast(`Invitation sent to ${guest.name}!`);
+        } catch {
+            showToast("Failed to invite guest.", "error");
+        }
     }
 
     function parseCsv(text: string): string[][] {
@@ -61,7 +93,6 @@ export default function GuestList() {
 
         for (let i = 0; i < text.length; i++) {
             const char = text[i];
-
             if (inQuotes) {
                 if (char === '"') {
                     if (text[i + 1] === '"') {
@@ -104,32 +135,31 @@ export default function GuestList() {
             .filter((row) => row.some((cell) => cell.trim() !== ""));
     }
 
-    function handleImportClick(){
+    function handleImportClick() {
         fileInputRef.current?.click();
     }
 
-    function handleOpenEditGuest(guestId:string){
+    function handleOpenEditGuest(guestId: string) {
         setEditGuestId(guestId);
         setIsEditGuestOpen(true);
     }
 
-    async function handleImportFile(event: React.ChangeEvent<HTMLInputElement>){
-        const file = event.target.files?.[0];
-        event.target.value = "";
+    async function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0];
+        e.target.value = "";
         if (!file || !eventId) return;
 
         setImportError(false);
         setImportStatus(null);
 
         try {
-            const isXlsx = file.name.toLowerCase().endsWith(".xlsx")
-                || file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            const isXlsx =
+                file.name.toLowerCase().endsWith(".xlsx") ||
+                file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
-            const rows = isXlsx
-                ? parseXlsx(await file.arrayBuffer())
-                : parseCsv(await file.text());
+            const rows = isXlsx ? parseXlsx(await file.arrayBuffer()) : parseCsv(await file.text());
 
-            if (rows.length === 0){
+            if (rows.length === 0) {
                 throw new Error(isXlsx ? "The XLSX file is empty." : "The CSV file is empty.");
             }
 
@@ -137,7 +167,7 @@ export default function GuestList() {
             const nameIndex = header.indexOf("name");
             const emailIndex = header.indexOf("email");
 
-            if (nameIndex === -1 || emailIndex === -1){
+            if (nameIndex === -1 || emailIndex === -1) {
                 throw new Error(`${isXlsx ? "XLSX" : "CSV"} must include a "name" and an "email" column.`);
             }
 
@@ -147,49 +177,62 @@ export default function GuestList() {
                     name: (row[nameIndex] ?? "").trim(),
                     email: (row[emailIndex] ?? "").trim(),
                 }))
-                .filter((guest) => guest.name);
+                .filter((g) => g.name);
 
-            if (guestsToImport.length === 0){
+            if (guestsToImport.length === 0) {
                 throw new Error(`No valid guest rows found in the ${isXlsx ? "XLSX" : "CSV"}.`);
             }
 
             setIsImporting(true);
-            for (const guest of guestsToImport){
+            for (const guest of guestsToImport) {
                 await addGuest(eventId, guest);
             }
 
-            setImportStatus(`Imported ${guestsToImport.length} guest${guestsToImport.length === 1 ? "" : "s"}.`);
+            setCurEvent(events.find((ev) => String(ev.id) === eventId));
+            showToast(`Successfully imported ${guestsToImport.length} guests!`);
         } catch (err) {
             setImportError(true);
-            setImportStatus(err instanceof Error ? err.message : "Failed to import CSV.");
+            setImportStatus(err instanceof Error ? err.message : "Failed to import file.");
+            showToast("Failed to import guests.", "error");
         } finally {
             setIsImporting(false);
         }
     }
 
-    const visibleGuests = (guestList
-        ? Object.entries(guestList).filter(([, guest]) =>
-            guest.name.toLowerCase().includes(search.toLowerCase())
-        )
-        : []
-    ).sort(([, a], [, b]) => {
-        if (statusSort === "none") return 0;
-        const diff = Number(Boolean(b.arrived)) - Number(Boolean(a.arrived));
-        return statusSort === "arrived" ? diff : -diff;
+    // Filter and search
+    const visibleGuests = guestEntries.filter(([, guest]: [string, any]) => {
+        const term = search.toLowerCase();
+        const matchesSearch =
+            (guest.name && guest.name.toLowerCase().includes(term)) ||
+            (guest.email && guest.email.toLowerCase().includes(term)) ||
+            (guest.number && guest.number.includes(term)) ||
+            (guest.remarks && guest.remarks.toLowerCase().includes(term));
+
+        if (!matchesSearch) return false;
+
+        if (filter === "arrived") return Boolean(guest.arrived);
+        if (filter === "notArrived") return !Boolean(guest.arrived);
+        if (filter === "Going" || filter === "Declined" || filter === "Pending") {
+            return (guest.rsvp ?? "Pending") === filter;
+        }
+
+        return true;
     });
 
-    function escapeCsvValue(value: string){
+    function escapeCsvValue(value: string) {
         const needsQuotes = /[",\n]/.test(value);
         const escaped = value.replace(/"/g, '""');
         return needsQuotes ? `"${escaped}"` : escaped;
     }
 
-    function handleExportCsv(){
-        const header = ["#", "Name", "Email", "Time", "Status", "RSVP"];
-        const rows = visibleGuests.map(([, guest], index) => [
+    function handleExportCsv() {
+        const header = ["#", "Name", "Email", "Phone", "Remarks", "Arrival Time", "Status", "RSVP"];
+        const rows = visibleGuests.map(([, guest]: [string, any], index) => [
             String(index + 1),
             guest.name ?? "",
             guest.email ?? "",
+            guest.number ?? "",
+            guest.remarks ?? "",
             guest.arrivalTime ?? "",
             guest.status ?? "",
             guest.rsvp ?? "Pending",
@@ -207,18 +250,17 @@ export default function GuestList() {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
+        showToast("Guestlist exported to CSV!");
     }
 
-    if(!curEvent){
-        return;
-    }
-    return(
-        <main className="flex w-full flex-col px-4 pb-4 pt-8 sm:px-6">
+    if (!curEvent) return null;
 
+    return (
+        <main className="mx-auto flex w-full max-w-5xl flex-col px-4 pb-12 pt-6 sm:px-8">
             <PageHeader
                 title="Guestlist"
                 action={
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                         <input
                             ref={fileInputRef}
                             type="file"
@@ -226,174 +268,307 @@ export default function GuestList() {
                             onChange={handleImportFile}
                             className="hidden"
                         />
-                        <Button
-                            variant="secondary"
-                            onClick={handleImportClick}
-                            disabled={isImporting}
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <path d="M12 21V9m0 0l-4 4m4-4l4 4" />
-                                <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+                        <Button variant="secondary" size="sm" onClick={handleImportClick} disabled={isImporting}>
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                <path d="M12 21V9m0 0l-4 4m4-4l4 4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
                             </svg>
-                            {isImporting ? "Importing..." : "Import CSV/EXCEL"}
+                            {isImporting ? "Importing..." : "Import File"}
                         </Button>
-                        <Button
-                            variant="secondary"
-                            onClick={handleExportCsv}
-                            disabled={visibleGuests.length === 0}
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <path d="M12 3v12m0 0l-4-4m4 4l4-4" />
-                                <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+                        <Button variant="secondary" size="sm" onClick={handleExportCsv} disabled={visibleGuests.length === 0}>
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
                             </svg>
                             Export CSV
                         </Button>
-                        <Button variant="primary" onClick={() => setIsInviteOpen(true)}>
-                            Invite guest +
+                        <Button variant="primary" size="sm" onClick={() => setIsInviteOpen(true)}>
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                <path d="M12 5v14M5 12h14" />
+                            </svg>
+                            Invite Guest
                         </Button>
                     </div>
                 }
                 className="mb-6"
             />
+
             {importStatus && (
-                <p className={`mb-4 text-sm ${importError ? "text-danger-500" : "text-success-500"}`}>
+                <div
+                    className={`mb-4 rounded-xl border p-3 text-sm ${
+                        importError ? "border-red-200 bg-red-50 text-red-700" : "border-brand-200 bg-brand-50 text-brand-700"
+                    }`}
+                >
                     {importStatus}
-                </p>
+                </div>
             )}
-            <div className="mb-6 flex w-full flex-row justify-evenly gap-4">
-                <StatTile label="Arrived" value={arrivedCount} tone="brand" />
-                <StatTile label="Not Arrived" value={notArrivedCount} tone="accent" />
-                <StatTile label="Total Guests" value={guestValues.length} tone="neutral" />
+
+            {/* Interactive Stat Tiles with Filter Triggers */}
+            <div className="mb-6 grid grid-cols-3 gap-3 sm:gap-4">
+                <button
+                    type="button"
+                    onClick={() => setFilter(filter === "arrived" ? "all" : "arrived")}
+                    className={`text-left transition-all ${filter === "arrived" ? "ring-2 ring-brand-500 rounded-xl" : ""}`}
+                >
+                    <StatTile label="Arrived" value={arrivedCount} tone="brand" />
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setFilter(filter === "notArrived" ? "all" : "notArrived")}
+                    className={`text-left transition-all ${filter === "notArrived" ? "ring-2 ring-accent-500 rounded-xl" : ""}`}
+                >
+                    <StatTile label="Not Arrived" value={notArrivedCount} tone="accent" />
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setFilter("all")}
+                    className={`text-left transition-all ${filter === "all" ? "ring-2 ring-neutral-400 rounded-xl" : ""}`}
+                >
+                    <StatTile label="Total Guests" value={guestValues.length} tone="neutral" />
+                </button>
             </div>
-            <InviteForm
-                isOpen={isInviteOpen}
-                onClose={() => setIsInviteOpen(false)}
-                onSubmit={handleInviteSubmit}
-            />
+
+            {/* Arrival Progress Bar */}
+            {guestValues.length > 0 && (
+                <div className="mb-6 rounded-xl border border-neutral-200 bg-neutral-0 p-4 shadow-soft">
+                    <div className="mb-2 flex items-center justify-between text-sm">
+                        <span className="font-semibold text-neutral-700">Check-in Progress</span>
+                        <span className="font-bold text-brand-600">
+                            {arrivedCount} / {guestValues.length} ({arrivalPercentage}%)
+                        </span>
+                    </div>
+                    <div className="h-2.5 w-full overflow-hidden rounded-full bg-neutral-100">
+                        <div
+                            className="h-full bg-brand-500 transition-all duration-500 rounded-full"
+                            style={{ width: `${arrivalPercentage}%` }}
+                        />
+                    </div>
+                </div>
+            )}
+
+            {/* Search & Filter Bar */}
+            <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-wrap items-center gap-1.5">
+                    {(
+                        [
+                            { id: "all", label: "All" },
+                            { id: "arrived", label: "Arrived" },
+                            { id: "notArrived", label: "Not Arrived" },
+                            { id: "Going", label: "RSVP Going" },
+                            { id: "Declined", label: "Declined" },
+                            { id: "Pending", label: "Pending" },
+                        ] as { id: FilterType; label: string }[]
+                    ).map((f) => (
+                        <button
+                            key={f.id}
+                            type="button"
+                            onClick={() => setFilter(f.id)}
+                            className={`rounded-pill px-3 py-1 text-xs font-semibold transition-all ${
+                                filter === f.id
+                                    ? "bg-brand-500 text-white shadow-xs"
+                                    : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+                            }`}
+                        >
+                            {f.label}
+                        </button>
+                    ))}
+                </div>
+
+                <div className="relative w-full sm:max-w-xs">
+                    <Input
+                        type="text"
+                        placeholder="Search by name, email, phone..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="pl-9"
+                    />
+                    <svg
+                        className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                    >
+                        <circle cx="11" cy="11" r="8" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                </div>
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden sm:block overflow-hidden rounded-xl border border-neutral-200 bg-neutral-0 shadow-card">
+                <div className="overflow-x-auto">
+                    <table className="w-full min-w-[700px] text-left text-sm">
+                        <thead className="bg-brand-500 text-xs font-semibold uppercase tracking-wider text-white">
+                            <tr>
+                                <th className="py-3.5 pl-4 pr-2 w-10">#</th>
+                                <th className="py-3.5 px-3">Guest</th>
+                                <th className="py-3.5 px-3">Contact</th>
+                                <th className="py-3.5 px-3">RSVP</th>
+                                <th className="py-3.5 px-3">Status</th>
+                                <th className="py-3.5 px-3 text-right pr-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-neutral-100">
+                            {visibleGuests.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} className="py-8 text-center text-neutral-400">
+                                        No guests found matching your criteria.
+                                    </td>
+                                </tr>
+                            ) : (
+                                visibleGuests.map(([id, guest]: [string, any], index) => {
+                                    const isArrived = Boolean(guest.arrived);
+                                    return (
+                                        <tr key={id} className="transition-colors hover:bg-neutral-50/80">
+                                            <td className="py-3 pl-4 pr-2 text-neutral-400 text-xs font-mono">{index + 1}</td>
+                                            <td className="py-3 px-3">
+                                                <div className="font-semibold text-neutral-900">{guest.name}</div>
+                                                {guest.remarks && (
+                                                    <div className="text-xs text-neutral-400 italic truncate max-w-xs">
+                                                        Note: {guest.remarks}
+                                                    </div>
+                                                )}
+                                            </td>
+                                            <td className="py-3 px-3 text-neutral-600">
+                                                <div>{guest.email || "—"}</div>
+                                                {guest.number && <div className="text-xs text-neutral-400">{guest.number}</div>}
+                                            </td>
+                                            <td className="py-3 px-3">
+                                                <span
+                                                    className={`inline-flex rounded-pill px-2.5 py-0.5 text-xs font-semibold ${
+                                                        guest.rsvp === "Going"
+                                                            ? "bg-brand-50 text-brand-700"
+                                                            : guest.rsvp === "Declined"
+                                                            ? "bg-red-50 text-red-700"
+                                                            : "bg-neutral-100 text-neutral-600"
+                                                    }`}
+                                                >
+                                                    {guest.rsvp ?? "Pending"}
+                                                </span>
+                                            </td>
+                                            <td className="py-3 px-3">
+                                                {isArrived ? (
+                                                    <div className="flex items-center gap-1.5 text-brand-600 font-semibold text-xs">
+                                                        <span className="h-2 w-2 rounded-full bg-brand-500" />
+                                                        Arrived {guest.arrivalTime ? `(${guest.arrivalTime})` : ""}
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex items-center gap-1.5 text-neutral-400 text-xs">
+                                                        <span className="h-2 w-2 rounded-full bg-neutral-300" />
+                                                        Not arrived
+                                                    </div>
+                                                )}
+                                            </td>
+                                            <td className="py-3 px-3 text-right pr-4">
+                                                <div className="inline-flex items-center gap-2">
+                                                    <Button
+                                                        onClick={() => handleCheckInToggle(String(eventId), id)}
+                                                        variant={isArrived ? "secondary" : "primary"}
+                                                        size="sm"
+                                                        className={isArrived ? "text-neutral-600 hover:text-neutral-900" : ""}
+                                                    >
+                                                        {isArrived ? "Undo" : "Check In"}
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => handleOpenEditGuest(id)}
+                                                        className="h-8 w-8 p-0 rounded-full text-neutral-400 hover:text-neutral-700"
+                                                        aria-label={`Edit ${guest.name}`}
+                                                    >
+                                                        <EditIcon size={16} />
+                                                    </Button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {/* Mobile Card List View */}
+            <div className="flex flex-col gap-3 sm:hidden">
+                {visibleGuests.length === 0 ? (
+                    <div className="rounded-xl border border-neutral-200 bg-neutral-0 p-8 text-center text-neutral-400">
+                        No guests found.
+                    </div>
+                ) : (
+                    visibleGuests.map(([id, guest]: [string, any]) => {
+                        const isArrived = Boolean(guest.arrived);
+                        return (
+                            <div
+                                key={id}
+                                className={`rounded-xl border p-4 shadow-soft transition-all ${
+                                    isArrived ? "border-brand-200 bg-brand-50/30" : "border-neutral-200 bg-neutral-0"
+                                }`}
+                            >
+                                <div className="flex items-start justify-between gap-2">
+                                    <div>
+                                        <h3 className="font-bold text-neutral-900">{guest.name}</h3>
+                                        <p className="text-xs text-neutral-500">{guest.email || "No email"}</p>
+                                        {guest.number && <p className="text-xs text-neutral-400 mt-0.5">{guest.number}</p>}
+                                    </div>
+                                    <span
+                                        className={`rounded-pill px-2.5 py-0.5 text-xs font-semibold ${
+                                            guest.rsvp === "Going"
+                                                ? "bg-brand-100 text-brand-800"
+                                                : guest.rsvp === "Declined"
+                                                ? "bg-red-100 text-red-800"
+                                                : "bg-neutral-100 text-neutral-600"
+                                        }`}
+                                    >
+                                        {guest.rsvp ?? "Pending"}
+                                    </span>
+                                </div>
+
+                                {guest.remarks && (
+                                    <p className="mt-2 text-xs italic text-neutral-500 bg-neutral-50 p-2 rounded-lg">
+                                        "{guest.remarks}"
+                                    </p>
+                                )}
+
+                                <div className="mt-3 flex items-center justify-between border-t border-neutral-100 pt-3">
+                                    <span className="text-xs text-neutral-500">
+                                        {isArrived ? `Arrived at ${guest.arrivalTime || "event"}` : "Not arrived yet"}
+                                    </span>
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => handleOpenEditGuest(id)}
+                                            className="h-8 w-8 p-0 rounded-full"
+                                            aria-label="Edit guest"
+                                        >
+                                            <EditIcon size={16} />
+                                        </Button>
+                                        <Button
+                                            onClick={() => handleCheckInToggle(String(eventId), id)}
+                                            variant={isArrived ? "secondary" : "primary"}
+                                            size="sm"
+                                        >
+                                            {isArrived ? "Undo" : "Check In"}
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })
+                )}
+            </div>
+
+            <InviteForm isOpen={isInviteOpen} onClose={() => setIsInviteOpen(false)} onSubmit={handleInviteSubmit} />
+
             <EditGuestFloat
-                isOpen = {isEditGuestOpen}
-                onClose={()=>setIsEditGuestOpen(false)}
+                isOpen={isEditGuestOpen}
+                onClose={() => {
+                    setIsEditGuestOpen(false);
+                    setCurEvent(events.find((e) => String(e.id) === eventId));
+                }}
                 event={curEvent}
                 guestId={editGuestId}
             />
-            <div className="mb-4 flex justify-end">
-                <Input
-                    type="text"
-                    placeholder="Search guest"
-                    value={search}
-                    onChange={(e)=>setSearch(e.target.value)}
-                    className="max-w-sm"
-                />
-            </div>
-            <div className="overflow-hidden border border-neutral-200 shadow-card">
-                <ul>
-                    <li className="grid grid-cols-[40px_minmax(120px,1fr)_minmax(120px,1fr)_minmax(120px,1fr)_minmax(120px,1fr)_90px_90px_90px_110px_90px] items-center gap-2 bg-brand-500 py-3 text-white">
-                        <span className="pl-4">#</span>
-                        <span>Guest</span>
-                        <span>Email</span>
-                        <span>Number</span>
-                        <span>Remark</span>
-                        <span className="">Time</span>
-                        <span className="flex items-center text-center gap-1.5">
-                            Status
-                            <button
-                                type="button"
-                                onClick={cycleStatusSort}
-                                title={
-                                    statusSort === "none"
-                                        ? "Sort by status"
-                                        : statusSort === "arrived"
-                                        ? "Arrived first"
-                                        : "Not arrived first"
-                                }
-                                aria-label="Sort by status"
-                                className={`inline-flex h-5 w-5 items-center justify-center rounded-full transition-colors hover:bg-white/20 ${
-                                    statusSort !== "none" ? "text-white" : "text-white/60"
-                                }`}
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="13"
-                                    height="13"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2.5"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    className={`transition-transform ${statusSort === "notArrived" ? "rotate-180" : ""}`}
-                                >
-                                    <path d="M12 5v14M6 11l6-6 6 6" />
-                                </svg>
-                            </button>
-                        </span>
-                        <span className="text-center">RSVP</span>
-                        <span className="text-center">Action</span>
-                  
-                    </li>
-
-                    {visibleGuests.map(([id,guest], index) => (
-                        <li key={id} className="grid grid-cols-[40px_minmax(120px,1fr)_minmax(120px,1fr)_minmax(120px,1fr)_minmax(120px,1fr)_90px_90px_90px_110px_90px]  items-center gap-2 border-b border-neutral-200 bg-neutral-0 py-2 last:border-b-0">
-                            <span className="pl-4 text-sm text-neutral-400">{index + 1}</span>
-                            <span className="truncate">{guest.name}</span>
-                            <span className="truncate text-sm text-neutral-500">{guest.email || "-"}</span>
-                            <span className="text-neutral-400">{guest.number || "-"}</span>
-                            <span>{guest.remarks || "-"}</span>{/**======================================================== */}
-                            <span className="text-sm  text-neutral-500">{guest.arrivalTime}</span>
-                            <span className="text-sm font-medium text-neutral-600">{guest.status}</span>
-                            <span
-                                className={`text-sm font-medium ${
-                                    guest.rsvp === "Going"
-                                        ? "text-brand-600"
-                                        : guest.rsvp === "Declined"
-                                        ? "text-danger-500"
-                                        : "text-neutral-500"
-                                }`}
-                            >
-                                {guest.rsvp ?? "Pending"}
-                            </span>
-                            <span className="pr-4 text-right">
-                                <Button
-                                    onClick={() => checkIn(String(eventId),id)}
-                                    variant="secondary"
-                                    size="sm"
-                                >
-                                    Check-In
-                                </Button>
-                            </span>
-                            <span>
-                                <Button
-                                variant = "secondary"
-                                size="sm"
-                                onClick={() =>handleOpenEditGuest(id)}
-                                className="w-11 h-11 items-center justify-center">
-                                    <EditIcon/>
-                                </Button>
-                            </span>
-                        </li>
-                    ))}
-                </ul>
-            </div>
         </main>
-    )
+    );
 }

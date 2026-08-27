@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { events, updateEvent, CATEGORY_OPTIONS } from "../../server/events";
 import { useState } from "react";
 import { EditableField } from "~/components/EditableField";
@@ -8,14 +8,17 @@ import { Select } from "~/components/Select";
 import { IconButton } from "~/components/IconButton";
 import { EditIcon } from "~/components/EditIcon";
 import { SaveCancelBar } from "~/components/SaveCancelBar";
-import { decryptId } from "~/utils/idCrypto";
+import { Button } from "~/components/Button";
+import { decryptId, encryptId } from "~/utils/idCrypto";
+import { useToast } from "~/components/Toast";
 
 type EditField = "date" | "location" | "capacity" | "category" | "description" | "image" | null;
 
 export default function EventDetails() {
-    let { eventId: rawEventId } = useParams();
+    const { eventId: rawEventId } = useParams();
     const eventId = decryptId(rawEventId);
     const curEvent = events.find((event) => String(event.id) === eventId);
+    const { showToast } = useToast();
 
     const [editing, setEditing] = useState<EditField>(null);
     const [saving, setSaving] = useState(false);
@@ -64,6 +67,9 @@ export default function EventDetails() {
                     ...updatePayLoad,
                 };
             }
+            showToast("Changes saved successfully!");
+        } catch {
+            showToast("Failed to save changes.", "error");
         } finally {
             setSaving(false);
             setEditing(null);
@@ -80,8 +86,60 @@ export default function EventDetails() {
         reader.readAsDataURL(file);
     };
 
+    const handleCopyPublicLink = async () => {
+        if (!curEvent) return;
+        const link = `${window.location.origin}/view/${encryptId(curEvent.id)}`;
+        try {
+            await navigator.clipboard.writeText(link);
+            showToast("Public event link copied to clipboard!");
+        } catch {
+            showToast("Failed to copy link.", "error");
+        }
+    };
+
+    if (!curEvent) return null;
+
     return (
-        <div className="mx-auto w-full max-w-4xl px-4 pb-10 pt-6 sm:px-8">
+        <div className="mx-auto w-full max-w-5xl px-4 pb-12 pt-6 sm:px-8">
+            {/* Quick Action Bar */}
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-brand-100 bg-brand-50/70 p-3.5 sm:p-4">
+                <div className="flex items-center gap-2 text-sm text-brand-900">
+                    <span className="flex h-2 w-2 rounded-full bg-brand-500 animate-pulse" />
+                    <span className="font-semibold">Quick Actions:</span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                    <Button variant="secondary" size="sm" onClick={handleCopyPublicLink}>
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                        </svg>
+                        Copy Public Link
+                    </Button>
+                    <Link
+                        to={`/view/${encryptId(curEvent.id)}`}
+                        target="_blank"
+                        className="inline-flex items-center gap-1.5 rounded-pill bg-neutral-0 px-3 py-1.5 text-sm font-medium text-neutral-800 shadow-xs hover:bg-neutral-100 transition-colors"
+                    >
+                        <svg className="h-4 w-4 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                            <polyline points="15 3 21 3 21 9" />
+                            <line x1="10" y1="14" x2="21" y2="3" />
+                        </svg>
+                        View Public Page
+                    </Link>
+                    <Link
+                        to="/scanner"
+                        className="inline-flex items-center gap-1.5 rounded-pill bg-brand-500 px-3 py-1.5 text-sm font-medium text-white shadow-soft hover:bg-brand-600 transition-colors"
+                    >
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <rect width="18" height="18" x="3" y="3" rx="2" />
+                            <path d="M7 7h.01M17 7h.01M7 17h.01M17 17h.01" />
+                        </svg>
+                        Open QR Scanner
+                    </Link>
+                </div>
+            </div>
+
             {/* Capacity & Category */}
             <div className="mb-6 flex flex-wrap items-center justify-between gap-x-8 gap-y-3">
                 <EditableField
@@ -91,22 +149,26 @@ export default function EventDetails() {
                     onCancel={() => setEditing(null)}
                     saving={saving}
                     view={
-                        <>
-                        <span className="text-lg font-medium text-neutral-600">Maximum Capacity:</span>
-                        <span className="text-lg font-semibold text-neutral-800">{curEvent?.maxGuests ?? 0} Guests</span>
-                        </>
+                        <div className="group flex items-center gap-2 rounded-lg p-1.5 transition-colors hover:bg-neutral-100/70">
+                            <span className="text-base font-medium text-neutral-600">Maximum Capacity:</span>
+                            <span className="text-base font-bold text-neutral-800">{curEvent.maxGuests ?? 0} Guests</span>
+                            <span className="text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <EditIcon size={14} />
+                            </span>
+                        </div>
                     }
                     edit={
-                        <>
-                        <span className="text-lg font-medium text-neutral-600">Maximum Capacity:</span>
-                        <Input
-                        type="number"
-                        min="0"
-                        value={draft.capacity}
-                        onChange={(e) => setDraft((current) => ({...current, capacity: e.target.value}))}
-                        className="max-w-32"
-                        />
-                        </>
+                        <div className="flex items-center gap-2">
+                            <span className="text-base font-medium text-neutral-600">Maximum Capacity:</span>
+                            <Input
+                                type="number"
+                                min="0"
+                                value={draft.capacity}
+                                onChange={(e) => setDraft((current) => ({ ...current, capacity: e.target.value }))}
+                                className="max-w-32"
+                                autoFocus
+                            />
+                        </div>
                     }
                 />
 
@@ -117,44 +179,48 @@ export default function EventDetails() {
                     onCancel={() => setEditing(null)}
                     saving={saving}
                     view={
-                        <>
-                        <span className="text-lg font-medium text-neutral-600">Category:</span>
-                        <span className="rounded-pill bg-brand-50 px-3 py-1 text-sm font-medium capitalize text-brand-600">
-                            {curEvent?.category}
-                        </span>
-                        </>
+                        <div className="group flex items-center gap-2 rounded-lg p-1.5 transition-colors hover:bg-neutral-100/70">
+                            <span className="text-base font-medium text-neutral-600">Category:</span>
+                            <span className="rounded-pill bg-brand-50 px-3 py-1 text-sm font-semibold capitalize text-brand-700">
+                                {curEvent.category}
+                            </span>
+                            <span className="text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <EditIcon size={14} />
+                            </span>
+                        </div>
                     }
                     edit={
-                        <>
-                        <span className="text-lg font-medium text-neutral-600">Category:</span>
-                        <Select
-                        value={draft.category}
-                        onChange={(e) => setDraft((current) => ({...current, category: e.target.value}))}
-                        className="max-w-40"
-                        >
-                            <option value="" disabled>Select a category</option>
-                            {CATEGORY_OPTIONS.map((option) => (
-                                <option key={option} value={option}>{option}</option>
-                            ))}
-                        </Select>
-                        </>
+                        <div className="flex items-center gap-2">
+                            <span className="text-base font-medium text-neutral-600">Category:</span>
+                            <Select
+                                value={draft.category}
+                                onChange={(e) => setDraft((current) => ({ ...current, category: e.target.value }))}
+                                className="max-w-40"
+                                autoFocus
+                            >
+                                <option value="" disabled>Select a category</option>
+                                {CATEGORY_OPTIONS.map((option) => (
+                                    <option key={option} value={option}>{option}</option>
+                                ))}
+                            </Select>
+                        </div>
                     }
                 />
             </div>
 
-            {/* Image */}
-            <div className="relative mb-6 overflow-hidden rounded-xl border border-neutral-200 shadow-card">
+            {/* Image Banner */}
+            <div className="relative mb-6 overflow-hidden rounded-2xl border border-neutral-200 shadow-card">
                 <img
                     className="aspect-2/1 w-full object-cover"
-                    src={editing === "image" && draft.image ? draft.image : curEvent?.img}
-                    alt={curEvent?.title}
+                    src={editing === "image" && draft.image ? draft.image : curEvent.img}
+                    alt={curEvent.title}
                 />
                 {editing !== "image" && (
                     <IconButton
                         size="sm"
                         onClick={() => startEdit("image")}
                         aria-label="Edit image"
-                        className="absolute right-3 top-3 bg-neutral-0/90 shadow-soft hover:bg-neutral-0"
+                        className="absolute right-3.5 top-3.5 bg-neutral-0/95 shadow-card hover:bg-neutral-0"
                     >
                         <EditIcon size={18} />
                     </IconButton>
@@ -168,67 +234,88 @@ export default function EventDetails() {
                             className="text-sm text-neutral-600 file:mr-3 file:rounded-pill file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-brand-600"
                         />
                         <div className="flex gap-2">
-                            <button
-                                type="button"
-                                onClick={saveEdit}
-                                disabled={saving}
-                                className="rounded-pill bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
-                            >
-                                {saving ? "Saving..." : "Save"}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setEditing(null)}
-                                disabled={saving}
-                                className="rounded-pill bg-neutral-200 px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-300 disabled:opacity-50"
-                            >
+                            <Button type="button" variant="primary" size="sm" onClick={saveEdit} disabled={saving}>
+                                {saving ? "Saving..." : "Save Image"}
+                            </Button>
+                            <Button type="button" variant="secondary" size="sm" onClick={() => setEditing(null)} disabled={saving}>
                                 Cancel
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 )}
             </div>
 
-            <div className="mb-6 flex flex-col gap-4">
+            <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {/* Date */}
-                <EditableField
-                    editing={editing === "date"}
-                    onEdit={() => startEdit("date")}
-                    onSave={saveEdit}
-                    onCancel={() => setEditing(null)}
-                    saving={saving}
-                    view={<p className="text-xl text-neutral-700">Date: <span className="font-semibold text-neutral-800">{curEvent?.date}</span></p>}
-                    edit={
-                        <Input
-                            type="date"
-                            value={draft.date}
-                            onChange={(e) => setDraft((current) => ({...current, date: e.target.value}))}
-                            className="max-w-xs"
-                        />
-                    }
-                />
+                <div className="rounded-xl border border-neutral-200 bg-neutral-0 p-5 shadow-soft">
+                    <EditableField
+                        editing={editing === "date"}
+                        onEdit={() => startEdit("date")}
+                        onSave={saveEdit}
+                        onCancel={() => setEditing(null)}
+                        saving={saving}
+                        view={
+                            <div className="group flex items-center justify-between">
+                                <div>
+                                    <p className="text-xs font-semibold uppercase tracking-wider text-neutral-400">Date & Time</p>
+                                    <p className="mt-1 text-lg font-bold text-neutral-800">{curEvent.date || "Not set"}</p>
+                                </div>
+                                <span className="text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <EditIcon size={16} />
+                                </span>
+                            </div>
+                        }
+                        edit={
+                            <div className="flex flex-col gap-2">
+                                <label className="text-xs font-semibold uppercase text-neutral-500">Edit Date</label>
+                                <Input
+                                    type="date"
+                                    value={draft.date}
+                                    onChange={(e) => setDraft((current) => ({ ...current, date: e.target.value }))}
+                                    autoFocus
+                                />
+                            </div>
+                        }
+                    />
+                </div>
 
                 {/* Location */}
-                <EditableField
-                    editing={editing === "location"}
-                    onEdit={() => startEdit("location")}
-                    onSave={saveEdit}
-                    onCancel={() => setEditing(null)}
-                    saving={saving}
-                    view={<p className="text-xl text-neutral-700">Location: <span className="font-semibold text-neutral-800">{curEvent?.location}</span></p>}
-                    edit={
-                        <Input
-                            type="text"
-                            value={draft.location}
-                            onChange={(e) => setDraft((current) => ({...current, location: e.target.value}))}
-                            className="max-w-xs"
-                        />
-                    }
-                />
+                <div className="rounded-xl border border-neutral-200 bg-neutral-0 p-5 shadow-soft">
+                    <EditableField
+                        editing={editing === "location"}
+                        onEdit={() => startEdit("location")}
+                        onSave={saveEdit}
+                        onCancel={() => setEditing(null)}
+                        saving={saving}
+                        view={
+                            <div className="group flex items-center justify-between">
+                                <div>
+                                    <p className="text-xs font-semibold uppercase tracking-wider text-neutral-400">Location</p>
+                                    <p className="mt-1 text-lg font-bold capitalize text-neutral-800">{curEvent.location || "Not set"}</p>
+                                </div>
+                                <span className="text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <EditIcon size={16} />
+                                </span>
+                            </div>
+                        }
+                        edit={
+                            <div className="flex flex-col gap-2">
+                                <label className="text-xs font-semibold uppercase text-neutral-500">Edit Location</label>
+                                <Input
+                                    type="text"
+                                    placeholder="Location or venue name"
+                                    value={draft.location}
+                                    onChange={(e) => setDraft((current) => ({ ...current, location: e.target.value }))}
+                                    autoFocus
+                                />
+                            </div>
+                        }
+                    />
+                </div>
             </div>
 
-            {/* Description */}
-            <div className="overflow-hidden rounded-xl border border-neutral-200 bg-neutral-0 shadow-soft">
+            {/* Description Card */}
+            <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-0 shadow-soft">
                 <div className="flex items-center justify-between border-b border-neutral-100 px-5 py-4 sm:px-6">
                     <h2 className="text-lg font-bold text-neutral-800 sm:text-xl">About this event</h2>
                     {editing !== "description" && (
@@ -241,16 +328,18 @@ export default function EventDetails() {
                     {editing === "description" ? (
                         <div className="flex flex-col gap-3">
                             <Textarea
-                            rows={6}
-                            value={draft.description}
-                            onChange={(e) => setDraft((current) => ({ ...current, description: e.target.value}))}
+                                rows={6}
+                                value={draft.description}
+                                onChange={(e) => setDraft((current) => ({ ...current, description: e.target.value }))}
+                                placeholder="Write a detailed description for your attendees..."
+                                autoFocus
                             />
                             <SaveCancelBar onSave={saveEdit} onCancel={() => setEditing(null)} saving={saving} />
                         </div>
-                    ) : curEvent?.description ? (
+                    ) : curEvent.description ? (
                         <>
                             <p
-                                className={`max-w-prose text-base leading-7 text-neutral-600 sm:text-[17px] ${
+                                className={`max-w-prose whitespace-pre-line text-base leading-7 text-neutral-600 sm:text-[17px] ${
                                     isDescExpanded ? "" : "line-clamp-6"
                                 }`}
                             >
@@ -267,10 +356,10 @@ export default function EventDetails() {
                             )}
                         </>
                     ) : (
-                        <p className="text-sm text-neutral-400">No description yet.</p>
+                        <p className="text-sm text-neutral-400">No description yet. Click the edit icon to add one.</p>
                     )}
                 </div>
             </div>
         </div>
-    )
+    );
 }

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 
 type ModalProps = {
   open: boolean;
@@ -8,20 +8,31 @@ type ModalProps = {
 };
 
 export function Modal({ open, onClose, title, children }: ModalProps) {
+  useEffect(() => {
+    if (!open) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [open, onClose]);
+
   if (!open) return null;
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/60 backdrop-blur-xs p-4 animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md rounded-xl bg-neutral-0 p-6 shadow-modal"
+        className="w-full max-w-md rounded-2xl border border-neutral-200 bg-neutral-0 p-6 shadow-modal animate-in zoom-in-95 duration-150"
         onClick={(event) => event.stopPropagation()}
       >
         {title && (
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-neutral-800">{title}</h2>
+            <h2 className="text-xl font-bold text-neutral-800">{title}</h2>
             <button
               type="button"
               onClick={onClose}

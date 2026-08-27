@@ -1,38 +1,47 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
 import { encryptId } from "~/utils/idCrypto";
+import { Button } from "./Button";
+import { useToast } from "./Toast";
 
 type CopyProps = {
-    eventId: String
-}
-export function Copy({eventId}:CopyProps){
-    const [isCopied, setIsCopied] = useState(false);
+    eventId: string;
+};
+
+export function Copy({ eventId }: CopyProps) {
     const [baseUrl, setBaseUrl] = useState("");
-    const curID = encryptId(String(eventId))
+    const [copied, setCopied] = useState(false);
+    const { showToast } = useToast();
+    const curID = encryptId(String(eventId));
 
     useEffect(() => {
         setBaseUrl(window.location.origin);
     }, []);
 
-    const handleCopy = async () =>{
-        try{
-            await navigator.clipboard.writeText(`${baseUrl}/form/${curID}`)
-            setIsCopied(true)
-            setTimeout(()=>setIsCopied(false),2000)
-        }catch(e){
-            console.log(e)
+    const linkToForm = `${baseUrl}/form/${curID}`;
+
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(linkToForm);
+            setCopied(true);
+            showToast("Sign-up form link copied to clipboard!");
+            setTimeout(() => setCopied(false), 2000);
+        } catch {
+            showToast("Failed to copy link.", "error");
         }
-    }
-    const linkToForm = `${baseUrl}/form/${curID}`
-    return(
-        <>
-        <div className = "flex flex-row gap-2 justify-center items-center">
-            <a href={linkToForm}><p className="text-center">{baseUrl}/form/{curID}</p></a>
-            <button className="border rounded-full px-2 py-1"
-            onClick={handleCopy}> 
-            Copy 
-            </button>
+    };
+
+    return (
+        <div className="flex w-full flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-neutral-0 p-3.5 shadow-card">
+            <div className="flex items-center gap-2 overflow-hidden">
+                <svg className="h-4 w-4 text-brand-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                </svg>
+                <span className="truncate text-xs font-mono text-neutral-600">{linkToForm}</span>
+            </div>
+            <Button variant="secondary" size="sm" onClick={handleCopy} className="shrink-0">
+                {copied ? "Copied!" : "Copy Link"}
+            </Button>
         </div>
-        </>
-    )
+    );
 }

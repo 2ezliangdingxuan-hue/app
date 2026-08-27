@@ -2,89 +2,103 @@ import { useState, type ChangeEvent, type FormEvent } from "react";
 import { Modal } from "~/components/Modal";
 import { FormField } from "~/components/FormField";
 import { Input } from "~/components/Input";
+import { Textarea } from "~/components/Textarea";
 import { Button } from "~/components/Button";
 
-type GuestFormData ={
+type GuestFormData = {
     name: string;
     email: string;
     number: string;
     remarks: string;
-}
-type InviteFormProps={
+};
+
+type InviteFormProps = {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit?:(guest: GuestFormData) => Promise<void> | void;
-}
+    onSubmit?: (guest: GuestFormData) => Promise<void> | void;
+};
 
-export default function InviteForm({isOpen, onClose, onSubmit}:InviteFormProps){
+export default function InviteForm({ isOpen, onClose, onSubmit }: InviteFormProps) {
     const [formData, setFormData] = useState<GuestFormData>({
-        name:"",
-        email:"",
-        number:"",
-        remarks:""
+        name: "",
+        email: "",
+        number: "",
+        remarks: "",
     });
+    const [submitting, setSubmitting] = useState(false);
 
-    const handleChange = (e :ChangeEvent<HTMLInputElement>) => {
-        const {name, value} = e.target;
-        setFormData((prev) => ({...prev, [name]: value}));
-    }
-
-    const handleSubmit = async (e : FormEvent<HTMLFormElement>) =>{
-        e.preventDefault();
-        await onSubmit?.(formData);
-        onClose();
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    return(
-        <Modal open={isOpen} onClose={onClose} title="Invite Guest">
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setSubmitting(true);
+        try {
+            await onSubmit?.(formData);
+            setFormData({ name: "", email: "", number: "", remarks: "" });
+            onClose();
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    return (
+        <Modal open={isOpen} onClose={onClose} title="Invite New Guest">
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                <FormField label="Name" htmlFor="invite-name">
+                <FormField label="Full Name" htmlFor="invite-modal-name">
                     <Input
-                        id="invite-name"
+                        id="invite-modal-name"
                         name="name"
-                        placeholder="Name"
+                        placeholder="e.g. Alex Johnson"
                         value={formData.name}
                         onChange={handleChange}
                         required
+                        autoFocus
                     />
                 </FormField>
-                <FormField label="Email" htmlFor="invite-email">
+
+                <FormField label="Email Address" htmlFor="invite-modal-email">
                     <Input
-                        id="invite-email"
+                        id="invite-modal-email"
                         name="email"
                         type="email"
-                        placeholder="Email"
+                        placeholder="alex@example.com"
                         value={formData.email}
                         onChange={handleChange}
                         required
                     />
                 </FormField>
-                <FormField label="Number(Optional)" htmlFor="invite-number">
+
+                <FormField label="Phone Number (Optional)" htmlFor="invite-modal-number">
                     <Input
-                        id="invite-number"
+                        id="invite-modal-number"
                         name="number"
                         type="tel"
-                        placeholder="Number(Optional)"
+                        placeholder="+1 (555) 000-0000"
                         value={formData.number}
                         onChange={handleChange}
                     />
                 </FormField>
-                <FormField label="Remarks(Optional)" htmlFor="invite-remarks">
-                    <Input
-                        id="invite-remarks"
+
+                <FormField label="Remarks / Notes (Optional)" htmlFor="invite-modal-remarks">
+                    <Textarea
+                        id="invite-modal-remarks"
                         name="remarks"
-                        type="remarks"
-                        placeholder="Remarks(Optional)"
+                        rows={2}
+                        placeholder="Table assignment, VIP status, etc."
                         value={formData.remarks}
                         onChange={handleChange}
-                        required
                     />
                 </FormField>
 
-                <Button type="submit" variant="primary" className="mt-2 w-full">
-                    Save Guest
-                </Button>
+                <div className="mt-2 flex flex-col gap-2 pt-2 border-t border-neutral-100">
+                    <Button type="submit" variant="primary" disabled={submitting} className="w-full">
+                        {submitting ? "Sending Invite & Generating QR..." : "Send Invite & Save"}
+                    </Button>
+                </div>
             </form>
         </Modal>
-    )
+    );
 }
