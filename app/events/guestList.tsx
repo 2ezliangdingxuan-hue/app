@@ -166,6 +166,8 @@ export default function GuestList() {
             const header = rows[0].map((cell) => cell.trim().toLowerCase());
             const nameIndex = header.indexOf("name");
             const emailIndex = header.indexOf("email");
+            const numberIndex = header.findIndex((h) => ["number", "phone", "phone number", "contact", "tel"].includes(h));
+            const remarksIndex = header.findIndex((h) => ["remarks", "remark", "notes", "note", "comment", "comments"].includes(h));
 
             if (nameIndex === -1 || emailIndex === -1) {
                 throw new Error(`${isXlsx ? "XLSX" : "CSV"} must include a "name" and an "email" column.`);
@@ -176,6 +178,8 @@ export default function GuestList() {
                 .map((row) => ({
                     name: (row[nameIndex] ?? "").trim(),
                     email: (row[emailIndex] ?? "").trim(),
+                    number: numberIndex !== -1 ? (row[numberIndex] ?? "").trim() : "",
+                    remarks: remarksIndex !== -1 ? (row[remarksIndex] ?? "").trim() : "",
                 }))
                 .filter((g) => g.name);
 
@@ -375,7 +379,7 @@ export default function GuestList() {
                 <div className="relative w-full sm:max-w-xs">
                     <Input
                         type="text"
-                        placeholder="Search by name, email, phone..."
+                        placeholder="Search by name, email, phone, remarks..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className="pl-9"
@@ -402,6 +406,7 @@ export default function GuestList() {
                                 <th className="py-3.5 pl-4 pr-2 w-10">#</th>
                                 <th className="py-3.5 px-3">Guest</th>
                                 <th className="py-3.5 px-3">Contact</th>
+                                <th className="py-3.5 px-3">Remarks</th>
                                 <th className="py-3.5 px-3">RSVP</th>
                                 <th className="py-3.5 px-3">Status</th>
                                 <th className="py-3.5 px-3 text-right pr-4">Actions</th>
@@ -410,7 +415,7 @@ export default function GuestList() {
                         <tbody className="divide-y divide-neutral-100">
                             {visibleGuests.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="py-8 text-center text-neutral-400">
+                                    <td colSpan={7} className="py-8 text-center text-neutral-400">
                                         No guests found matching your criteria.
                                     </td>
                                 </tr>
@@ -422,15 +427,19 @@ export default function GuestList() {
                                             <td className="py-3 pl-4 pr-2 text-neutral-400 text-xs font-mono">{index + 1}</td>
                                             <td className="py-3 px-3">
                                                 <div className="font-semibold text-neutral-900">{guest.name}</div>
-                                                {guest.remarks && (
-                                                    <div className="text-xs text-neutral-400 italic truncate max-w-xs">
-                                                        Note: {guest.remarks}
-                                                    </div>
-                                                )}
                                             </td>
                                             <td className="py-3 px-3 text-neutral-600">
                                                 <div>{guest.email || "—"}</div>
                                                 {guest.number && <div className="text-xs text-neutral-400">{guest.number}</div>}
+                                            </td>
+                                            <td className="py-3 px-3 text-neutral-600">
+                                                {guest.remarks ? (
+                                                    <span className="inline-block max-w-xs truncate text-xs text-neutral-700 font-normal" title={guest.remarks}>
+                                                        {guest.remarks}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-xs text-neutral-300">—</span>
+                                                )}
                                             </td>
                                             <td className="py-3 px-3">
                                                 <span
@@ -524,9 +533,10 @@ export default function GuestList() {
                                 </div>
 
                                 {guest.remarks && (
-                                    <p className="mt-2 text-xs italic text-neutral-500 bg-neutral-50 p-2 rounded-lg">
-                                        "{guest.remarks}"
-                                    </p>
+                                    <div className="mt-2.5 rounded-lg border border-neutral-100 bg-neutral-50 px-3 py-2 text-xs text-neutral-700">
+                                        <span className="font-semibold text-neutral-500">Remarks: </span>
+                                        <span className="italic">{guest.remarks}</span>
+                                    </div>
                                 )}
 
                                 <div className="mt-3 flex items-center justify-between border-t border-neutral-100 pt-3">
