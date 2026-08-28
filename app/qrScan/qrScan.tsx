@@ -5,6 +5,7 @@ import { Select } from "~/components/Select";
 import { Button } from "~/components/Button";
 import { Input } from "~/components/Input";
 import { useToast } from "~/components/Toast";
+import { useAuth } from "~/auth/AuthContext";
 
 type ScanStatus = "checked-in" | "duplicate" | "error";
 
@@ -29,6 +30,12 @@ export function QrScan() {
     const hydrated = useRef(false);
     const guestNamesRef = useRef<Map<string, string>>(new Map());
     const { showToast } = useToast();
+    const { account } = useAuth();
+
+    const ownedIds = account?.eventIds || [];
+    const scannableEvents = events.filter(
+        (event) => ownedIds.includes(event.id) || (account && (event.collaboratorIds || []).includes(account.id))
+    );
 
     const [lastScanResult, setLastScanResult] = useState<{
         status: ScanStatus;
@@ -190,7 +197,7 @@ export function QrScan() {
         };
     }, [eventId]);
 
-    const selectedEvent = events.find((e) => e.id === eventId);
+    const selectedEvent = scannableEvents.find((e) => e.id === eventId);
     const guestList = selectedEvent?.guests || {};
 
     const filteredManualGuests = Object.entries(guestList).filter(([, guest]: [string, any]) => {
@@ -213,7 +220,7 @@ export function QrScan() {
                     <option value="" disabled>
                         Select an event to scan
                     </option>
-                    {events.map((event) => (
+                    {scannableEvents.map((event) => (
                         <option key={event.id} value={event.id}>
                             {event.title} ({event.date})
                         </option>
