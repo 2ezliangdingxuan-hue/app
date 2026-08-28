@@ -1,28 +1,100 @@
+
+import { useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { NavList } from "~/components/NavList";
+import { UserMenu } from "~/components/UserMenu";
+import { useAuth } from "~/auth/AuthContext";
+
+const NAV_ITEMS = [
+  { to: "/events", label: "Your Events" },
+  { to: "/createEvent", label: "Create Events" },
+  { to: "/scanner", label: "Scanner" },
+];
+
+const SIGN_IN_ITEM = [{ to: "/sign-in", label: "Sign in" }];
+
 export function Header() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const { account, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = () => {
+    signOut();
+    navigate("/");
+  };
+
   return (
-    <header className="flex flex-col items-center gap-9 p-8 bg-black text-white">
-      <div className="flex w-full justify-between items-center align-middle gap-3">
-        <h1>
-          <span className="text-4xl font-semibold  dark:text-gray-100">
-            <a href="/">App1</a>
-          </span>
-        </h1>
-        <ul className="flex flex-row gap-4 items-center justify-center font-normal">
-            <li>
-              <a href="/events" className="">Events</a>
-            </li>
-            <li>
-              <a href="/createEvent">Create Event</a>
-            </li>
-            <li>
-              <a href="/scanner">Scanner</a>
-            </li>
-            <li>
-              <a href="/sign-in">Sign in</a>
-            </li>
-        </ul>
+    <header className="sticky top-0 z-40 border-b border-brand-700/60 bg-brand-600/95 backdrop-blur-md shadow-soft">
+      <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-3.5 sm:px-8">
+        <Link to="/" className="flex items-center gap-2.5 text-xl font-bold tracking-tight text-white group">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/15 text-white shadow-inner transition-transform group-hover:scale-105">
+            {/* <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect width="18" height="18" x="3" y="4" rx="2" />
+              <path d="M16 2v4M8 2v4M3 10h18" />
+              <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" />
+            </svg> */}
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 1024 1024" className="icon" version="1.1"><path d="M948.6 703c-13.8 0-20.7-9.8-25.7-17-5.1-7.3-7.7-10.2-12.7-10.2s-7.5 3-12.7 10.2c-5.1 7.2-12 17-25.7 17-13.8 0-20.7-9.8-25.7-17-5.1-7.3-7.7-10.2-12.7-10.2s-7.5 3-12.7 10.2c-5.1 7.2-12 17-25.7 17s-20.7-9.8-25.7-17c-5.1-7.3-7.7-10.2-12.7-10.2-4.4 0-8-3.6-8-8s3.6-8 8-8c13.8 0 20.7 9.8 25.7 17 5.1 7.3 7.7 10.2 12.7 10.2 5 0 7.5-3 12.7-10.2 5.1-7.2 12-17 25.7-17 13.8 0 20.7 9.8 25.7 17 5.1 7.3 7.7 10.2 12.7 10.2 5 0 7.5-3 12.7-10.2 5.1-7.2 12-17 25.7-17s20.7 9.8 25.7 17c5.1 7.3 7.7 10.2 12.7 10.2 4.4 0 8 3.6 8 8s-3.6 8-8 8zM948.6 653c-13.8 0-20.7-9.8-25.7-17-5.1-7.3-7.7-10.2-12.7-10.2s-7.5 3-12.7 10.2c-5.1 7.2-12 17-25.7 17-13.8 0-20.7-9.8-25.7-17-5.1-7.3-7.7-10.2-12.7-10.2s-7.5 3-12.7 10.2c-5.1 7.2-12 17-25.7 17s-20.7-9.8-25.7-17c-5.1-7.3-7.7-10.2-12.7-10.2-4.4 0-8-3.6-8-8s3.6-8 8-8c13.8 0 20.7 9.8 25.7 17 5.1 7.3 7.7 10.2 12.7 10.2s7.5-3 12.7-10.2c5.1-7.2 12-17 25.7-17 13.8 0 20.7 9.8 25.7 17 5.1 7.3 7.7 10.2 12.7 10.2 5 0 7.5-3 12.7-10.2 5.1-7.2 12-17 25.7-17s20.7 9.8 25.7 17c5.1 7.3 7.7 10.2 12.7 10.2 4.4 0 8 3.6 8 8s-3.6 8-8 8zM261.6 282.9c-13.8 0-20.7-9.8-25.7-17-5.1-7.3-7.7-10.2-12.7-10.2s-7.5 3-12.7 10.2c-5.1 7.2-12 17-25.7 17-13.8 0-20.7-9.8-25.7-17-5.1-7.3-7.7-10.2-12.7-10.2-5 0-7.5 3-12.7 10.2-5.1 7.2-12 17-25.7 17-13.8 0-20.7-9.8-25.7-17-5.1-7.3-7.7-10.2-12.7-10.2-4.4 0-8-3.6-8-8s3.6-8 8-8c13.8 0 20.7 9.9 25.7 17 5.1 7.3 7.7 10.2 12.7 10.2 5 0 7.5-3 12.7-10.2 5.1-7.2 12-17 25.7-17 13.8 0 20.7 9.8 25.7 17 5.1 7.3 7.7 10.2 12.7 10.2 5 0 7.5-3 12.7-10.2 5.1-7.2 12-17 25.7-17s20.7 9.8 25.7 17c5.1 7.3 7.7 10.2 12.7 10.2 4.4 0 8 3.6 8 8s-3.6 8-8 8zM261.6 233c-13.8 0-20.7-9.8-25.7-17-5.1-7.3-7.7-10.2-12.7-10.2s-7.5 3-12.7 10.2c-5.1 7.2-12 17-25.7 17-13.8 0-20.7-9.8-25.7-17-5.1-7.3-7.7-10.2-12.7-10.2-5 0-7.5 3-12.7 10.2-5.1 7.2-12 17-25.7 17-13.8 0-20.7-9.8-25.7-17-5.1-7.3-7.7-10.2-12.7-10.2-4.4 0-8-3.6-8-8s3.6-8 8-8c13.8 0 20.7 9.8 25.7 17 5.1 7.3 7.7 10.2 12.7 10.2 5 0 7.5-3 12.7-10.2 5.1-7.2 12-17 25.7-17 13.8 0 20.7 9.8 25.7 17 5.1 7.3 7.7 10.2 12.7 10.2 5 0 7.5-3 12.7-10.2 5.1-7.2 12-17 25.7-17 13.8 0 20.7 9.8 25.7 17 5.1 7.3 7.7 10.2 12.7 10.2 4.4 0 8 3.6 8 8s-3.6 8-8 8z" fill="#9A2D2F"/><path d="M348.7 103.3m-32 0a32 32 0 1 0 64 0 32 32 0 1 0-64 0Z" fill="#FFEB4D"/><path d="M348.7 143.3c-22.1 0-40-17.9-40-40s17.9-40 40-40 40 17.9 40 40-18 40-40 40z m0-64c-13.2 0-24 10.8-24 24s10.8 24 24 24 24-10.8 24-24-10.8-24-24-24z" fill="#9A2D2F"/><path d="M554.1 408.8c58.3 0 105.5-47.2 105.5-105.5s-47.2-105.5-105.5-105.5S448.6 245 448.6 303.3s47.2 105.5 105.5 105.5z" fill="#C0FCD0"/><path d="M330.6 627.3l224-324h-448z" fill="#FFFFFF"/><path d="M500.6 381.3h-340l170 246z" fill="#FFACC2"/><path d="M330.6 613.2l54.5-78.8c-18.2 5.1-28.8 25.9-49.1 23.5-25.5-3-24-37.8-42.7-40.5-3.3-0.5-15.1-3.7-28 1.3l65.3 94.5z" fill="#FFFFFF"/><path d="M823.1 408.8c58.3 0 105.5-47.2 105.5-105.5s-47.2-105.5-105.5-105.5S717.6 245 717.6 303.3s47.2 105.5 105.5 105.5z" fill="#FFEB4D"/><path d="M599.6 627.3l224-324h-448z" fill="#FFFFFF"/><path d="M769.5 381.3h-340l170 246z" fill="#C0FCD0"/><path d="M599.6 613.2l54.5-78.8c-18.2 5.1-28.8 25.9-49.1 23.5-25.5-3-24-37.8-42.7-40.5-3.3-0.5-15.1-3.7-28 1.3l65.3 94.5z" fill="#FFFFFF"/><path d="M920.6 943.3H607.3V630.2l158.4-229.1c16.9 10 36.5 15.7 57.5 15.7 62.6 0 113.5-50.9 113.5-113.5s-50.9-113.5-113.5-113.5c-59.9 0-109.1 46.6-113.2 105.4h-42.6c-1.2-17.5-6.4-33.9-14.7-48.3-0.1-0.1-0.1-0.3-0.2-0.4-0.1-0.2-0.2-0.4-0.3-0.5-19.7-33.6-56.2-56.2-97.9-56.2s-78.2 22.6-97.9 56.2c-0.1 0.2-0.2 0.3-0.3 0.5-0.1 0.1-0.1 0.3-0.2 0.4-8.3 14.4-13.5 30.8-14.7 48.3h-65.3c-0.3 0-0.6 0-0.9 0.1H106.6c-3 0-5.7 1.7-7.1 4.3-1.4 2.6-1.2 5.8 0.5 8.3l222.6 321.9v313.5h-225c-4.4 0-8 3.6-8 8s3.6 8 8 8h823c4.4 0 8-3.6 8-8s-3.6-8-8-8z m-10.4-681c0.4-0.2 0.7-0.5 1-0.7 6 12.7 9.4 26.8 9.4 41.8s-3.4 29.1-9.4 41.8c-0.3-0.3-0.7-0.5-1-0.7l-71.1-41 71.1-41.2z m-6.9-14.4c-0.4 0.1-0.8 0.3-1.1 0.5l-71.1 41v-82.1c0-0.4 0-0.9-0.1-1.3 29.9 2.6 56.1 18.5 72.3 41.9z m-72.2 151.3v-82.1l71.1 41c0.4 0.2 0.7 0.4 1.1 0.5-16.2 23.4-42.4 39.4-72.3 41.8 0.1-0.3 0.1-0.7 0.1-1.2zM599.9 612.7h-0.6-0.1L466.9 421.3l-22.1-32h304.3c1.1 0.9 2.2 1.9 3.3 2.7L599.9 612.7z m174.8-224.8l40.4-58.4v69.7c0 0.4 0 0.9 0.1 1.3-14.6-1.2-28.3-5.6-40.5-12.6z m40.5-181.8c-0.1 0.4-0.1 0.8-0.1 1.3v82.1l-71.1-41c-0.4-0.2-0.7-0.4-1.1-0.5 16.2-23.5 42.4-39.4 72.3-41.9zM735 261.6c0.3 0.3 0.7 0.5 1 0.7l57.1 33h-67.2c1-12 4.2-23.4 9.1-33.7z m-92.7 0.1c4.9 10.3 8 21.7 9 33.6h-67.2l58.2-33.6z m-80.2-55.5c29.8 2.4 55.9 18.4 72.1 41.7l-72.1 41.6v-83.3z m-16 0v83.3L474 247.8c16.2-23.3 42.3-39.2 72.1-41.6zM466 261.7l58.2 33.6H457c0.9-12 4.1-23.3 9-33.6z m243.9 49.6H808.2L797 327.7l-31.5 45.6H433.7l-42.9-62h319.1z m-588 0h249.6l42.9 62H164.7l-42.8-62z m54 78h249.5l28.1 40.7 1.9 2.7-123.5 178.7c-0.4-0.1-0.8-0.1-1.3-0.1s-0.8 0-1.3 0.1L175.9 389.3z m162.7 240.5l126.5-183 126.1 182.5v314H338.6V629.8z" fill="#9A2D2F"/></svg>
+          </div>
+          <span className="font-extrabold tracking-tight">GatherEase</span>
+        </Link>
+
+        <nav className="hidden items-center gap-2 md:flex">
+          <NavList items={NAV_ITEMS} variant="dark" />
+          {account ? (
+            <UserMenu name={account.name || account.email} onSignOut={handleSignOut} variant="dark" />
+          ) : (
+            <NavList items={SIGN_IN_ITEM} variant="dark" />
+          )}
+        </nav>
+
+        <button
+          type="button"
+          aria-label="Toggle menu"
+          aria-expanded={mobileOpen}
+          onClick={() => setMobileOpen((current) => !current)}
+          className="flex h-10 w-10 items-center justify-center rounded-xl text-white/90 transition-colors hover:bg-white/15 hover:text-white md:hidden"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            {mobileOpen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+          </svg>
+        </button>
       </div>
+
+      {mobileOpen && (
+        <nav className="border-t border-brand-700/80 bg-brand-700/90 px-4 py-4 md:hidden animate-in slide-in-from-top-2">
+          <NavList
+            items={NAV_ITEMS}
+            className="flex-col items-stretch gap-1.5"
+            variant="dark"
+          />
+          {account ? (
+            <div className="mt-3 flex flex-col gap-1 border-t border-brand-600/80 pt-3">
+              <div className="px-3 py-1 text-xs font-medium uppercase tracking-wider text-white/70">
+                Signed in as {account.name || account.email}
+              </div>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="rounded-xl px-3 py-2 text-left text-sm font-medium text-white/90 transition-colors hover:bg-white/15 hover:text-white"
+              >
+                Log out
+              </button>
+            </div>
+          ) : (
+            <NavList items={SIGN_IN_ITEM} className="mt-2 flex-col items-stretch gap-1.5" variant="dark" />
+          )}
+        </nav>
+      )}
     </header>
   );
 }
-

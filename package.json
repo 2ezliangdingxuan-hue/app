@@ -5,7 +5,7 @@
   "scripts": {
     "build": "react-router build",
     "dev": "concurrently \"react-router dev\" \"npm run dev:server\"",
-    "dev:server": "node --env-file=.env server.js",
+    "dev:server": "node --env-file=.env server/server.js",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc"
   },
@@ -22,7 +22,8 @@
     "qrcode.react": "^4.2.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "react-router": "8.0.0"
+    "react-router": "8.0.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@react-router/dev": "8.0.0",

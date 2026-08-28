@@ -1,82 +1,104 @@
-import React from "react";
 import { useState, type ChangeEvent, type FormEvent } from "react";
+import { Modal } from "~/components/Modal";
+import { FormField } from "~/components/FormField";
+import { Input } from "~/components/Input";
+import { Textarea } from "~/components/Textarea";
+import { Button } from "~/components/Button";
 
-type GuestFormData ={
+type GuestFormData = {
     name: string;
     email: string;
     number: string;
-}
-type InviteFormProps={
+    remarks: string;
+};
+
+type InviteFormProps = {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit?:(guest: GuestFormData) => Promise<void> | void;
-}
+    onSubmit?: (guest: GuestFormData) => Promise<void> | void;
+};
 
-export default function InviteForm({isOpen, onClose, onSubmit}:InviteFormProps){
+export default function InviteForm({ isOpen, onClose, onSubmit }: InviteFormProps) {
     const [formData, setFormData] = useState<GuestFormData>({
-        name:"", 
-        email:"", 
-        number:""
+        name: "",
+        email: "",
+        number: "",
+        remarks: "",
     });
+    const [submitting, setSubmitting] = useState(false);
 
-    if (!isOpen) return null;
-
-    const handleChange = (e :ChangeEvent<HTMLInputElement>) => {
-        const {name, value} = e.target;
-        setFormData((prev) => ({...prev, [name]: value}));
-    }
-
-    const handleSubmit = async (e : FormEvent<HTMLFormElement>) =>{
-        e.preventDefault();
-        await onSubmit?.(formData);
-        console.log('Form Submitted: ', formData);
-        onClose();
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    return(
-        <div 
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-        onClick={onClose}>
-            <div 
-            className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
-            onClick={(e) => e.stopPropagation()}>
-                <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-xl font-semibold">Invite Guest</h2>
-                    <button onClick={onClose} className="text-2xl"> x </button>
-                </div>
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setSubmitting(true);
+        try {
+            await onSubmit?.(formData);
+            setFormData({ name: "", email: "", number: "", remarks: "" });
+            onClose();
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
-                <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-                    <input
+    return (
+        <Modal open={isOpen} onClose={onClose} title="Invite New Guest">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <FormField label="Full Name" htmlFor="invite-modal-name">
+                    <Input
+                        id="invite-modal-name"
                         name="name"
-                        placeholder="Name"
+                        placeholder="e.g. Alex Johnson"
                         value={formData.name}
                         onChange={handleChange}
-                        className="border p-2"
                         required
+                        autoFocus
                     />
-                    <input
+                </FormField>
+
+                <FormField label="Email Address" htmlFor="invite-modal-email">
+                    <Input
+                        id="invite-modal-email"
                         name="email"
                         type="email"
-                        placeholder="Email"
+                        placeholder="alex@example.com"
                         value={formData.email}
                         onChange={handleChange}
-                        className="border p-2"
                         required
                     />
-                    <input
+                </FormField>
+
+                <FormField label="Phone Number (Optional)" htmlFor="invite-modal-number">
+                    <Input
+                        id="invite-modal-number"
                         name="number"
                         type="tel"
-                        placeholder="Phone number"
+                        placeholder="+1 (555) 000-0000"
                         value={formData.number}
                         onChange={handleChange}
-                        className="border p-2"
                     />
+                </FormField>
 
-                    <button type="submit" className="rounded bg-black px-4 py-2 text-white">
-                        Save Guest
-                    </button>
-                </form>
-            </div>
-        </div>
-    )
+                <FormField label="Remarks / Notes (Optional)" htmlFor="invite-modal-remarks">
+                    <Textarea
+                        id="invite-modal-remarks"
+                        name="remarks"
+                        rows={2}
+                        placeholder="Table assignment, VIP status, etc."
+                        value={formData.remarks}
+                        onChange={handleChange}
+                    />
+                </FormField>
+
+                <div className="mt-2 flex flex-col gap-2 pt-2 border-t border-neutral-100">
+                    <Button type="submit" variant="primary" disabled={submitting} className="w-full">
+                        {submitting ? "Sending Invite & Generating QR..." : "Send Invite & Save"}
+                    </Button>
+                </div>
+            </form>
+        </Modal>
+    );
 }
