@@ -33,5 +33,5 @@ edit event,
 invite guest, 
 sign up from form, 
 edit guest,
- import/export 
- add collaborators
+import/export 
+add collaborators

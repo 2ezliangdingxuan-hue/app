@@ -14,9 +14,9 @@
           "name": "test",
           "email": "test@email.com",
           "number": "87654321",
-          "arrived": false,
-          "status": "Not-Arrived",
-          "arrivalTime": null
+          "arrived": true,
+          "status": "Arrived",
+          "arrivalTime": "10:35:19 AM"
         },
         "6": {
           "name": "test1",
@@ -804,6 +804,18 @@
         }
       },
       "collaboratorIds": []
+    },
+    {
+      "id": 16,
+      "title": "test stale",
+      "maxGuests": 20,
+      "description": "test stale",
+      "date": "2026-08-31",
+      "category": "private",
+      "location": "test stale",
+      "img": "https://th.bing.com/th/id/OIP.VdDc3iT3PCrJnnsiThNzGgHaF_?w=245&h=199&c=7&r=0&o=7&pid=1.7&rm=3",
+      "guests": {},
+      "collaboratorIds": []
     }
   ],
   "accounts": [
@@ -835,7 +847,8 @@
         8,
         12,
         13,
-        15
+        15,
+        16
       ]
     },
     {

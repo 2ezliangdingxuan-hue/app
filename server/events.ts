@@ -125,8 +125,8 @@ const editGuest = async (
 const deleteGuest = async(eventId: string, guestId: string) => {
     const res = await fetch(`${API_BASE}/api/${eventId}/${guestId}/deleteGuest`,{
         method:"DELETE",
-    })
-    const payload = await res.json;
+    });
+    //const payload = await res.json;
     if (!res.ok) {
         throw new Error("Failed to delete guest");
     }
@@ -135,7 +135,7 @@ const deleteGuest = async(eventId: string, guestId: string) => {
     if (event?.guests) {
         delete event.guests[guestId];
     }
-    return res.json();
+    return await res.json() || true;
 }
 
 const addGuest = async (eventId: string, guest: Partial<Guest> & {name:string; selfSignup?: boolean}) => {

@@ -211,15 +211,15 @@ app.delete("/api/:eventId/:guestId/deleteGuest",(req,res)=>{
     const {eventId, guestId} = req.params;
     const event = data.events.find((event)=>eventId === String(event.id));
 
-    if(!event) return;
-    if(!event.guests || !event.guests[guestId]) return;
+    if(!event) return res.status(404).json({error: "Event not found"});
+    if(!event.guests || !event.guests[guestId]) return res.status(404).json({error: "Guest not found"})
 
     const deletedGuest = event.guests[guestId]
     delete event.guests[guestId];
 
     writeData(data)
 
-    res.json({ok: true})
+    res.json({ok: true, deletedGuest})
 })
 
 app.get("/api/events/:id", (req, res) => {
@@ -313,7 +313,7 @@ app.delete("/api/events/:eventId/collaborators/:accountId", (req, res) => {
 });
 
 app.get("/api/events/:eventId/guests", (req, res) =>{
-    const event = readData().events.find((event) => String(event.id) === req.params.id);
+    const event = readData().events.find((event) => String(event.id) === req.params.eventId);
     const guests = event.guests;
     res.json(guests);
 });
@@ -352,11 +352,12 @@ app.post("/api/events/:eventId/newguest", (req, res) => {
     event.guests[newGuestId] = guest;
     try{
         sendGuestInviteEmail({
-        to: guest.email, 
-        guestName: guest.name, 
-        guestId: newGuestId, 
+        to: guest.email,
+        guestName: guest.name,
+        guestId: newGuestId,
         eventTitle: event.title,
         eventId: eventId,
+        eventImage: event.img,
     })
     }
     catch (e){
@@ -456,9 +457,9 @@ app.get("/api/events/:eventId/guest/:guestId", (req,res) =>{
     const eventId = req.params.eventId;
     const guestId = req.params.guestId;
     const event = data.events.find((event) => String(event.id) === String(eventId));
-    if (!event) return res.status(404);
+    if (!event) return res.status(404).json({error:"Event not found"});
     const guest = event.guests[guestId];
-    if (!guest) return res.status(404);
+    if (!guest) return res.status(404).json({error:"Guest not found"});
     
     return res.json({ok: true, guest})
 });

@@ -165,7 +165,7 @@ export default function EditGuestFloat({ isOpen, onClose, event, guestId }: Gues
                         variant="danger"
                         onClick={handleDeleteGuest}
                         disabled={isDeleting}
-                        className="w-full bg-red-50 text-red-700 hover:bg-red-100 hover:text-red-800"
+                        className="w-full bg-red text-black"
                     >
                         {isDeleting ? "Removing..." : "Remove Guest"}
                     </Button>
