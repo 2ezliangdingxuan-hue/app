@@ -1,9 +1,4 @@
-// Lightweight, dependency-free obfuscation for eventId/guestId route params so raw
-// database ids aren't visible/guessable in the URL bar. This runs both client-side
-// and during SSR, so it avoids btoa/atob/Buffer (not reliably available in every env)
-// in favor of a self-contained base64url + XOR implementation. It is NOT a security
-// boundary: the key ships in the client bundle. Server-side API calls and QR payloads
-// still use plain ids; only the visible route params are encoded/decoded here.
+
 
 const KEY = "kirei-events-id-key-2026";
 

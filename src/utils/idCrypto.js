@@ -1,7 +1,4 @@
-// Plain-JS mirror of app/utils/idCrypto.ts, used by server/server.js and
-// src/services/mailer.js which run under plain Node (no TS transpilation).
-// Keep this in sync with app/utils/idCrypto.ts — same KEY, same algorithm —
-// so links generated here decode correctly in the browser and vice versa.
+
 
 const KEY = "kirei-events-id-key-2026";
 
