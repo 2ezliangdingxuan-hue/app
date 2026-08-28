@@ -65,17 +65,58 @@ export default function page(){
     const handleRotatePieceState = (direction:number) =>{
         const index = states.indexOf(pieceState)
         const startState = pieceState
+        //canPlace(curPiece,piecePos.x, piecePos.y,boardState)
         if(direction === 1){ //clockwise
             const nextIndex = (index + 1) % states.length;
-            setPieceState(states[nextIndex])
             //console.log(startState+">"+states[nextIndex])
-            return (startState+">"+states[nextIndex])
+
+            const table = startState+">"+states[nextIndex]
+
+            const rotated = rotateClockwise(curPiece)
+
+            if (canPlace(rotated, piecePos.x, piecePos.y, boardState)){
+                setCurPiece(rotated);
+                setPieceState(states[nextIndex])
+                return;
+            }
+
+            if(!table) return;
+            const kicksTable = kicks[table as keyof typeof kicks]
+
+            for(const kick of kicksTable){
+                if(canPlace(rotated, piecePos.x + kick.x, piecePos.y+kick.y, boardState)){
+                    setCurPiece(rotated);
+                    setPiecePos(p => ({x: p.x + kick.x, y: p.y+kick.y}));
+                    setPieceState(states[nextIndex])
+                    return;
+                }
+            }
         }
         else if (direction === 0){ //counter clockwise
             const prevIndex = (index - 1 + states.length) % states.length;
-            setPieceState(states[prevIndex])
             //console.log(startState+">"+states[prevIndex])
-            return (startState+">"+states[prevIndex])
+            const table = startState+">"+states[prevIndex]
+
+            const rotated = rotateCounterClockwise(curPiece)
+
+            if (canPlace(rotated, piecePos.x, piecePos.y, boardState)){
+                setCurPiece(rotated);
+                setPieceState(states[prevIndex])
+                return;
+            }
+
+            if(!table) return;
+            const kicksTable = kicks[table as keyof typeof kicks]
+
+            for(const kick of kicksTable){
+                if(canPlace(rotated, piecePos.x + kick.x, piecePos.y+kick.y, boardState)){
+                    setCurPiece(rotated);
+                    setPiecePos(p => ({x: p.x + kick.x, y: p.y+kick.y}));
+                    setPieceState(states[prevIndex])
+                    return;
+                }
+            }
+            
         }
     }
 
@@ -227,45 +268,31 @@ export default function page(){
 
     //rotation system
     const handleRotateClockwise = () =>{
-        const rotated = rotateClockwise(curPiece)
+        
         const table = handleRotatePieceState(1);
 
-        if (canPlace(rotated, piecePos.x, piecePos.y, boardState)){
-            setCurPiece(rotated);
-            return;
-        }
+        // const rotated = rotateClockwise(curPiece)
 
-        if(!table) return;
-        const kicksTable = kicks[table as keyof typeof kicks]
+        // if (canPlace(rotated, piecePos.x, piecePos.y, boardState)){
+        //     setCurPiece(rotated);
+        //     return;
+        // }
 
-        for(const kick of kicksTable){
-            if(canPlace(rotated, piecePos.x + kick.x, piecePos.y+kick.y, boardState)){
-                setCurPiece(rotated);
-                setPiecePos(p => ({x: p.x + kick.x, y: p.y+kick.y}));
-                return;
-            }
-        }
+        // if(!table) return;
+        // const kicksTable = kicks[table as keyof typeof kicks]
+
+        // for(const kick of kicksTable){
+        //     if(canPlace(rotated, piecePos.x + kick.x, piecePos.y+kick.y, boardState)){
+        //         setCurPiece(rotated);
+        //         setPiecePos(p => ({x: p.x + kick.x, y: p.y+kick.y}));
+        //         return;
+        //     }
+        // }
     }
 
     const handleRotateCounterClockwise = () =>{
-        const rotated = rotateCounterClockwise(curPiece)
+        
         const table = handleRotatePieceState(0);
-
-        if (canPlace(rotated, piecePos.x, piecePos.y, boardState)){
-            setCurPiece(rotated);
-            return;
-        }
-
-        if(!table) return;
-        const kicksTable = kicks[table as keyof typeof kicks]
-
-        for(const kick of kicksTable){
-            if(canPlace(rotated, piecePos.x + kick.x, piecePos.y+kick.y, boardState)){
-                setCurPiece(rotated);
-                setPiecePos(p => ({x: p.x + kick.x, y: p.y+kick.y}));
-                return;
-            }
-        }
     }
     
     //move left or right
@@ -361,6 +388,7 @@ export default function page(){
         // if (canPlace(curPiece, newX, piecePos.y, boardState)){
         //     setPiecePos(p=>({...p, x: newX}));
         // }
+        handleMove(direction);
 
         if (!dasIntervalRef.current){
             dasIntervalRef.current = setInterval(()=>{

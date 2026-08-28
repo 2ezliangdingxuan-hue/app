@@ -168,8 +168,8 @@ export function QrScan() {
                 {
                     fps: 24,
                     qrbox: {
-                        width: 280,
-                        height: 280,
+                        width: 600,
+                        height: 600,
                     },
                 },
                 (decodedText) => {
