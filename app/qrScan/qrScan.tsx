@@ -355,7 +355,7 @@ export function QrScan() {
                                 <p className="mt-1 text-xs text-neutral-400">Position QR codes within the camera frame.</p>
                             </div>
                         ) : (
-                            <ul className="flex max-h-[500px] flex-col divide-y divide-neutral-100 overflow-y-auto rounded-2xl border border-neutral-200 bg-neutral-0 shadow-card">
+                            <ul className="flex max-h-125 flex-col divide-y divide-neutral-100 overflow-y-auto rounded-2xl border border-neutral-200 bg-neutral-0 shadow-card">
                                 {scanned
                                     .slice()
                                     .reverse()
