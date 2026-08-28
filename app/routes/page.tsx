@@ -80,6 +80,7 @@ export default function page(){
     }
 
     const handleHoldPiece = () =>{
+        setPieceState("0");
         const newHoldPiece: typeof curPiece | null = items.find(item => item.name === curPiece.name) ?? null
         if (holdPiece === null && holdState === false){
             setHoldPiece(newHoldPiece)
@@ -103,6 +104,7 @@ export default function page(){
     }
 
     const handleNewGame = (event: React.MouseEvent<HTMLButtonElement>) =>{
+        setPieceState("0");
         handleStart();
         setHoldPiece(null);
         setBoardState(createEmptyBoard)
@@ -194,7 +196,9 @@ export default function page(){
             if (canPlace(curPiece, piecePos.x, newY, boardState)){
                 setPiecePos(prev => ({...prev, y: newY}));
             } else {
-                handleLockPiece();
+                setTimeout(() => {
+                    handleLockPiece();
+                }, 500);
             }
         }, 500);
         return () => clearInterval(gameLoop);
@@ -322,28 +326,31 @@ export default function page(){
         setPiecePos(defaultPos);
         return;
     }
-    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const softIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const dasIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const handleSoftDrop = () =>{
         let newY = piecePos.y
         
-        if (!intervalRef.current){
-            intervalRef.current = setInterval(()=>{
+        if (!softIntervalRef.current){
+            softIntervalRef.current = setInterval(()=>{
             newY += 1;
             if (canPlace(curPiece, piecePos.x, newY, boardState)){
                 setPiecePos(prev => ({...prev, y: newY}));
             } else {
-                clearInterval(intervalRef.current!);
-                intervalRef.current = null;
-                handleLockPos(newY);
+                clearInterval(softIntervalRef.current!);
+                softIntervalRef.current = null;
+                setTimeout(() => {
+                    handleLockPos(newY);
+                }, 500);
                 return;
             }
-        },50)}
+        },40)}
     }
 
     const stopSoftDrop = ()=>{
-        if(intervalRef.current){
-            clearInterval(intervalRef.current)
-            intervalRef.current = null;
+        if(softIntervalRef.current){
+            clearInterval(softIntervalRef.current)
+            softIntervalRef.current = null;
         }
     }
 
@@ -355,25 +362,25 @@ export default function page(){
         //     setPiecePos(p=>({...p, x: newX}));
         // }
 
-        if (!intervalRef.current){
-            intervalRef.current = setInterval(()=>{
+        if (!dasIntervalRef.current){
+            dasIntervalRef.current = setInterval(()=>{
             newX += direction;
             if (canPlace(curPiece, newX, piecePos.y, boardState)){
                 setPiecePos(prev => ({...prev, x: newX}));
                 
             } else {
-                clearInterval(intervalRef.current!);
-                intervalRef.current = null;
+                clearInterval(dasIntervalRef.current!);
+                dasIntervalRef.current = null;
                 //handleLockPos(newX);
                 return;
             }
-        },70)}
+        },50)}
     }
 
     const stopDas = ()=>{
-        if(intervalRef.current){
-            clearInterval(intervalRef.current)
-            intervalRef.current = null;
+        if(dasIntervalRef.current){
+            clearInterval(dasIntervalRef.current)
+            dasIntervalRef.current = null;
         }
     }
 
@@ -438,7 +445,6 @@ export default function page(){
         if(holdState){
             setHoldState(false)
         }
-
         setPiecePos(defaultPos);
     }
 
@@ -459,6 +465,7 @@ export default function page(){
     //remove pieces from queue and change cur piece
     const handlePopQueue = () =>{
         if (!playingState) return;
+        setPieceState("0");
         const nextPiece = queue[0];
         let nextQueue = queue.slice(1);
 
