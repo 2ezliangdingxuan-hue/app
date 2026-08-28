@@ -24,11 +24,13 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/60 backdrop-blur-xs p-4 animate-in fade-in duration-150"
-      onClick={onClose}
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
     >
       <div
         className="w-full max-w-md rounded-2xl border border-neutral-200 bg-neutral-0 p-6 shadow-modal animate-in zoom-in-95 duration-150"
-        onClick={(event) => event.stopPropagation()}
+        onMouseDown={(event) => event.stopPropagation()}
       >
         {title && (
           <div className="mb-4 flex items-center justify-between">
