@@ -13,9 +13,34 @@ npm run start           # serve the production build
 npm run typecheck      # regenerate React Router types then run tsc
 ```
 
-The Vite dev server runs over HTTPS and binds to all hosts, which is required for the QR scanner to access the camera on mobile devices over LAN. The Express API always listens on port `3001`.
+### Development
 
+Start the development server with HMR:
+
+```bash
+npm run dev
+```
+
+Your application will be available at `http://localhost:5173`.
+
+## Building for Production
+
+Create a production build:
+
+```bash
+npm run build
+```
+
+### Env File:
+
+```bash
+SMTP_USER=YourEmail@Gmail.com
+SMTP_PASS=Your google email App password
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+```
 `.env` (not committed) must supply `SMTP_USER` / `SMTP_PASS` for guest invite emails.
+
 
 There is no automated test suite configured in this repo — the test cases below are a manual QA reference.
 
