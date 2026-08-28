@@ -2,7 +2,6 @@ import express from "express";
 import {readFileSync, writeFileSync} from "node:fs";
 import path from "node:path";
 import cors from "cors";
-import { configDotenv } from "dotenv";
 import { randomBytes, scryptSync, timingSafeEqual, createHmac } from "node:crypto";
 import { sendGuestInviteEmail } from "../src/services/mailer.js";
 
