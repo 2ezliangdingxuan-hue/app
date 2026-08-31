@@ -420,14 +420,20 @@ export default function GuestList() {
                 </div>
             </div>
             
+            <div className="flex flex-col"><span className="text-right mr-6">Show:</span></div>
             <div className ="flex flex-row justify-between items-center mb-2">
-                <div>
-                    <button onClick={() => handleChangePage(-1) } disabled={curPage === 1}>◀</button>
-                        <span>{curPage}</span>
-                    <button onClick={() => handleChangePage(1)} disabled={curPage === maxPages}>▶</button>
-                </div>
+                <div className="items-center flex flex-row gap-7">
+                    <button onClick={() => handleChangePage(-1)} disabled={curPage === 1}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8899a4" stroke-width="2" stroke-linecap="round" stroke-linejoin="arcs"><path d="M15 18l-6-6 6-6"></path></svg>
+                    </button>
+                    <span className="mt-1">{curPage} of {maxPages}</span>
+                    <button onClick={() => handleChangePage(1)} disabled={curPage === maxPages}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8899a4" stroke-width="2" stroke-linecap="round" stroke-linejoin="arcs"><path d="M9 18l6-6-6-6"></path></svg>
+                    </button>
+                </div>       
 
-                <Select className="max-w-25" onChange={handleChange} defaultValue="">
+                <div>
+                    <Select className="max-w-25" onChange={handleChange} defaultValue="">
                     <option value="20">
                         20
                     </option>
@@ -438,6 +444,7 @@ export default function GuestList() {
                         60
                     </option>
                 </Select>
+                </div>
             </div>
             {/* Desktop Table View */}
             <div className="hidden sm:block overflow-hidden rounded-xl border border-neutral-200 bg-neutral-0 shadow-card">
@@ -546,7 +553,7 @@ export default function GuestList() {
                         No guests found.
                     </div>
                 ) : (
-                    visibleGuests.map(([id, guest]: [string, any]) => {
+                    visibleGuests.slice((curPage*numOfItems)-numOfItems,curPage*numOfItems).map(([id, guest]: [string, any]) => {
                         const isArrived = Boolean(guest.arrived);
                         return (
                             <div
