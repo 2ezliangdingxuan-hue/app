@@ -211,23 +211,7 @@ export default function page(){
         return true;
     }
 
-    //gravity
-    // useEffect(()=>{
-    //     if (!playingState) return;
-    //     const gameLoop = setInterval (()=>{
-    //         const newY = piecePos.y + 1;
 
-    //         if (canPlace(curPiece, piecePos.x, newY, boardState)){
-    //             setPiecePos(prev => ({...prev, y: newY}));
-    //         } else {
-    //             handleLockPiece();
-    //         }
-    //     }, 500);
-    //     return () => clearInterval(gameLoop);
-    
-    // }, [curPiece, boardState, piecePos]);
-
-    //gravity
     useEffect(()=>{
         if (!playingState) return;
         const gameLoop = setInterval (()=>{
@@ -271,23 +255,6 @@ export default function page(){
         
         const table = handleRotatePieceState(1);
 
-        // const rotated = rotateClockwise(curPiece)
-
-        // if (canPlace(rotated, piecePos.x, piecePos.y, boardState)){
-        //     setCurPiece(rotated);
-        //     return;
-        // }
-
-        // if(!table) return;
-        // const kicksTable = kicks[table as keyof typeof kicks]
-
-        // for(const kick of kicksTable){
-        //     if(canPlace(rotated, piecePos.x + kick.x, piecePos.y+kick.y, boardState)){
-        //         setCurPiece(rotated);
-        //         setPiecePos(p => ({x: p.x + kick.x, y: p.y+kick.y}));
-        //         return;
-        //     }
-        // }
     }
 
     const handleRotateCounterClockwise = () =>{
@@ -315,8 +282,40 @@ export default function page(){
        handleLockPos(newY)
     }
 
+    const ghostPiece = () => {
+        let newY = piecePos.y
+        
+        while(canPlace(curPiece, piecePos.x, newY, boardState)){
+            newY+=1;
+        }
+        setPiecePos(p=>({...p, y: newY-1}))
+        
+       const lockedBoard = boardState.map(row => [...row]);
+        curPiece.shape.forEach((row,dy) => {
+            row.forEach((cell,dx) =>{
+                if (cell !== 1) return;
+
+                const boardY = newY + dy - 1;
+                const boardX = piecePos.x + dx;
+
+                if(
+                    boardY >= 0 && 
+                    boardY < lockedBoard.length &&
+                    boardX >= 0 && 
+                    boardX < lockedBoard[0].length
+                ){
+                    lockedBoard[boardY][boardX] = curPiece.name;
+                }
+            });
+        });
+
+
+        setPiecePos(defaultPos);
+        return;
+    }
+
     const handleLockPos = (newY: number) =>{
-         const lockedBoard = boardState.map(row => [...row]);
+        const lockedBoard = boardState.map(row => [...row]);
         curPiece.shape.forEach((row,dy) => {
             row.forEach((cell,dx) =>{
                 if (cell !== 1) return;
@@ -435,7 +434,6 @@ export default function page(){
             window.removeEventListener('keydown', handleKey);
             window.removeEventListener('keyup', handleKeyUp);
         }
-        
     }, [piecePos, curPiece])
 
     //set piece position

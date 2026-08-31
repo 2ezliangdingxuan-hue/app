@@ -11,6 +11,7 @@ import { EditIcon } from "~/components/EditIcon";
 import EditGuestFloat from "./editGuestFloat";
 import { decryptId } from "~/utils/idCrypto";
 import { useToast } from "~/components/Toast";
+import { Select } from "~/components/Select";
 
 type FilterType = "all" | "arrived" | "notArrived" | "Going" | "Declined" | "Pending";
 
@@ -259,6 +260,28 @@ export default function GuestList() {
 
     if (!curEvent) return null;
 
+    const totalItems = visibleGuests.length;
+    const [numOfItems, setNumOfItems] = useState(20);
+    const [curPage, setCurPage] = useState(1);
+    const maxPages = Math.ceil(totalItems / numOfItems) 
+    const handleChangePage = (direction: number) =>{
+        const prevPage = curPage
+        
+        if(prevPage + direction < 0 || prevPage + direction > maxPages){
+            return;
+        }
+        else{
+            setCurPage(prevPage + direction)
+            console.log(curPage)
+        }
+    }
+
+    const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const { value } = event.target;
+        setNumOfItems(Number(value));
+    };
+
+
     return (
         <main className="mx-auto flex w-full max-w-5xl flex-col px-4 pb-12 pt-6 sm:px-8">
             <PageHeader
@@ -396,7 +419,26 @@ export default function GuestList() {
                     </svg>
                 </div>
             </div>
+            
+            <div className ="flex flex-row justify-between items-center mb-2">
+                <div>
+                    <button onClick={() => handleChangePage(-1) } disabled={curPage === 1}>◀</button>
+                        <span>{curPage}</span>
+                    <button onClick={() => handleChangePage(1)} disabled={curPage === maxPages}>▶</button>
+                </div>
 
+                <Select className="max-w-25" onChange={handleChange} defaultValue="">
+                    <option value="20">
+                        20
+                    </option>
+                    <option value="40">
+                        40
+                    </option>
+                    <option value="60">
+                        60
+                    </option>
+                </Select>
+            </div>
             {/* Desktop Table View */}
             <div className="hidden sm:block overflow-hidden rounded-xl border border-neutral-200 bg-neutral-0 shadow-card">
                 <div className="overflow-x-auto">
@@ -420,11 +462,11 @@ export default function GuestList() {
                                     </td>
                                 </tr>
                             ) : (
-                                visibleGuests.map(([id, guest]: [string, any], index) => {
+                                visibleGuests.slice((curPage*numOfItems)-numOfItems,curPage*numOfItems).map(([id, guest]: [string, any], index) => {
                                     const isArrived = Boolean(guest.arrived);
                                     return (
                                         <tr key={id} className="transition-colors hover:bg-neutral-50/80">
-                                            <td className="py-3 pl-4 pr-2 text-neutral-400 text-xs font-mono">{index + 1}</td>
+                                            <td className="py-3 pl-4 pr-2 text-neutral-400 text-xs font-mono">{index + 1 + (curPage*numOfItems)-numOfItems}</td>
                                             <td className="py-3 px-3">
                                                 <div className="font-semibold text-neutral-900">{guest.name}</div>
                                             </td>
