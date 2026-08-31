@@ -8,6 +8,7 @@ import { Button } from "~/components/Button";
 import { Input } from "~/components/Input";
 import { StatTile } from "~/components/StatTile";
 import { EditIcon } from "~/components/EditIcon";
+import { IconButton } from "~/components/IconButton";
 import EditGuestFloat from "./editGuestFloat";
 import { decryptId } from "~/utils/idCrypto";
 import { useToast } from "~/components/Toast";
@@ -526,15 +527,14 @@ export default function GuestList() {
                                                     >
                                                         {isArrived ? "Undo" : "Check In"}
                                                     </Button>
-                                                    <Button
-                                                        variant="ghost"
+                                                    <IconButton
                                                         size="sm"
                                                         onClick={() => handleOpenEditGuest(id)}
-                                                        className="h-8 w-8 p-0 rounded-full text-neutral-400 hover:text-neutral-700"
+                                                        className="text-neutral-400 hover:text-neutral-700"
                                                         aria-label={`Edit ${guest.name}`}
                                                     >
-                                                        <EditIcon size={16} />
-                                                    </Button>
+                                                        <EditIcon size={20} />
+                                                    </IconButton>
                                                 </div>
                                             </td>
                                         </tr>
@@ -593,15 +593,14 @@ export default function GuestList() {
                                         {isArrived ? `Arrived at ${guest.arrivalTime || "event"}` : "Not arrived yet"}
                                     </span>
                                     <div className="flex items-center gap-2">
-                                        <Button
-                                            variant="ghost"
+                                        <IconButton
                                             size="sm"
                                             onClick={() => handleOpenEditGuest(id)}
-                                            className="h-8 w-8 p-0 rounded-full"
+                                            className="text-neutral-400 hover:text-neutral-700"
                                             aria-label="Edit guest"
                                         >
-                                            <EditIcon size={16} />
-                                        </Button>
+                                            <EditIcon size={20} />
+                                        </IconButton>
                                         <Button
                                             onClick={() => handleCheckInToggle(String(eventId), id)}
                                             variant={isArrived ? "secondary" : "primary"}
