@@ -329,7 +329,7 @@ export default function GuestList() {
                 </div>
             )}
 
-            {/* Interactive Stat Tiles with Filter Triggers */}
+
             <div className="mb-6 grid grid-cols-3 gap-3 sm:gap-4">
                 <button
                     type="button"
