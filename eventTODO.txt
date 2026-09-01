@@ -1,5 +1,5 @@
 TODO:
-Add pagination
+
 Add invited time (?)
 
 
@@ -11,6 +11,7 @@ add phone number
 UUID for IDs
 add description to form
 add search by email
+Add pagination
 
 
 route("view/:eventId", "routes/viewEvent.tsx"),

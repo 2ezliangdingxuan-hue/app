@@ -53,6 +53,7 @@ export default function page(){
     const [holdState, setHoldState] = useState(false);
     const [playingState, setPlayingState] = useState(true)
     const [pieceState, setPieceState] = useState("0")
+    const [ghostPiece, setGhostPiece] = useState<typeof curPiece>(curPiece);
 
     const stateRef = useRef({
         curPiece, piecePos, boardState, playingState, pieceState
@@ -157,18 +158,11 @@ export default function page(){
     }
 
     const handleTopOut = () =>{
-            curPiece.shape.forEach((row,dy) => {
-            row.forEach((cell,dx) =>{
-                if (cell !== 1) return;
-
-                const boardY = overPos.y + dy;
-                const boardX = overPos.x + dx;
-
-                if (boardY !== 0 || boardX !== 0){
-                    handleStop();
-                }
-            });
-        });
+        const nextPiece = queue[0];
+        if(!canPlace(nextPiece, overPos.x, overPos.y, boardState)){
+            handleStop();
+            return;
+        }
     }
 
 
@@ -211,7 +205,7 @@ export default function page(){
         return true;
     }
 
-
+    //gravity
     useEffect(()=>{
         if (!playingState) return;
         const gameLoop = setInterval (()=>{
@@ -221,9 +215,7 @@ export default function page(){
             if (canPlace(curPiece, piecePos.x, newY, boardState)){
                 setPiecePos(prev => ({...prev, y: newY}));
             } else {
-                setTimeout(() => {
-                    handleLockPiece();
-                }, 500);
+                handleLockPiece();
             }
         }, 500);
         return () => clearInterval(gameLoop);
@@ -270,7 +262,6 @@ export default function page(){
         }
     };
 
-
     //harddrop
     const hardDrop = () => {
         let newY = piecePos.y
@@ -282,16 +273,17 @@ export default function page(){
        handleLockPos(newY)
     }
 
-    const ghostPiece = () => {
+    //Left off==============================================================
+    const handleGhostPiece = () => {
         let newY = piecePos.y
         
-        while(canPlace(curPiece, piecePos.x, newY, boardState)){
+        while(canPlace(ghostPiece, piecePos.x, newY, boardState)){
             newY+=1;
         }
         setPiecePos(p=>({...p, y: newY-1}))
         
        const lockedBoard = boardState.map(row => [...row]);
-        curPiece.shape.forEach((row,dy) => {
+        ghostPiece?.shape.forEach((row,dy) => {
             row.forEach((cell,dx) =>{
                 if (cell !== 1) return;
 
@@ -304,11 +296,10 @@ export default function page(){
                     boardX >= 0 && 
                     boardX < lockedBoard[0].length
                 ){
-                    lockedBoard[boardY][boardX] = curPiece.name;
+                    lockedBoard[boardY][boardX] = ghostPiece?.name;
                 }
             });
         });
-
 
         setPiecePos(defaultPos);
         return;
@@ -354,6 +345,8 @@ export default function page(){
     }
     const softIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const dasIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    
+    //soft drop
     const handleSoftDrop = () =>{
         let newY = piecePos.y
         
@@ -365,9 +358,7 @@ export default function page(){
             } else {
                 clearInterval(softIntervalRef.current!);
                 softIntervalRef.current = null;
-                setTimeout(() => {
                     handleLockPos(newY);
-                }, 500);
                 return;
             }
         },40)}
@@ -380,6 +371,7 @@ export default function page(){
         }
     }
 
+    //DAS
     const handleDas = (direction: number) =>{
         //let newY = piecePos.y
         
@@ -434,8 +426,16 @@ export default function page(){
             window.removeEventListener('keydown', handleKey);
             window.removeEventListener('keyup', handleKeyUp);
         }
-    }, [piecePos, curPiece])
+    }, []);//piecePos, curPiece 
 
+
+    useEffect(()=>{
+        handleGhostPiece();
+    })
+
+    useEffect(()=>{
+        
+    }, [piecePos, curPiece, boardState])
     //set piece position
     const handleLockPiece = () => {
         const { curPiece, piecePos, boardState } = stateRef.current;
@@ -473,8 +473,6 @@ export default function page(){
         }
         setPiecePos(defaultPos);
     }
-
-
 
     //shuffle pieces
     const handleShuffle = () =>{
@@ -518,6 +516,7 @@ export default function page(){
         setCurPiece(shuffled[0]);
     },[]);
 
+    //shuffled pieces UI
     const shuffledPieces = queue.slice(0, 6).map(({name,shape},pieceIndex)=>
         <div key={`${name}-${pieceIndex}`}className="space-x-3">
             {shape.map((shape,shapeIndex)=>
@@ -539,6 +538,7 @@ export default function page(){
             )}
         </div>
     )
+
     const curPieceUI = curPiece && (
         <div key={curPiece.name} className="space-x-3">
             {curPiece.shape.map((shape,shapeIndex)=>
@@ -560,6 +560,7 @@ export default function page(){
             )}
         </div>
     )
+
     const holdPieceUI = holdPiece && (
         <div key={holdPiece.name} className="space-x-3">
             {holdPiece.shape.map((shape,shapeIndex)=>
