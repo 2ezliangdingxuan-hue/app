@@ -43,11 +43,11 @@ export const colours={
     Z: "#FF0000",
     J: "#0000FF",
     L: "#FF8800",
-    GI: "#00FFFF88",
-    GO: "#FFFF0088",
-    GT: "#AA00FF88",
-    GS: "#00FF0088",
-    GZ: "#FF000088",
-    GJ: "#0000FF88",
-    GL: "#FF880088"
+    GI: "#00FFFF4D",
+    GO: "#FFFF004D",
+    GT: "#AA00FF4D",
+    GS: "#00FF004D",
+    GZ: "#FF00004D",
+    GJ: "#0000FF4D",
+    GL: "#FF88004D"
 }

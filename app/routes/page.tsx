@@ -235,7 +235,6 @@ export default function page(){
                 setPiecePos(prev => ({...prev, y: newY}));
             } else {
                 setIsGrounded(true);
-                
             }
         }, 500);
         return () => clearInterval(gameLoop);
@@ -244,7 +243,7 @@ export default function page(){
 
     useEffect(()=>{
         if (!isGrounded){
-            return;
+            return //() => clearTimeout(lockDelay);
         }
         const lockDelay = setTimeout(()=>{
             const { curPiece, piecePos, boardState } = stateRef.current;
@@ -282,14 +281,11 @@ export default function page(){
 
     //rotation system
     const handleRotateClockwise = () =>{
-        
-        const table = handleRotatePieceState(1);
-
+        handleRotatePieceState(1);
     }
 
     const handleRotateCounterClockwise = () =>{
-        
-        const table = handleRotatePieceState(0);
+        handleRotatePieceState(0);
     }
     
     //move left or right
@@ -399,7 +395,6 @@ export default function page(){
             } else {
                 clearInterval(softIntervalRef.current!);
                 softIntervalRef.current = null;
-                    handleLockPos(newY);
                 return;
             }
         },40)}
