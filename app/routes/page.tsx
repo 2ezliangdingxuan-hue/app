@@ -408,13 +408,9 @@ export default function page(){
     }
 
     //DAS
-    const handleDas = (direction: number) =>{
-        //let newY = piecePos.y
-        
+    const handleDas = (direction: number) =>{ 
         let newX = piecePos.x;
-        // if (canPlace(curPiece, newX, piecePos.y, boardState)){
-        //     setPiecePos(p=>({...p, x: newX}));
-        // }
+ 
         handleMove(direction);
 
         if (!dasIntervalRef.current){
@@ -464,10 +460,6 @@ export default function page(){
         }
     }, [piecePos, curPiece]);
 
-
-    useEffect(()=>{
-        //handleGhostPiece();
-    })
  
     //set piece position
     const handleLockPiece = () => {
@@ -539,8 +531,6 @@ export default function page(){
             return;
         }
         setCurPiece(nextPiece);
-        //handleTopOut()
-        //console.log(curPiece.name)
         setQueue(nextQueue);
     }
 
