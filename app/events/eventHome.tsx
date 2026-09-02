@@ -35,7 +35,7 @@ export function EventHome() {
         { to: ".", label: "Overview", end: true, relative: "path" },
         { to: "guestList", label: "Guestlist", badge: guestCount > 0 ? guestCount : undefined },
         { to: "rsvp", label: "RSVP", badge: rsvpCount > 0 ? rsvpCount : undefined },
-        { to: "invite", label: "Invite" },
+        //{ to: "invite", label: "Invite" },
         { to: "collaborators", label: "Collaborators", badge: collaboratorCount > 1 ? collaboratorCount : undefined },
     ];
 
