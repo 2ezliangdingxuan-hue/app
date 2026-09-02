@@ -8,9 +8,11 @@ import { Button } from "~/components/Button";
 import { Input } from "~/components/Input";
 import { StatTile } from "~/components/StatTile";
 import { EditIcon } from "~/components/EditIcon";
+import { IconButton } from "~/components/IconButton";
 import EditGuestFloat from "./editGuestFloat";
 import { decryptId } from "~/utils/idCrypto";
 import { useToast } from "~/components/Toast";
+import { Select } from "~/components/Select";
 
 type FilterType = "all" | "arrived" | "notArrived" | "Going" | "Declined" | "Pending";
 
@@ -166,6 +168,8 @@ export default function GuestList() {
             const header = rows[0].map((cell) => cell.trim().toLowerCase());
             const nameIndex = header.indexOf("name");
             const emailIndex = header.indexOf("email");
+            const numberIndex = header.findIndex((h) => ["number", "phone", "phone number", "contact", "tel"].includes(h));
+            const remarksIndex = header.findIndex((h) => ["remarks", "remark", "notes", "note", "comment", "comments"].includes(h));
 
             if (nameIndex === -1 || emailIndex === -1) {
                 throw new Error(`${isXlsx ? "XLSX" : "CSV"} must include a "name" and an "email" column.`);
@@ -176,6 +180,8 @@ export default function GuestList() {
                 .map((row) => ({
                     name: (row[nameIndex] ?? "").trim(),
                     email: (row[emailIndex] ?? "").trim(),
+                    number: numberIndex !== -1 ? (row[numberIndex] ?? "").trim() : "",
+                    remarks: remarksIndex !== -1 ? (row[remarksIndex] ?? "").trim() : "",
                 }))
                 .filter((g) => g.name);
 
@@ -255,6 +261,29 @@ export default function GuestList() {
 
     if (!curEvent) return null;
 
+    const totalItems = visibleGuests.length;
+    const [numOfItems, setNumOfItems] = useState(20);
+    const [curPage, setCurPage] = useState(1);
+    const maxPages = Math.ceil(totalItems / numOfItems) 
+    const handleChangePage = (direction: number) =>{
+        const prevPage = curPage
+        
+        if(prevPage + direction < 0 || prevPage + direction > maxPages){
+            return;
+        }
+        else{
+            setCurPage(prevPage + direction)
+            console.log(curPage)
+        }
+    }
+
+    const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const { value } = event.target;
+        setNumOfItems(Number(value));
+        setCurPage(1);
+    };
+
+
     return (
         <main className="mx-auto flex w-full max-w-5xl flex-col px-4 pb-12 pt-6 sm:px-8">
             <PageHeader
@@ -301,7 +330,7 @@ export default function GuestList() {
                 </div>
             )}
 
-            {/* Interactive Stat Tiles with Filter Triggers */}
+
             <div className="mb-6 grid grid-cols-3 gap-3 sm:gap-4">
                 <button
                     type="button"
@@ -375,7 +404,7 @@ export default function GuestList() {
                 <div className="relative w-full sm:max-w-xs">
                     <Input
                         type="text"
-                        placeholder="Search by name, email, phone..."
+                        placeholder="Search by name, email, phone, remarks..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className="pl-9"
@@ -392,7 +421,36 @@ export default function GuestList() {
                     </svg>
                 </div>
             </div>
+            
+            <div className="flex flex-col"><span className="text-right mr-6">Show:</span></div>
+            <div className ="flex flex-row justify-between items-center mb-2">
+                <div className="items-center flex flex-row gap-7">
+                    <button onClick={() => handleChangePage(-1)} disabled={curPage === 1}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8899a4" stroke-width="2" stroke-linecap="round" stroke-linejoin="arcs"><path d="M15 18l-6-6 6-6"></path></svg>
+                    </button>
+                    <span className="mt-1">{curPage} of {maxPages}</span>
+                    <button onClick={() => handleChangePage(1)} disabled={curPage === maxPages}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8899a4" stroke-width="2" stroke-linecap="round" stroke-linejoin="arcs"><path d="M9 18l6-6-6-6"></path></svg>
+                    </button>
+                </div>       
 
+                <div>
+                    <Select className="max-w-25" onChange={handleChange} defaultValue="">
+                    <option value="20">
+                        20
+                    </option>
+                    <option value="40">
+                        40
+                    </option>
+                    <option value="80">
+                        80
+                    </option>
+                    <option value="100">
+                        100
+                    </option>
+                </Select>
+                </div>
+            </div>
             {/* Desktop Table View */}
             <div className="hidden sm:block overflow-hidden rounded-xl border border-neutral-200 bg-neutral-0 shadow-card">
                 <div className="overflow-x-auto">
@@ -402,6 +460,7 @@ export default function GuestList() {
                                 <th className="py-3.5 pl-4 pr-2 w-10">#</th>
                                 <th className="py-3.5 px-3">Guest</th>
                                 <th className="py-3.5 px-3">Contact</th>
+                                <th className="py-3.5 px-3">Remarks</th>
                                 <th className="py-3.5 px-3">RSVP</th>
                                 <th className="py-3.5 px-3">Status</th>
                                 <th className="py-3.5 px-3 text-right pr-4">Actions</th>
@@ -410,27 +469,31 @@ export default function GuestList() {
                         <tbody className="divide-y divide-neutral-100">
                             {visibleGuests.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="py-8 text-center text-neutral-400">
+                                    <td colSpan={7} className="py-8 text-center text-neutral-400">
                                         No guests found matching your criteria.
                                     </td>
                                 </tr>
                             ) : (
-                                visibleGuests.map(([id, guest]: [string, any], index) => {
+                                visibleGuests.slice((curPage*numOfItems)-numOfItems,curPage*numOfItems).map(([id, guest]: [string, any], index) => {
                                     const isArrived = Boolean(guest.arrived);
                                     return (
                                         <tr key={id} className="transition-colors hover:bg-neutral-50/80">
-                                            <td className="py-3 pl-4 pr-2 text-neutral-400 text-xs font-mono">{index + 1}</td>
+                                            <td className="py-3 pl-4 pr-2 text-neutral-400 text-xs font-mono">{index + 1 + (curPage*numOfItems)-numOfItems}</td>
                                             <td className="py-3 px-3">
                                                 <div className="font-semibold text-neutral-900">{guest.name}</div>
-                                                {guest.remarks && (
-                                                    <div className="text-xs text-neutral-400 italic truncate max-w-xs">
-                                                        Note: {guest.remarks}
-                                                    </div>
-                                                )}
                                             </td>
                                             <td className="py-3 px-3 text-neutral-600">
                                                 <div>{guest.email || "—"}</div>
                                                 {guest.number && <div className="text-xs text-neutral-400">{guest.number}</div>}
+                                            </td>
+                                            <td className="py-3 px-3 text-neutral-600">
+                                                {guest.remarks ? (
+                                                    <span className="inline-block max-w-xs truncate text-xs text-neutral-700 font-normal" title={guest.remarks}>
+                                                        {guest.remarks}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-xs text-neutral-300">—</span>
+                                                )}
                                             </td>
                                             <td className="py-3 px-3">
                                                 <span
@@ -468,15 +531,14 @@ export default function GuestList() {
                                                     >
                                                         {isArrived ? "Undo" : "Check In"}
                                                     </Button>
-                                                    <Button
-                                                        variant="ghost"
+                                                    <IconButton
                                                         size="sm"
                                                         onClick={() => handleOpenEditGuest(id)}
-                                                        className="h-8 w-8 p-0 rounded-full text-neutral-400 hover:text-neutral-700"
+                                                        className="text-neutral-400 hover:text-neutral-700"
                                                         aria-label={`Edit ${guest.name}`}
                                                     >
-                                                        <EditIcon size={16} />
-                                                    </Button>
+                                                        <EditIcon size={20} />
+                                                    </IconButton>
                                                 </div>
                                             </td>
                                         </tr>
@@ -495,7 +557,7 @@ export default function GuestList() {
                         No guests found.
                     </div>
                 ) : (
-                    visibleGuests.map(([id, guest]: [string, any]) => {
+                    visibleGuests.slice((curPage*numOfItems)-numOfItems,curPage*numOfItems).map(([id, guest]: [string, any]) => {
                         const isArrived = Boolean(guest.arrived);
                         return (
                             <div
@@ -524,9 +586,10 @@ export default function GuestList() {
                                 </div>
 
                                 {guest.remarks && (
-                                    <p className="mt-2 text-xs italic text-neutral-500 bg-neutral-50 p-2 rounded-lg">
-                                        "{guest.remarks}"
-                                    </p>
+                                    <div className="mt-2.5 rounded-lg border border-neutral-100 bg-neutral-50 px-3 py-2 text-xs text-neutral-700">
+                                        <span className="font-semibold text-neutral-500">Remarks: </span>
+                                        <span className="italic">{guest.remarks}</span>
+                                    </div>
                                 )}
 
                                 <div className="mt-3 flex items-center justify-between border-t border-neutral-100 pt-3">
@@ -534,15 +597,14 @@ export default function GuestList() {
                                         {isArrived ? `Arrived at ${guest.arrivalTime || "event"}` : "Not arrived yet"}
                                     </span>
                                     <div className="flex items-center gap-2">
-                                        <Button
-                                            variant="ghost"
+                                        <IconButton
                                             size="sm"
                                             onClick={() => handleOpenEditGuest(id)}
-                                            className="h-8 w-8 p-0 rounded-full"
+                                            className="text-neutral-400 hover:text-neutral-700"
                                             aria-label="Edit guest"
                                         >
-                                            <EditIcon size={16} />
-                                        </Button>
+                                            <EditIcon size={20} />
+                                        </IconButton>
                                         <Button
                                             onClick={() => handleCheckInToggle(String(eventId), id)}
                                             variant={isArrived ? "secondary" : "primary"}

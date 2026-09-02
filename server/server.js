@@ -2,7 +2,6 @@ import express from "express";
 import {readFileSync, writeFileSync} from "node:fs";
 import path from "node:path";
 import cors from "cors";
-import { configDotenv } from "dotenv";
 import { randomBytes, scryptSync, timingSafeEqual, createHmac } from "node:crypto";
 import { sendGuestInviteEmail } from "../src/services/mailer.js";
 
@@ -196,11 +195,11 @@ app.put("/api/:eventId/:guestId/editGuest", (req,res) => {
     if(!guest){
         return res.status(404).json({error: "Guest not found"});
     }
-    if(req.body?.name) guest.name = req.body.name;
-    if(req.body?.email) guest.email = req.body.email;
-    if(req.body?.number) guest.number = req.body.number;
-    if(req.body?.remarks) guest.remarks = req.body.remarks;
-    if(req.body?.rsvp) guest.rsvp = req.body.rsvp;
+    if(req.body?.name !== undefined) guest.name = req.body.name;
+    if(req.body?.email !== undefined) guest.email = req.body.email;
+    if(req.body?.number !== undefined) guest.number = req.body.number;
+    if(req.body?.remarks !== undefined) guest.remarks = req.body.remarks;
+    if(req.body?.rsvp !== undefined) guest.rsvp = req.body.rsvp;
     
     writeData(data);
     res.json({ok: true, guest})

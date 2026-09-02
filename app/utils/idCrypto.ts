@@ -1,9 +1,4 @@
-// Lightweight, dependency-free obfuscation for eventId/guestId route params so raw
-// database ids aren't visible/guessable in the URL bar. This runs both client-side
-// and during SSR, so it avoids btoa/atob/Buffer (not reliably available in every env)
-// in favor of a self-contained base64url + XOR implementation. It is NOT a security
-// boundary: the key ships in the client bundle. Server-side API calls and QR payloads
-// still use plain ids; only the visible route params are encoded/decoded here.
+import aesjs from "aes-js";
 
 const KEY = "kirei-events-id-key-2026";
 
@@ -48,18 +43,31 @@ function base64UrlToBytes(value: string): number[] {
     return bytes;
 }
 
-function xorWithKey(bytes: number[]): number[] {
-    return bytes.map((byte, i) => byte ^ KEY.charCodeAt(i % KEY.length));
+function deriveKey(str: string): Uint8Array {
+    const utf8 = Array.from(new TextEncoder().encode(str));
+    const key = new Uint8Array(32);
+    for (let i = 0; i < 32; i++) key[i] = utf8[i % utf8.length];
+    return key;
 }
+
+const AES_KEY = deriveKey(KEY);
 
 export function encryptId(id: string | number | undefined | null): string {
     const text = id === undefined || id === null ? "" : String(id);
-    const bytes = xorWithKey(Array.from(text).map((ch) => ch.charCodeAt(0)));
-    return bytesToBase64Url(bytes);
+    const plainBytes = new TextEncoder().encode(text);
+    const iv = globalThis.crypto.getRandomValues(new Uint8Array(16));
+    const cipher = new aesjs.ModeOfOperation.ctr(AES_KEY, new aesjs.Counter(iv));
+    const cipherBytes = cipher.encrypt(plainBytes);
+    return bytesToBase64Url([...Array.from(iv), ...Array.from(cipherBytes)]);
 }
 
 export function decryptId(encoded: string | undefined | null): string {
     if (!encoded) return "";
-    const bytes = xorWithKey(base64UrlToBytes(encoded));
-    return bytes.map((byte) => String.fromCharCode(byte)).join("");
+    const allBytes = base64UrlToBytes(encoded);
+    if (allBytes.length < 16) return "";
+    const iv = new Uint8Array(allBytes.slice(0, 16));
+    const cipherBytes = new Uint8Array(allBytes.slice(16));
+    const decipher = new aesjs.ModeOfOperation.ctr(AES_KEY, new aesjs.Counter(iv));
+    const plainBytes = decipher.decrypt(cipherBytes);
+    return new TextDecoder().decode(plainBytes);
 }

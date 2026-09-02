@@ -1,7 +1,4 @@
-// Plain-JS mirror of app/utils/idCrypto.ts, used by server/server.js and
-// src/services/mailer.js which run under plain Node (no TS transpilation).
-// Keep this in sync with app/utils/idCrypto.ts — same KEY, same algorithm —
-// so links generated here decode correctly in the browser and vice versa.
+import aesjs from "aes-js";
 
 const KEY = "kirei-events-id-key-2026";
 
@@ -46,18 +43,31 @@ function base64UrlToBytes(value) {
     return bytes;
 }
 
-function xorWithKey(bytes) {
-    return bytes.map((byte, i) => byte ^ KEY.charCodeAt(i % KEY.length));
+function deriveKey(str) {
+    const utf8 = Array.from(new TextEncoder().encode(str));
+    const key = new Uint8Array(32);
+    for (let i = 0; i < 32; i++) key[i] = utf8[i % utf8.length];
+    return key;
 }
+
+const AES_KEY = deriveKey(KEY);
 
 export function encryptId(id) {
     const text = id === undefined || id === null ? "" : String(id);
-    const bytes = xorWithKey(Array.from(text).map((ch) => ch.charCodeAt(0)));
-    return bytesToBase64Url(bytes);
+    const plainBytes = new TextEncoder().encode(text);
+    const iv = globalThis.crypto.getRandomValues(new Uint8Array(16));
+    const cipher = new aesjs.ModeOfOperation.ctr(AES_KEY, new aesjs.Counter(iv));
+    const cipherBytes = cipher.encrypt(plainBytes);
+    return bytesToBase64Url([...Array.from(iv), ...Array.from(cipherBytes)]);
 }
 
 export function decryptId(encoded) {
     if (!encoded) return "";
-    const bytes = xorWithKey(base64UrlToBytes(encoded));
-    return bytes.map((byte) => String.fromCharCode(byte)).join("");
+    const allBytes = base64UrlToBytes(encoded);
+    if (allBytes.length < 16) return "";
+    const iv = new Uint8Array(allBytes.slice(0, 16));
+    const cipherBytes = new Uint8Array(allBytes.slice(16));
+    const decipher = new aesjs.ModeOfOperation.ctr(AES_KEY, new aesjs.Counter(iv));
+    const plainBytes = decipher.decrypt(cipherBytes);
+    return new TextDecoder().decode(plainBytes);
 }

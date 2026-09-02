@@ -1,13 +1,17 @@
 TODO:
-UUID for IDs
-add description to form
-add search by email
+
+Add invited time (?)
+
 
 Done:
 add form
 allow xlsx 
 Add guest remarks
 add phone number
+UUID for IDs
+add description to form
+add search by email
+Add pagination
 
 
 route("view/:eventId", "routes/viewEvent.tsx"),

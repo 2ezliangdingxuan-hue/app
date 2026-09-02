@@ -48,38 +48,83 @@ export default function page(){
     const [queue, setQueue] = useState(()=>items)
     const [curPiece, setCurPiece] = useState(()=>items[0])
     const [piecePos, setPiecePos] = useState(()=>(defaultPos))
+    const [ghostPiecePos, setGhostPiecePos] = useState(()=>(defaultPos))
     const [boardState, setBoardState] = useState<BoardCell[][]>(createEmptyBoard);
     const [holdPiece, setHoldPiece] = useState<typeof curPiece|null>(null);
     const [holdState, setHoldState] = useState(false);
     const [playingState, setPlayingState] = useState(true)
     const [pieceState, setPieceState] = useState("0")
+    const [ghostPiece, setGhostPiece] = useState<typeof curPiece>(curPiece);
+    const [isGrounded, setIsGrounded] = useState(false);
 
     const stateRef = useRef({
-        curPiece, piecePos, boardState, playingState, pieceState
+        curPiece, piecePos, boardState, playingState, pieceState, isGrounded
     })
 
     stateRef.current={
-        curPiece, piecePos, boardState, playingState, pieceState
+        curPiece, piecePos, boardState, playingState, pieceState, isGrounded
     }
     
     const handleRotatePieceState = (direction:number) =>{
         const index = states.indexOf(pieceState)
         const startState = pieceState
+        //canPlace(curPiece,piecePos.x, piecePos.y,boardState)
         if(direction === 1){ //clockwise
             const nextIndex = (index + 1) % states.length;
-            setPieceState(states[nextIndex])
             //console.log(startState+">"+states[nextIndex])
-            return (startState+">"+states[nextIndex])
+
+            const table = startState+">"+states[nextIndex]
+
+            const rotated = rotateClockwise(curPiece)
+
+            if (canPlace(rotated, piecePos.x, piecePos.y, boardState)){
+                setCurPiece(rotated);
+                setPieceState(states[nextIndex])
+                return;
+            }
+
+            if(!table) return;
+            const kicksTable = kicks[table as keyof typeof kicks]
+
+            for(const kick of kicksTable){
+                if(canPlace(rotated, piecePos.x + kick.x, piecePos.y+kick.y, boardState)){
+                    setCurPiece(rotated);
+                    setPiecePos(p => ({x: p.x + kick.x, y: p.y+kick.y}));
+                    setPieceState(states[nextIndex])
+                    return;
+                }
+            }
         }
         else if (direction === 0){ //counter clockwise
             const prevIndex = (index - 1 + states.length) % states.length;
-            setPieceState(states[prevIndex])
             //console.log(startState+">"+states[prevIndex])
-            return (startState+">"+states[prevIndex])
+            const table = startState+">"+states[prevIndex]
+
+            const rotated = rotateCounterClockwise(curPiece)
+
+            if (canPlace(rotated, piecePos.x, piecePos.y, boardState)){
+                setCurPiece(rotated);
+                setPieceState(states[prevIndex])
+                return;
+            }
+
+            if(!table) return;
+            const kicksTable = kicks[table as keyof typeof kicks]
+
+            for(const kick of kicksTable){
+                if(canPlace(rotated, piecePos.x + kick.x, piecePos.y+kick.y, boardState)){
+                    setCurPiece(rotated);
+                    setPiecePos(p => ({x: p.x + kick.x, y: p.y+kick.y}));
+                    setPieceState(states[prevIndex])
+                    return;
+                }
+            }
+            
         }
     }
 
     const handleHoldPiece = () =>{
+        setPieceState("0");
         const newHoldPiece: typeof curPiece | null = items.find(item => item.name === curPiece.name) ?? null
         if (holdPiece === null && holdState === false){
             setHoldPiece(newHoldPiece)
@@ -96,6 +141,7 @@ export default function page(){
 
     const handleStart = () =>{
         setPlayingState(true);
+        setIsGrounded(false);
     }
 
     const handleStop = () =>{
@@ -103,6 +149,7 @@ export default function page(){
     }
 
     const handleNewGame = (event: React.MouseEvent<HTMLButtonElement>) =>{
+        setPieceState("0");
         handleStart();
         setHoldPiece(null);
         setBoardState(createEmptyBoard)
@@ -114,43 +161,14 @@ export default function page(){
     }
 
     const handleTopOut = () =>{
-            curPiece.shape.forEach((row,dy) => {
-            row.forEach((cell,dx) =>{
-                if (cell !== 1) return;
-
-                const boardY = overPos.y + dy;
-                const boardX = overPos.x + dx;
-
-                if (boardY !== 0 || boardX !== 0){
-                    handleStop();
-                }
-            });
-        });
-    }
-
-
-    const getBoard = () => {
-        const gameBoard = boardState.map(row => [...row])
-        if(curPiece && piecePos){
-            curPiece.shape.forEach((row, dy) => {
-                row.forEach((cell, dx) =>{
-                    if (cell === 1){
-                        const boardY = piecePos.y + dy;
-                        const boardX = piecePos.x + dx;
-                        if(boardY >=0 && boardX >= 0 && boardX < gameBoard[0].length && boardY<gameBoard.length){
-                            gameBoard[boardY][boardX] = curPiece.name;
-                        }
-                    }
-                })
-            })
+        const nextPiece = queue[0];
+        if(!canPlace(nextPiece, overPos.x, overPos.y, boardState)){
+            handleStop();
+            return;
         }
-        return gameBoard;
     }
 
-    const gameBoard = getBoard();
-
-    //collision
-    const canPlace=(
+     const canPlace=(
         piece: typeof curPiece, 
         x: number, 
         y: number, 
@@ -167,22 +185,44 @@ export default function page(){
         }
         return true;
     }
-
-    //gravity
-    // useEffect(()=>{
-    //     if (!playingState) return;
-    //     const gameLoop = setInterval (()=>{
-    //         const newY = piecePos.y + 1;
-
-    //         if (canPlace(curPiece, piecePos.x, newY, boardState)){
-    //             setPiecePos(prev => ({...prev, y: newY}));
-    //         } else {
-    //             handleLockPiece();
-    //         }
-    //     }, 500);
-    //     return () => clearInterval(gameLoop);
     
-    // }, [curPiece, boardState, piecePos]);
+    const getBoard = () => {
+        const gameBoard = boardState.map(row => [...row])
+        if(curPiece && piecePos){
+            let ghostY = piecePos.y;
+            
+            while(canPlace(curPiece, piecePos.x, ghostY, boardState)){
+                ghostY+=1;
+            }
+            curPiece.shape.forEach((row, dy) => {
+                row.forEach((cell, dx) =>{
+                    if (cell === 1){
+                        const boardY = ghostY + dy + -1;
+                        const boardX = piecePos.x + dx;
+                        if(boardY >= 0 && boardY < gameBoard.length &&
+                            boardX>=0 && boardX<gameBoard[0].length){
+                                gameBoard[boardY][boardX] = "G"+String(curPiece.name) as keyof typeof colours; // might include ghost colours
+                            }
+                        
+                    }
+
+                    if (cell === 1){
+                        const boardY = piecePos.y + dy;
+                        const boardX = piecePos.x + dx;
+                        if(boardY >=0 && boardX >= 0 && boardX < gameBoard[0].length && boardY<gameBoard.length){
+                            gameBoard[boardY][boardX] = curPiece.name;
+                        }
+                    }
+                })
+            })
+        }
+        return gameBoard;
+    }
+
+    const gameBoard = getBoard();
+
+    //collision
+   
 
     //gravity
     useEffect(()=>{
@@ -194,12 +234,30 @@ export default function page(){
             if (canPlace(curPiece, piecePos.x, newY, boardState)){
                 setPiecePos(prev => ({...prev, y: newY}));
             } else {
-                handleLockPiece();
+                setIsGrounded(true);
             }
         }, 500);
         return () => clearInterval(gameLoop);
     
     }, [playingState]);
+
+    useEffect(()=>{
+        if (!isGrounded){
+            return //() => clearTimeout(lockDelay);
+        }
+        const lockDelay = setTimeout(()=>{
+            const { curPiece, piecePos, boardState } = stateRef.current;
+
+            if (!canPlace(curPiece, piecePos.x, piecePos.y + 1, boardState)) {
+                handleLockPiece();
+            } else {
+                setIsGrounded(false);
+            }
+        }, 500);    
+        return () => clearTimeout(lockDelay);
+    }, [piecePos, curPiece, boardState]);
+
+
 
     //rotate 90 clockwise
     const rotateClockwise = (piece: typeof curPiece)=>{
@@ -223,45 +281,11 @@ export default function page(){
 
     //rotation system
     const handleRotateClockwise = () =>{
-        const rotated = rotateClockwise(curPiece)
-        const table = handleRotatePieceState(1);
-
-        if (canPlace(rotated, piecePos.x, piecePos.y, boardState)){
-            setCurPiece(rotated);
-            return;
-        }
-
-        if(!table) return;
-        const kicksTable = kicks[table as keyof typeof kicks]
-
-        for(const kick of kicksTable){
-            if(canPlace(rotated, piecePos.x + kick.x, piecePos.y+kick.y, boardState)){
-                setCurPiece(rotated);
-                setPiecePos(p => ({x: p.x + kick.x, y: p.y+kick.y}));
-                return;
-            }
-        }
+        handleRotatePieceState(1);
     }
 
     const handleRotateCounterClockwise = () =>{
-        const rotated = rotateCounterClockwise(curPiece)
-        const table = handleRotatePieceState(0);
-
-        if (canPlace(rotated, piecePos.x, piecePos.y, boardState)){
-            setCurPiece(rotated);
-            return;
-        }
-
-        if(!table) return;
-        const kicksTable = kicks[table as keyof typeof kicks]
-
-        for(const kick of kicksTable){
-            if(canPlace(rotated, piecePos.x + kick.x, piecePos.y+kick.y, boardState)){
-                setCurPiece(rotated);
-                setPiecePos(p => ({x: p.x + kick.x, y: p.y+kick.y}));
-                return;
-            }
-        }
+        handleRotatePieceState(0);
     }
     
     //move left or right
@@ -271,7 +295,6 @@ export default function page(){
             setPiecePos(p=>({...p, x: newX}));
         }
     };
-
 
     //harddrop
     const hardDrop = () => {
@@ -284,8 +307,43 @@ export default function page(){
        handleLockPos(newY)
     }
 
+    //Left off==============================================================
+    const handleGhostPiece = () => {
+        setGhostPiece(curPiece);
+        let newY = ghostPiecePos.y
+        
+        while(canPlace(ghostPiece, ghostPiecePos.x, newY, boardState)){
+            newY+=1;
+        }
+
+        setGhostPiecePos(p=>({...p, y: newY-1}))
+        
+        const lockedBoard = boardState.map(row => [...row]);
+        ghostPiece.shape.forEach((row,dy) => {
+            row.forEach((cell,dx) =>{
+                if (cell !== 1) return;
+
+                const boardY = newY + dy - 1;
+                const boardX = ghostPiecePos.x + dx;
+
+                if(
+                    boardY >= 0 && 
+                    boardY < lockedBoard.length &&
+                    boardX >= 0 && 
+                    boardX < lockedBoard[0].length
+                ){
+                    lockedBoard[boardY][boardX] = ghostPiece.name;
+                }
+            });
+        });
+
+        //setBoardState(lockedBoard);
+        //setPiecePos(defaultPos);
+        return;
+    }
+
     const handleLockPos = (newY: number) =>{
-         const lockedBoard = boardState.map(row => [...row]);
+        const lockedBoard = boardState.map(row => [...row]);
         curPiece.shape.forEach((row,dy) => {
             row.forEach((cell,dx) =>{
                 if (cell !== 1) return;
@@ -322,58 +380,58 @@ export default function page(){
         setPiecePos(defaultPos);
         return;
     }
-    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const softIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const dasIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    
+    //soft drop
     const handleSoftDrop = () =>{
         let newY = piecePos.y
         
-        if (!intervalRef.current){
-            intervalRef.current = setInterval(()=>{
+        if (!softIntervalRef.current){
+            softIntervalRef.current = setInterval(()=>{
             newY += 1;
             if (canPlace(curPiece, piecePos.x, newY, boardState)){
                 setPiecePos(prev => ({...prev, y: newY}));
             } else {
-                clearInterval(intervalRef.current!);
-                intervalRef.current = null;
-                handleLockPos(newY);
+                clearInterval(softIntervalRef.current!);
+                softIntervalRef.current = null;
                 return;
             }
-        },50)}
+        },40)}
     }
 
     const stopSoftDrop = ()=>{
-        if(intervalRef.current){
-            clearInterval(intervalRef.current)
-            intervalRef.current = null;
+        if(softIntervalRef.current){
+            clearInterval(softIntervalRef.current)
+            softIntervalRef.current = null;
         }
     }
 
-    const handleDas = (direction: number) =>{
-        //let newY = piecePos.y
-        
+    //DAS
+    const handleDas = (direction: number) =>{ 
         let newX = piecePos.x;
-        // if (canPlace(curPiece, newX, piecePos.y, boardState)){
-        //     setPiecePos(p=>({...p, x: newX}));
-        // }
+ 
+        handleMove(direction);
 
-        if (!intervalRef.current){
-            intervalRef.current = setInterval(()=>{
+        if (!dasIntervalRef.current){
+            dasIntervalRef.current = setInterval(()=>{
             newX += direction;
             if (canPlace(curPiece, newX, piecePos.y, boardState)){
                 setPiecePos(prev => ({...prev, x: newX}));
                 
             } else {
-                clearInterval(intervalRef.current!);
-                intervalRef.current = null;
-                //handleLockPos(newX);
+                clearInterval(dasIntervalRef.current!);
+                dasIntervalRef.current = null;
+                
                 return;
             }
-        },70)}
+        },50)}
     }
 
     const stopDas = ()=>{
-        if(intervalRef.current){
-            clearInterval(intervalRef.current)
-            intervalRef.current = null;
+        if(dasIntervalRef.current){
+            clearInterval(dasIntervalRef.current)
+            dasIntervalRef.current = null;
         }
     }
 
@@ -381,18 +439,18 @@ export default function page(){
     useEffect(()=>{
         if (!playingState) return;
         const handleKey = (e: KeyboardEvent) =>{
-            if (e.key === 'ArrowLeft') handleDas(-1)
-            if (e.key === 'ArrowRight') handleDas(1)
-            if (e.key === 'ArrowUp') handleRotateClockwise()
-            if (e.key === 'ArrowDown') handleSoftDrop()
-            if (e.key === 'z') handleRotateCounterClockwise()
-            if (e.key === ' ') {hardDrop()}
+            if (e.key === 'ArrowLeft') handleDas(-1);
+            if (e.key === 'ArrowRight') handleDas(1);
+            if (e.key === 'ArrowUp') handleRotateClockwise();
+            if (e.key === 'ArrowDown') handleSoftDrop();
+            if (e.key === 'z') handleRotateCounterClockwise();
+            if (e.key === ' ') hardDrop();
             if (e.key === 'Shift') handleHoldPiece();
         }
         const handleKeyUp = (e: KeyboardEvent) =>{
-            if (e.key === 'ArrowDown') stopSoftDrop()
-            if (e.key === 'ArrowLeft') stopDas()
-            if (e.key === 'ArrowRight') stopDas()
+            if (e.key === 'ArrowDown') stopSoftDrop();
+            if (e.key === 'ArrowLeft') stopDas();
+            if (e.key === 'ArrowRight') stopDas();
         }
         window.addEventListener('keyup', handleKeyUp);
         window.addEventListener('keydown', handleKey);
@@ -400,9 +458,9 @@ export default function page(){
             window.removeEventListener('keydown', handleKey);
             window.removeEventListener('keyup', handleKeyUp);
         }
-        
-    }, [piecePos, curPiece])
+    }, [piecePos, curPiece]);
 
+ 
     //set piece position
     const handleLockPiece = () => {
         const { curPiece, piecePos, boardState } = stateRef.current;
@@ -419,6 +477,7 @@ export default function page(){
                     boardX >= 0 && boardX < lockedBoard[0].length
                 ){
                     lockedBoard[boardY][boardX] = curPiece.name;
+                    setIsGrounded(false);
                     //console.log("Y: " + boardY + " X: " + boardX)
                 }
             });
@@ -438,11 +497,9 @@ export default function page(){
         if(holdState){
             setHoldState(false)
         }
-
         setPiecePos(defaultPos);
+        
     }
-
-
 
     //shuffle pieces
     const handleShuffle = () =>{
@@ -459,6 +516,8 @@ export default function page(){
     //remove pieces from queue and change cur piece
     const handlePopQueue = () =>{
         if (!playingState) return;
+        handleGhostPiece();
+        setPieceState("0");
         const nextPiece = queue[0];
         let nextQueue = queue.slice(1);
 
@@ -472,8 +531,6 @@ export default function page(){
             return;
         }
         setCurPiece(nextPiece);
-        //handleTopOut()
-        //console.log(curPiece.name)
         setQueue(nextQueue);
     }
 
@@ -485,6 +542,7 @@ export default function page(){
         setCurPiece(shuffled[0]);
     },[]);
 
+    //shuffled pieces UI
     const shuffledPieces = queue.slice(0, 6).map(({name,shape},pieceIndex)=>
         <div key={`${name}-${pieceIndex}`}className="space-x-3">
             {shape.map((shape,shapeIndex)=>
@@ -506,6 +564,7 @@ export default function page(){
             )}
         </div>
     )
+
     const curPieceUI = curPiece && (
         <div key={curPiece.name} className="space-x-3">
             {curPiece.shape.map((shape,shapeIndex)=>
@@ -527,6 +586,7 @@ export default function page(){
             )}
         </div>
     )
+
     const holdPieceUI = holdPiece && (
         <div key={holdPiece.name} className="space-x-3">
             {holdPiece.shape.map((shape,shapeIndex)=>
