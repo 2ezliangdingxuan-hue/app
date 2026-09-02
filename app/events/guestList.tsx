@@ -505,7 +505,7 @@ export default function GuestList() {
             {/* Desktop Table View */}
             <div className="hidden sm:block overflow-hidden rounded-xl border border-neutral-200 bg-neutral-0 shadow-card">
                 <div className="overflow-x-auto">
-                    <table className="w-full min-w-175 text-left text-sm">
+                    <table className="w-full min-w-[850px] text-left text-sm">
                         <thead className="bg-brand-500 text-xs font-semibold uppercase tracking-wider text-white">
                             <tr>
                                 <th className="py-3.5 pl-4 pr-2 w-10">#</th>
@@ -573,23 +573,37 @@ export default function GuestList() {
                                                 )}
                                             </td>
                                             <td className="py-3 px-3 text-right pr-4">
-                                                <div className="grid grid-cols-[1fr_1fr_20px] gap-2 items-center justify-center text-center">
+                                                <div className="inline-flex items-center justify-end gap-1.5 whitespace-nowrap">
                                                     <Button
                                                         onClick={() => handleCopyLink(id, guest.name)}
                                                         variant="secondary"
                                                         size="sm"
+                                                        className={`min-w-[102px] justify-center transition-all ${
+                                                            copiedId === id ? "!bg-brand-50 !text-brand-700 font-semibold" : ""
+                                                        }`}
                                                     >
-                                                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                                            <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
-                                                            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-                                                        </svg>
-                                                        {copiedId === id ? "Copied!" : "RSVP Link"}
+                                                        {copiedId === id ? (
+                                                            <>
+                                                                <svg className="h-3.5 w-3.5 text-brand-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                                </svg>
+                                                                <span>Copied!</span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <svg className="h-3.5 w-3.5 text-neutral-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                                                    <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                                                                    <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                                                                </svg>
+                                                                <span>RSVP Link</span>
+                                                            </>
+                                                        )}
                                                     </Button>
                                                     <Button
                                                         onClick={() => handleCheckInToggle(String(eventId), id)}
                                                         variant={isArrived ? "secondary" : "primary"}
                                                         size="sm"
-                                                        className={isArrived ? "text-neutral-600 hover:text-neutral-900" : ""}
+                                                        className={`min-w-[80px] justify-center ${isArrived ? "text-neutral-600 hover:text-neutral-900" : ""}`}
                                                     >
                                                         {isArrived ? "Undo" : "Check In"}
                                                     </Button>
@@ -599,7 +613,7 @@ export default function GuestList() {
                                                         className="text-neutral-400 hover:text-neutral-700"
                                                         aria-label={`Edit ${guest.name}`}
                                                     >
-                                                        <EditIcon size={20} />
+                                                        <EditIcon size={18} />
                                                     </IconButton>
                                                 </div>
                                             </td>
@@ -658,22 +672,48 @@ export default function GuestList() {
                                     <span className="text-xs text-neutral-500">
                                         {isArrived ? `Arrived at ${guest.arrivalTime || "event"}` : "Not arrived yet"}
                                     </span>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-1.5">
+                                        <Button
+                                            onClick={() => handleCopyLink(id, guest.name)}
+                                            variant="secondary"
+                                            size="sm"
+                                            className={`text-xs px-2.5 py-1 ${
+                                                copiedId === id ? "!bg-brand-50 !text-brand-700 font-semibold" : ""
+                                            }`}
+                                        >
+                                            {copiedId === id ? (
+                                                <>
+                                                    <svg className="h-3 w-3 text-brand-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                    <span>Copied!</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <svg className="h-3 w-3 text-neutral-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                                        <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                                                        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                                                    </svg>
+                                                    <span>RSVP</span>
+                                                </>
+                                            )}
+                                        </Button>
+                                        <Button
+                                            onClick={() => handleCheckInToggle(String(eventId), id)}
+                                            variant={isArrived ? "secondary" : "primary"}
+                                            size="sm"
+                                            className="text-xs px-2.5 py-1"
+                                        >
+                                            {isArrived ? "Undo" : "Check In"}
+                                        </Button>
                                         <IconButton
                                             size="sm"
                                             onClick={() => handleOpenEditGuest(id)}
                                             className="text-neutral-400 hover:text-neutral-700"
                                             aria-label="Edit guest"
                                         >
-                                            <EditIcon size={20} />
+                                            <EditIcon size={18} />
                                         </IconButton>
-                                        <Button
-                                            onClick={() => handleCheckInToggle(String(eventId), id)}
-                                            variant={isArrived ? "secondary" : "primary"}
-                                            size="sm"
-                                        >
-                                            {isArrived ? "Undo" : "Check In"}
-                                        </Button>
                                     </div>
                                 </div>
                             </div>
