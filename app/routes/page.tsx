@@ -16,23 +16,6 @@ const initialPieces: { name: keyof typeof colours; shape: number[][] }[] = [
 
 const delay = (ms: number) => new Promise((resolve)=> setTimeout(resolve, ms))
 
-// const clockwiseKicks = {
-//     kicks: [
-//         "0>R",
-//         "R>2",
-//         "2>L",
-//         "L>0",
-//     ]
-// }
-// const counterclockwiseKicks = {
-//     kicks: [
-//         "R>0",
-//         "2>R",
-//         "L>2",
-//         "0>L",
-//     ]
-// }
-
 const states = ["0", "R", "2", "L"]
 
 type BoardCell = 0 | keyof typeof colours;
@@ -65,13 +48,22 @@ export default function page(){
         curPiece, piecePos, boardState, playingState, pieceState, isGrounded
     }
     
+    useEffect(()=>{
+        stateRef.current = {
+            curPiece, piecePos, boardState, playingState, pieceState, isGrounded
+        }
+        setCurPiece(curPiece)
+        setPiecePos(piecePos)
+        setBoardState(boardState)
+        setPlayingState(playingState)
+        setPieceState(pieceState)
+        setIsGrounded(isGrounded)
+    }, [curPiece, piecePos, boardState, playingState, pieceState, isGrounded])
     const handleRotatePieceState = (direction:number) =>{
         const index = states.indexOf(pieceState)
         const startState = pieceState
-        //canPlace(curPiece,piecePos.x, piecePos.y,boardState)
         if(direction === 1){ //clockwise
             const nextIndex = (index + 1) % states.length;
-            //console.log(startState+">"+states[nextIndex])
 
             const table = startState+">"+states[nextIndex]
 
@@ -255,7 +247,7 @@ export default function page(){
             }
         }, 500);    
         return () => clearTimeout(lockDelay);
-    }, [piecePos, curPiece, boardState]);
+    }, [piecePos, curPiece, boardState, isGrounded]);
 
 
 
@@ -385,13 +377,15 @@ export default function page(){
     
     //soft drop
     const handleSoftDrop = () =>{
-        let newY = piecePos.y
         
         if (!softIntervalRef.current){
             softIntervalRef.current = setInterval(()=>{
-            newY += 1;
+
+            const { curPiece, piecePos, boardState } = stateRef.current;
+            const newY= piecePos.y + 1;
             if (canPlace(curPiece, piecePos.x, newY, boardState)){
                 setPiecePos(prev => ({...prev, y: newY}));
+                stateRef.current.piecePos.y = newY;
             } else {
                 clearInterval(softIntervalRef.current!);
                 softIntervalRef.current = null;
@@ -409,20 +403,21 @@ export default function page(){
 
     //DAS
     const handleDas = (direction: number) =>{ 
-        let newX = piecePos.x;
+        //let newX = stateRef.current.piecePos.x;
  
         handleMove(direction);
 
         if (!dasIntervalRef.current){
             dasIntervalRef.current = setInterval(()=>{
-            newX += direction;
+
+            const { curPiece, piecePos, boardState } = stateRef.current;
+            const newX = direction + piecePos.x;
             if (canPlace(curPiece, newX, piecePos.y, boardState)){
                 setPiecePos(prev => ({...prev, x: newX}));
-                
+                piecePos.x = newX;
             } else {
                 clearInterval(dasIntervalRef.current!);
                 dasIntervalRef.current = null;
-                
                 return;
             }
         },50)}

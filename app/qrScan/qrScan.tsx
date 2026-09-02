@@ -312,7 +312,7 @@ export function QrScan() {
 
                             {filteredManualGuests.length > 0 && (
                                 <ul className="mt-3 divide-y divide-neutral-100 rounded-xl border border-neutral-100 bg-neutral-50">
-                                    {filteredManualGuests.slice(0, 4).map(([id, guest]: [string, any]) => (
+                                    {filteredManualGuests.map(([id, guest]: [string, any]) => (
                                         <li key={id} className="flex items-center justify-between p-3">
                                             <div>
                                                 <p className="text-sm font-bold text-neutral-900">{guest.name}</p>
