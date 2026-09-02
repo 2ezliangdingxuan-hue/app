@@ -280,6 +280,7 @@ export default function GuestList() {
     const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const { value } = event.target;
         setNumOfItems(Number(value));
+        setCurPage(1);
     };
 
 
@@ -441,8 +442,11 @@ export default function GuestList() {
                     <option value="40">
                         40
                     </option>
-                    <option value="60">
-                        60
+                    <option value="80">
+                        80
+                    </option>
+                    <option value="100">
+                        100
                     </option>
                 </Select>
                 </div>
