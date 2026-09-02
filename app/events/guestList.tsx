@@ -579,7 +579,7 @@ export default function GuestList() {
                                                         variant="secondary"
                                                         size="sm"
                                                         className={`min-w-[102px] justify-center transition-all ${
-                                                            copiedId === id ? "!bg-brand-50 !text-brand-700 font-semibold" : ""
+                                                            copiedId === id ? "bg-brand-50 text-brand-700 font-semibold" : ""
                                                         }`}
                                                     >
                                                         {copiedId === id ? (
@@ -678,7 +678,7 @@ export default function GuestList() {
                                             variant="secondary"
                                             size="sm"
                                             className={`text-xs px-2.5 py-1 ${
-                                                copiedId === id ? "!bg-brand-50 !text-brand-700 font-semibold" : ""
+                                                copiedId === id ? "bg-brand-50 text-brand-700 font-semibold" : ""
                                             }`}
                                         >
                                             {copiedId === id ? (
