@@ -231,7 +231,7 @@ export default function GuestList() {
         return needsQuotes ? `"${escaped}"` : escaped;
     }
 
-    function handleExportCsv() {
+    function getGuestExportData() {
         const header = ["#", "Name", "Email", "Phone", "Remarks", "Arrival Time", "Status", "RSVP", "Creation Time"];
         const rows = visibleGuests.map(([, guest]: [string, any], index) => [
             String(index + 1),
@@ -244,6 +244,11 @@ export default function GuestList() {
             guest.rsvp ?? "Pending",
             guest.createdAt ? (isNaN(new Date(guest.createdAt).getTime()) ? guest.createdAt : new Date(guest.createdAt).toLocaleString()) : "",
         ]);
+        return { header, rows };
+    }
+
+    function handleExportCsv() {
+        const { header, rows } = getGuestExportData();
         const csv = [header, ...rows].map((row) => row.map(escapeCsvValue).join(",")).join("\n");
 
         const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -258,6 +263,27 @@ export default function GuestList() {
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
         showToast("Guestlist exported to CSV!");
+    }
+
+    function handleExportExcel() {
+        const { header, rows } = getGuestExportData();
+        const worksheet = xlsxUtils.aoa_to_sheet([header, ...rows]);
+        const workbook = xlsxUtils.book_new();
+        xlsxUtils.book_append_sheet(workbook, worksheet, "Guests");
+
+        const excelBuffer = writeXlsx(workbook, { bookType: "xlsx", type: "array" });
+        const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        const url = URL.createObjectURL(blob);
+        const fileName = `${(curEvent?.title || "guestlist").trim().replace(/\s+/g, "-").toLowerCase()}-guests.xlsx`;
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showToast("Guestlist exported to Excel!");
     }
 
     if (!curEvent) return null;
@@ -309,6 +335,12 @@ export default function GuestList() {
                                 <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
                             </svg>
                             Export CSV
+                        </Button>
+                        <Button variant="secondary" size="sm" onClick={handleExportExcel} disabled={visibleGuests.length === 0}>
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+                            </svg>
+                            Export Excel
                         </Button>
                         <Button variant="primary" size="sm" onClick={() => setIsInviteOpen(true)}>
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
