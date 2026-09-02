@@ -1,6 +1,6 @@
 import { useOutletContext, useParams } from "react-router";
 import { useRef, useState, useEffect } from "react";
-import { read as readXlsx, utils as xlsxUtils } from "xlsx";
+import { read as readXlsx, utils as xlsxUtils, write as writeXlsx } from "xlsx";
 import { events, checkInGuest, addGuest } from "../../server/events";
 import InviteForm from "./inviteFloat";
 import { PageHeader } from "~/components/PageHeader";
@@ -232,7 +232,7 @@ export default function GuestList() {
     }
 
     function handleExportCsv() {
-        const header = ["#", "Name", "Email", "Phone", "Remarks", "Arrival Time", "Status", "RSVP"];
+        const header = ["#", "Name", "Email", "Phone", "Remarks", "Arrival Time", "Status", "RSVP", "Creation Time"];
         const rows = visibleGuests.map(([, guest]: [string, any], index) => [
             String(index + 1),
             guest.name ?? "",
@@ -242,6 +242,7 @@ export default function GuestList() {
             guest.arrivalTime ?? "",
             guest.status ?? "",
             guest.rsvp ?? "Pending",
+            guest.createdAt ? (isNaN(new Date(guest.createdAt).getTime()) ? guest.createdAt : new Date(guest.createdAt).toLocaleString()) : "",
         ]);
         const csv = [header, ...rows].map((row) => row.map(escapeCsvValue).join(",")).join("\n");
 
@@ -318,7 +319,7 @@ export default function GuestList() {
                     </div>
                 }
                 className="mb-6"
-            />
+                />
 
             {importStatus && (
                 <div
@@ -451,6 +452,7 @@ export default function GuestList() {
                 </Select>
                 </div>
             </div>
+            
             {/* Desktop Table View */}
             <div className="hidden sm:block overflow-hidden rounded-xl border border-neutral-200 bg-neutral-0 shadow-card">
                 <div className="overflow-x-auto">

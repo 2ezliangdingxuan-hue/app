@@ -347,6 +347,7 @@ app.post("/api/events/:eventId/newguest", (req, res) => {
         arrivalTime: null,
         rsvp: selfSignup ? "Going" : "Pending",
         rsvpAt: selfSignup ? new Date().toISOString() : null,
+        createdAt: new Date().toISOString(),
     };
     event.guests[newGuestId] = guest;
     try{

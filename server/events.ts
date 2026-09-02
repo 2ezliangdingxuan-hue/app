@@ -14,6 +14,7 @@ type Guest = {
     number?: string;
     rsvp?: "Pending" | "Going" | "Declined";
     rsvpAt?: string | null;
+    createdAt?: string | null;
 };
 
 type Event = {
