@@ -652,7 +652,7 @@ export default function page(){
                                 )}
                             </div>
                         ))}
-                        <div className="mt-3 flex flex-row justify-between">
+                        <div className="mt-4 flex flex-row justify-between">
                             <button onClick={handleNewGame} className="border">
                                 New
                             </button>

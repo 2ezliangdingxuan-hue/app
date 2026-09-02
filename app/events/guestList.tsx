@@ -455,13 +455,16 @@ export default function GuestList() {
                 </div>
             </div>
             
-            <div className="flex flex-col"><span className="text-right mr-6">Show:</span></div>
+            <div className="flex flex-row justify-between items-center">
+                <span className="ml-11"></span>
+                <span className="text-right mr-6">Show:</span>
+            </div>
             <div className ="flex flex-row justify-between items-center mb-2">
                 <div className="items-center flex flex-row gap-7">
                     <button onClick={() => handleChangePage(-1)} disabled={curPage === 1}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8899a4" stroke-width="2" stroke-linecap="round" stroke-linejoin="arcs"><path d="M15 18l-6-6 6-6"></path></svg>
                     </button>
-                    <span className="mt-1">{curPage} of {maxPages}</span>
+                    <span className="mt-1">Page {curPage} of {maxPages}</span>
                     <button onClick={() => handleChangePage(1)} disabled={curPage === maxPages}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8899a4" stroke-width="2" stroke-linecap="round" stroke-linejoin="arcs"><path d="M9 18l6-6-6-6"></path></svg>
                     </button>
@@ -653,7 +656,17 @@ export default function GuestList() {
                     })
                 )}
             </div>
-
+            <div className="">
+                <div className="items-center flex flex-row gap-7 mt-4">
+                    <button onClick={() => handleChangePage(-1)} disabled={curPage === 1}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8899a4" stroke-width="2" stroke-linecap="round" stroke-linejoin="arcs"><path d="M15 18l-6-6 6-6"></path></svg>
+                    </button>
+                    <span className="mt-1">Page {curPage} of {maxPages}</span>
+                    <button onClick={() => handleChangePage(1)} disabled={curPage === maxPages}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8899a4" stroke-width="2" stroke-linecap="round" stroke-linejoin="arcs"><path d="M9 18l6-6-6-6"></path></svg>
+                    </button>
+                </div>
+            </div>
             <InviteForm isOpen={isInviteOpen} onClose={() => setIsInviteOpen(false)} onSubmit={handleInviteSubmit} />
 
             <EditGuestFloat
