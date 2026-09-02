@@ -149,12 +149,9 @@ export default function EventDetails() {
                     onCancel={() => setEditing(null)}
                     saving={saving}
                     view={
-                        <div className="group flex items-center gap-2 rounded-lg p-1.5 transition-colors hover:bg-neutral-100/70">
+                        <div className="flex items-center gap-2 rounded-lg p-1.5">
                             <span className="text-base font-medium text-neutral-600">Maximum Capacity:</span>
                             <span className="text-base font-bold text-neutral-800">{curEvent.maxGuests ?? 0} Guests</span>
-                            <span className="text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <EditIcon size={14} />
-                            </span>
                         </div>
                     }
                     edit={
@@ -179,13 +176,10 @@ export default function EventDetails() {
                     onCancel={() => setEditing(null)}
                     saving={saving}
                     view={
-                        <div className="group flex items-center gap-2 rounded-lg p-1.5 transition-colors hover:bg-neutral-100/70">
+                        <div className="flex items-center gap-2 rounded-lg p-1.5">
                             <span className="text-base font-medium text-neutral-600">Category:</span>
                             <span className="rounded-pill bg-brand-50 px-3 py-1 text-sm font-semibold capitalize text-brand-700">
                                 {curEvent.category}
-                            </span>
-                            <span className="text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <EditIcon size={14} />
                             </span>
                         </div>
                     }
@@ -255,14 +249,11 @@ export default function EventDetails() {
                         onCancel={() => setEditing(null)}
                         saving={saving}
                         view={
-                            <div className="group flex items-center justify-between">
+                            <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-xs font-semibold uppercase tracking-wider text-neutral-400">Date & Time</p>
                                     <p className="mt-1 text-lg font-bold text-neutral-800">{curEvent.date || "Not set"}</p>
                                 </div>
-                                <span className="text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <EditIcon size={16} />
-                                </span>
                             </div>
                         }
                         edit={
@@ -288,14 +279,11 @@ export default function EventDetails() {
                         onCancel={() => setEditing(null)}
                         saving={saving}
                         view={
-                            <div className="group flex items-center justify-between">
+                            <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-xs font-semibold uppercase tracking-wider text-neutral-400">Location</p>
                                     <p className="mt-1 text-lg font-bold capitalize text-neutral-800">{curEvent.location || "Not set"}</p>
                                 </div>
-                                <span className="text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <EditIcon size={16} />
-                                </span>
                             </div>
                         }
                         edit={
