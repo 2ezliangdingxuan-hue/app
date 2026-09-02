@@ -10,7 +10,7 @@ import { StatTile } from "~/components/StatTile";
 import { EditIcon } from "~/components/EditIcon";
 import { IconButton } from "~/components/IconButton";
 import EditGuestFloat from "./editGuestFloat";
-import { decryptId } from "~/utils/idCrypto";
+import { decryptId, encryptId } from "~/utils/idCrypto";
 import { useToast } from "~/components/Toast";
 import { Select } from "~/components/Select";
 
@@ -45,6 +45,7 @@ export default function GuestList() {
     const [isInviteOpen, setIsInviteOpen] = useState(false);
     const [isEditGuestOpen, setIsEditGuestOpen] = useState(false);
     const [editGuestId, setEditGuestId] = useState("");
+    const [copiedId, setCopiedId] = useState<string | null>(null);
 
     async function handleCheckInToggle(targetEventId: string, guestId: string) {
         if (!targetEventId) return;
@@ -146,6 +147,19 @@ export default function GuestList() {
         setIsEditGuestOpen(true);
     }
 
+    async function handleCopyLink(guestId: string, guestName: string) {
+        if (!eventId) return;
+        const link = `${window.location.origin}/rsvp/${encryptId(eventId)}/${encryptId(guestId)}`;
+        try {
+            await navigator.clipboard.writeText(link);
+            setCopiedId(guestId);
+            showToast(`RSVP link for ${guestName} copied!`);
+            setTimeout(() => setCopiedId(null), 2000);
+        } catch {
+            showToast("Failed to copy RSVP link.", "error");
+        }
+    }
+    
     async function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
         const file = e.target.files?.[0];
         e.target.value = "";
@@ -468,7 +482,7 @@ export default function GuestList() {
                     <button onClick={() => handleChangePage(1)} disabled={curPage === maxPages}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8899a4" stroke-width="2" stroke-linecap="round" stroke-linejoin="arcs"><path d="M9 18l6-6-6-6"></path></svg>
                     </button>
-                </div>       
+                </div>
 
                 <div>
                     <Select className="max-w-25" onChange={handleChange} defaultValue="">
@@ -559,7 +573,18 @@ export default function GuestList() {
                                                 )}
                                             </td>
                                             <td className="py-3 px-3 text-right pr-4">
-                                                <div className="inline-flex items-center gap-2">
+                                                <div className="grid grid-cols-[1fr_1fr_20px] gap-2 items-center justify-center text-center">
+                                                    <Button
+                                                        onClick={() => handleCopyLink(id, guest.name)}
+                                                        variant="secondary"
+                                                        size="sm"
+                                                    >
+                                                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                                            <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                                                            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                                                        </svg>
+                                                        {copiedId === id ? "Copied!" : "RSVP Link"}
+                                                    </Button>
                                                     <Button
                                                         onClick={() => handleCheckInToggle(String(eventId), id)}
                                                         variant={isArrived ? "secondary" : "primary"}
