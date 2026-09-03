@@ -6,6 +6,7 @@ import { Button } from "~/components/Button";
 import { Input } from "~/components/Input";
 import { useToast } from "~/components/Toast";
 import { useAuth } from "~/auth/AuthContext";
+import { decryptId } from "~/utils/idCrypto";
 
 type ScanStatus = "checked-in" | "duplicate" | "error";
 
@@ -72,8 +73,8 @@ export function QrScan() {
 
     async function handleScan(value: string) {
         const pos = value.indexOf(":");
-        const guestEvent = value.slice(0, pos);
-        const guestId = value.slice(pos + 1);
+        const guestEvent = decryptId(value.slice(0, pos));
+        const guestId = decryptId(value.slice(pos + 1));
         const key = `${guestEvent}:${guestId}`;
 
         if (String(eventIdRef.current) !== guestEvent) {
