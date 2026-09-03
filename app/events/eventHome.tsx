@@ -44,7 +44,7 @@ export function EventHome() {
         setIsEditingTitle(true);
     };
 
-    const saveTitle = async () => {
+    const saveTitle = async () => { 
         if (!curEvent) return;
         setSaving(true);
         try {
@@ -85,9 +85,7 @@ export function EventHome() {
                             <h1 className="text-3xl font-extrabold capitalize tracking-tight text-neutral-900 sm:text-4xl">
                                 {curEvent?.title}
                             </h1>
-                            <span className="rounded-pill bg-brand-50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand-700">
-                                {curEvent?.category || "Event"}
-                            </span>
+                            
                         </div>
                     }
                     edit={
@@ -99,6 +97,9 @@ export function EventHome() {
                         />
                     }
                 />
+                <span className="rounded-pill bg-brand-50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand-700">
+                                {curEvent?.category || "Event"}
+                            </span>
             </div>
 
             {/* Segmented Sub-Nav */}

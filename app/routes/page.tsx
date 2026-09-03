@@ -69,7 +69,7 @@ export default function page(){
 
             const rotated = rotateClockwise(curPiece)
 
-            if (canPlace(rotated, piecePos.x, piecePos.y, boardState)){
+            if (canPlace(rotated, piecePos.x, piecePos.y)){
                 setCurPiece(rotated);
                 setPieceState(states[nextIndex])
                 return;
@@ -79,7 +79,7 @@ export default function page(){
             const kicksTable = kicks[table as keyof typeof kicks]
 
             for(const kick of kicksTable){
-                if(canPlace(rotated, piecePos.x + kick.x, piecePos.y+kick.y, boardState)){
+                if(canPlace(rotated, piecePos.x + kick.x, piecePos.y+kick.y)){
                     setCurPiece(rotated);
                     setPiecePos(p => ({x: p.x + kick.x, y: p.y+kick.y}));
                     setPieceState(states[nextIndex])
@@ -94,7 +94,7 @@ export default function page(){
 
             const rotated = rotateCounterClockwise(curPiece)
 
-            if (canPlace(rotated, piecePos.x, piecePos.y, boardState)){
+            if (canPlace(rotated, piecePos.x, piecePos.y)){
                 setCurPiece(rotated);
                 setPieceState(states[prevIndex])
                 return;
@@ -104,7 +104,7 @@ export default function page(){
             const kicksTable = kicks[table as keyof typeof kicks]
 
             for(const kick of kicksTable){
-                if(canPlace(rotated, piecePos.x + kick.x, piecePos.y+kick.y, boardState)){
+                if(canPlace(rotated, piecePos.x + kick.x, piecePos.y+kick.y)){
                     setCurPiece(rotated);
                     setPiecePos(p => ({x: p.x + kick.x, y: p.y+kick.y}));
                     setPieceState(states[prevIndex])
@@ -154,7 +154,7 @@ export default function page(){
 
     const handleTopOut = () =>{
         const nextPiece = queue[0];
-        if(!canPlace(nextPiece, overPos.x, overPos.y, boardState)){
+        if(!canPlace(nextPiece, overPos.x, overPos.y)){
             handleStop();
             return;
         }
@@ -164,7 +164,8 @@ export default function page(){
         piece: typeof curPiece, 
         x: number, 
         y: number, 
-        boardState: typeof gameBoard) =>{
+        ) =>{
+        const { piecePos, boardState } = stateRef.current;
         for (let dy = 0; dy < piece.shape.length; dy++){
             for(let dx = 0; dx < piece.shape[dy].length; dx++){
                 if(piece.shape[dy][dx] === 0) continue;
@@ -183,7 +184,7 @@ export default function page(){
         if(curPiece && piecePos){
             let ghostY = piecePos.y;
             
-            while(canPlace(curPiece, piecePos.x, ghostY, boardState)){
+            while(canPlace(curPiece, piecePos.x, ghostY)){
                 ghostY+=1;
             }
             curPiece.shape.forEach((row, dy) => {
@@ -223,7 +224,7 @@ export default function page(){
             const { curPiece, piecePos, boardState } = stateRef.current;
             const newY = piecePos.y + 1;
 
-            if (canPlace(curPiece, piecePos.x, newY, boardState)){
+            if (canPlace(curPiece, piecePos.x, newY)){
                 setPiecePos(prev => ({...prev, y: newY}));
             } else {
                 setIsGrounded(true);
@@ -240,7 +241,7 @@ export default function page(){
         const lockDelay = setTimeout(()=>{
             const { curPiece, piecePos, boardState } = stateRef.current;
 
-            if (!canPlace(curPiece, piecePos.x, piecePos.y + 1, boardState)) {
+            if (!canPlace(curPiece, piecePos.x, piecePos.y + 1)) {
                 handleLockPiece();
             } else {
                 setIsGrounded(false);
@@ -283,7 +284,7 @@ export default function page(){
     //move left or right
     const handleMove = (direction: number) =>{
         const newX = piecePos.x + direction;
-        if (canPlace(curPiece, newX, piecePos.y, boardState)){
+        if (canPlace(curPiece, newX, piecePos.y)){
             setPiecePos(p=>({...p, x: newX}));
         }
     };
@@ -291,7 +292,7 @@ export default function page(){
     //harddrop
     const hardDrop = () => {
         let newY = piecePos.y
-        while(canPlace(curPiece, piecePos.x, newY, boardState)){
+        while(canPlace(curPiece, piecePos.x, newY)){
             newY+=1;
         }
         setPiecePos(p=>({...p, y: newY-1}))
@@ -304,7 +305,7 @@ export default function page(){
         setGhostPiece(curPiece);
         let newY = ghostPiecePos.y
         
-        while(canPlace(ghostPiece, ghostPiecePos.x, newY, boardState)){
+        while(canPlace(ghostPiece, ghostPiecePos.x, newY)){
             newY+=1;
         }
 
@@ -383,7 +384,7 @@ export default function page(){
 
             const { curPiece, piecePos, boardState } = stateRef.current;
             const newY= piecePos.y + 1;
-            if (canPlace(curPiece, piecePos.x, newY, boardState)){
+            if (canPlace(curPiece, piecePos.x, newY)){
                 setPiecePos(prev => ({...prev, y: newY}));
                 stateRef.current.piecePos.y = newY;
             } else {
@@ -412,7 +413,7 @@ export default function page(){
 
             const { curPiece, piecePos, boardState } = stateRef.current;
             const newX = direction + piecePos.x;
-            if (canPlace(curPiece, newX, piecePos.y, boardState)){
+            if (canPlace(curPiece, newX, piecePos.y)){
                 setPiecePos(prev => ({...prev, x: newX}));
                 piecePos.x = newX;
             } else {
@@ -521,7 +522,7 @@ export default function page(){
             nextQueue = [...nextQueue, ...newItems];
         }
         
-        if(!canPlace(nextPiece, overPos.x, overPos.y, boardState)){
+        if(!canPlace(nextPiece, overPos.x, overPos.y)){
             handleStop();
             return;
         }
