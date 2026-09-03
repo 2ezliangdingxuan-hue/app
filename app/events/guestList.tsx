@@ -461,8 +461,7 @@ export default function GuestList() {
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
-                        strokeWidth="2"
-                    >
+                        strokeWidth="2">
                         <circle cx="11" cy="11" r="8" />
                         <line x1="21" y1="21" x2="16.65" y2="16.65" />
                     </svg>
@@ -505,7 +504,7 @@ export default function GuestList() {
             {/* Desktop Table View */}
             <div className="hidden sm:block overflow-hidden rounded-xl border border-neutral-200 bg-neutral-0 shadow-card">
                 <div className="overflow-x-auto">
-                    <table className="w-full min-w-[850px] text-left text-sm">
+                    <table className="w-full min-w-212.5 text-left text-sm">
                         <thead className="bg-brand-500 text-xs font-semibold uppercase tracking-wider text-white">
                             <tr>
                                 <th className="py-3.5 pl-4 pr-2 w-10">#</th>
@@ -578,7 +577,7 @@ export default function GuestList() {
                                                         onClick={() => handleCopyLink(id, guest.name)}
                                                         variant="secondary"
                                                         size="sm"
-                                                        className={`min-w-[102px] justify-center transition-all ${
+                                                        className={`min-w-25.5 justify-center transition-all ${
                                                             copiedId === id ? "bg-brand-50 text-brand-700 font-semibold" : ""
                                                         }`}
                                                     >
@@ -603,7 +602,7 @@ export default function GuestList() {
                                                         onClick={() => handleCheckInToggle(String(eventId), id)}
                                                         variant={isArrived ? "secondary" : "primary"}
                                                         size="sm"
-                                                        className={`min-w-[80px] justify-center ${isArrived ? "text-neutral-600 hover:text-neutral-900" : ""}`}
+                                                        className={`min-w-20 justify-center ${isArrived ? "text-neutral-600 hover:text-neutral-900" : ""}`}
                                                     >
                                                         {isArrived ? "Undo" : "Check In"}
                                                     </Button>
