@@ -160,6 +160,41 @@ const addGuest = async (eventId: string, guest: Partial<Guest> & {name:string; s
     return payload;
 };
 
+const resendEmail = async (eventId: string, guestId: string) => {
+    const event = events.find((event) => String(event.id) === eventId);
+    let res = null;
+    if (event?.guests && String(guestId) in event.guests) {
+        event.guests[String(guestId)].arrived = true;
+        event.guests[String(guestId)].status = "Arrived"
+        res = await fetch(`${API_BASE}/api/events/${eventId}/${guestId}/resendEmail`,{
+            method: "POST",
+            headers:{
+                "Content-Type": "application/json"
+            },
+        });
+        console.log(res);
+        return true;
+    }
+    else{
+        try{
+            res = await fetch(`${API_BASE}/api/events/${eventId}/${guestId}/resendEmail`,{
+            method: "POST",
+            headers:{
+                "Content-Type": "application/json"
+            },
+        });
+        }
+        catch(e){
+            console.log(e);
+        }
+        console.log("Guest does not exist.");
+        console.log(res);
+        return false;
+    }
+
+    
+};
+
 const checkInGuest = async (eventId: string, guestId: string) => {
     const event = events.find((event) => String(event.id) === eventId);
     let res = null;
@@ -271,5 +306,5 @@ const removeCollaborator = async (eventId: string, accountId: number, token: str
     return { ok: res.ok, error: payload.error as string | undefined };
 };
 
-export {events, getEvents, createEvent, getEventById, checkInGuest, addGuest, deleteGuest, updateEvent, getGuest, getGuestRsvp, submitRsvp, getCollaborators, inviteCollaborator, removeCollaborator, editGuest, CATEGORY_OPTIONS};
+export {events, resendEmail, getEvents, createEvent, getEventById, checkInGuest, addGuest, deleteGuest, updateEvent, getGuest, getGuestRsvp, submitRsvp, getCollaborators, inviteCollaborator, removeCollaborator, editGuest, CATEGORY_OPTIONS};
 export type { CollaboratorAccount };

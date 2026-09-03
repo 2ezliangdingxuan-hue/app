@@ -22,9 +22,9 @@
           "name": "test1",
           "email": "liangdingxuan@gmail.com",
           "number": "87654321",
-          "arrived": true,
-          "status": "Arrived",
-          "arrivalTime": "4:26:05 PM"
+          "arrived": false,
+          "status": "Not-Arrived",
+          "arrivalTime": null
         },
         "7": {
           "name": "email1",

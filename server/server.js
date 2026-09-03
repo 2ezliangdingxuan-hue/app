@@ -369,6 +369,41 @@ app.post("/api/events/:eventId/newguest", (req, res) => {
     res.status(201).json({ok: true, guestId: newGuestId, guest, event})
 });
 
+app.post("/api/events/:eventId/:guestId/resendEmail", (req, res) => {
+    const data = readData();
+    const eventId = req.params.eventId;
+    const guestId = req.params.guestId;
+    const event = data.events.find((event) => String(event.id) === eventId);
+    const guest = event?.guests?.[guestId];
+    
+    if (!event){
+        return res.status(404).json({error: "Event not found" });
+    }
+
+    if (!guest){
+        return res.status(404).json({error: "Guest not found" });
+    }
+
+
+    try{
+        sendGuestInviteEmail({
+        to: guest.email,
+        guestName: guest.name,
+        guestId: guestId,
+        eventTitle: event.title,
+        eventId: eventId,
+        eventImage: event.img,
+    })
+    }
+    catch (e){
+        console.log(e)
+    }
+    
+    writeData(data);
+
+    res.status(201).json({ok: true, guestId, guest, event})
+});
+
 app.post("/api/events/:eventId/check-in/:guestId", (req,res) => {
     const data = readData();
     const eventId = req.params.eventId;

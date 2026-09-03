@@ -1,7 +1,7 @@
 import { useOutletContext, useParams } from "react-router";
 import { useRef, useState, useEffect } from "react";
 import { read as readXlsx, utils as xlsxUtils, write as writeXlsx } from "xlsx";
-import { events, checkInGuest, addGuest } from "../../server/events";
+import { events, checkInGuest, addGuest, resendEmail } from "../../server/events";
 import InviteForm from "./inviteFloat";
 import { PageHeader } from "~/components/PageHeader";
 import { Button } from "~/components/Button";
@@ -13,6 +13,7 @@ import EditGuestFloat from "./editGuestFloat";
 import { decryptId, encryptId } from "~/utils/idCrypto";
 import { useToast } from "~/components/Toast";
 import { Select } from "~/components/Select";
+// import {sendGuestInviteEmail} from "../../src/services/mailer";
 
 type FilterType = "all" | "arrived" | "notArrived" | "Going" | "Declined" | "Pending";
 
@@ -46,6 +47,8 @@ export default function GuestList() {
     const [isEditGuestOpen, setIsEditGuestOpen] = useState(false);
     const [editGuestId, setEditGuestId] = useState("");
     const [copiedId, setCopiedId] = useState<string | null>(null);
+
+    
 
     async function handleCheckInToggle(targetEventId: string, guestId: string) {
         if (!targetEventId) return;
@@ -324,6 +327,18 @@ export default function GuestList() {
         setCurPage(1);
     };
 
+    async function handelResendInvite(newGuestId: string) {
+        try{
+                resendEmail(
+                    eventId,
+                    newGuestId
+            )
+            }
+            catch (e){
+                console.log(e)
+            }
+    }
+
 
     return (
         <main className="mx-auto flex w-full max-w-5xl flex-col px-4 pb-12 pt-6 sm:px-8">
@@ -574,6 +589,13 @@ export default function GuestList() {
                                             <td className="py-3 px-3 text-right pr-4">
                                                 <div className="inline-flex items-center justify-end gap-1.5 whitespace-nowrap">
                                                     <Button
+                                                        onClick={() => handelResendInvite(id)}
+                                                        size="sm"
+                                                        className="text-xs text-brand-600 hover:text-brand-800"
+                                                    >
+                                                        {"Email"}
+                                                    </Button>
+                                                    <Button
                                                         onClick={() => handleCopyLink(id, guest.name)}
                                                         variant="secondary"
                                                         size="sm"
@@ -672,6 +694,13 @@ export default function GuestList() {
                                         {isArrived ? `Arrived at ${guest.arrivalTime || "event"}` : "Not arrived yet"}
                                     </span>
                                     <div className="flex items-center gap-1.5">
+                                        <Button
+                                            onClick={() => handelResendInvite(id)}
+                                            size="sm"
+                                            className="text-xs text-brand-600 hover:text-brand-800"
+                                        >
+                                            {"Email"}
+                                        </Button>
                                         <Button
                                             onClick={() => handleCopyLink(id, guest.name)}
                                             variant="secondary"
