@@ -63,7 +63,7 @@ export function EventHome() {
     };
 
     return (
-        <div className="mx-auto w-full max-w-5xl px-4 pt-6 sm:px-8">
+        <div className="mx-auto w-full max-w-6xl px-4 pt-6 sm:px-8">
             {/* Breadcrumb Navigation */}
             <nav className="mb-4 flex items-center gap-2 text-sm text-neutral-500" aria-label="Breadcrumb">
                 <Link to="/events" className="font-medium hover:text-brand-600 transition-colors">

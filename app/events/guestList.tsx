@@ -341,7 +341,7 @@ export default function GuestList() {
 
 
     return (
-        <main className="mx-auto flex w-full max-w-5xl flex-col px-4 pb-12 pt-6 sm:px-8">
+        <main className="mx-auto flex w-full max-w-6xl flex-col px-4 pb-12 pt-6 sm:px-8">
             <PageHeader
                 title="Guestlist"
                 action={
