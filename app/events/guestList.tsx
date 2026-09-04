@@ -591,9 +591,9 @@ export default function GuestList() {
                                                     <Button
                                                         onClick={() => handelResendInvite(id)}
                                                         size="sm"
-                                                        className="text-xs text-brand-600 hover:text-brand-800"
+                                                        className="text-xs bg-brand-50 text-brand-700"
                                                     >
-                                                        {"Email"}
+                                                        {"Resend Email"}
                                                     </Button>
                                                     <Button
                                                         onClick={() => handleCopyLink(id, guest.name)}
