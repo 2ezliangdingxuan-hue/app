@@ -5,6 +5,7 @@ import { Button } from "~/components/Button";
 import SignUpForm from "./signUpFloat";
 import { decryptId, encryptId } from "~/utils/idCrypto";
 import { useToast } from "~/components/Toast";
+import { formatDateRange, toGoogleCalendarDateString } from "~/utils/dateUtils";
 
 export default function EventView() {
     const { eventId: rawEventId } = useParams();
@@ -18,8 +19,8 @@ export default function EventView() {
             <div className="mx-auto flex min-h-[60vh] w-full max-w-md flex-col items-center justify-center px-4 py-12 text-center">
                 <h2 className="text-xl font-bold text-neutral-800">Event Not Found</h2>
                 <p className="mt-2 text-sm text-neutral-500">The event you are looking for does not exist.</p>
-                <Link to="/" className="mt-4 text-sm font-semibold text-brand-600 hover:underline">
-                    Back to Home
+                <Link to="/events" className="mt-4 text-sm font-semibold text-brand-600 hover:text-brand-700">
+                    Browse All Events
                 </Link>
             </div>
         );
@@ -30,13 +31,25 @@ export default function EventView() {
     const capacityPercent = maxCapacity > 0 ? Math.min(100, Math.round((guestCount / maxCapacity) * 100)) : 0;
     const spotsLeft = maxCapacity > 0 ? Math.max(0, maxCapacity - guestCount) : null;
 
-    const handleSignUp = async (guest: { name: string; email: string; number: string; remarks: string }) => {
+    const handleSignUp = async (formData: { name: string; email: string; remarks?: string }) => {
         try {
-            await addGuest(String(curEvent.id), { ...guest, selfSignup: true });
-            showToast(`Registered ${guest.name} for ${curEvent.title}!`);
-        } catch (err) {
-            showToast("Failed to complete sign-up.", "error");
-            throw err;
+            const payload = await addGuest(String(curEvent.id), {
+                name: formData.name,
+                email: formData.email,
+                remarks: formData.remarks ?? "",
+                number: "",
+                rsvp: "Going",
+                selfSignup: true,
+            });
+
+            if (payload?.ok) {
+                showToast("Registration successful! Check your email for your ticket.");
+                setIsSignUpOpen(false);
+            } else {
+                showToast(payload?.error || "Registration failed. Please try again.", "error");
+            }
+        } catch {
+            showToast("Something went wrong during registration.", "error");
         }
     };
 
@@ -46,7 +59,13 @@ export default function EventView() {
         const details = encodeURIComponent(curEvent.description || "");
         const location = encodeURIComponent(curEvent.location || "");
         let dateStr = "";
-        if (curEvent.date) {
+        if (curEvent.startDate) {
+            const start = toGoogleCalendarDateString(curEvent.startDate);
+            const end = curEvent.endDate ? toGoogleCalendarDateString(curEvent.endDate) : start;
+            if (start && end) {
+                dateStr = `&dates=${start}/${end}`;
+            }
+        } else if (curEvent.date) {
             const parsed = new Date(curEvent.date);
             if (!isNaN(parsed.getTime())) {
                 const start = parsed.toISOString().replace(/-|:|\.\d\d\d/g, "");
@@ -91,8 +110,10 @@ export default function EventView() {
                 {/* Date & Time */}
                 <div className="flex flex-col justify-between rounded-xl border border-neutral-200 bg-neutral-0 p-5 shadow-soft">
                     <div>
-                        <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400">Date</span>
-                        <p className="mt-1 text-lg font-bold text-neutral-900">{curEvent.date || "TBD"}</p>
+                        <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400">Date & Time</span>
+                        <p className="mt-1 text-lg font-bold text-neutral-900">
+                            {formatDateRange(curEvent, { includeWeekday: true })}
+                        </p>
                     </div>
                     <a
                         href={googleCalendarUrl()}

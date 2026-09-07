@@ -8,6 +8,7 @@ import { Textarea } from "~/components/Textarea";
 import { Button } from "~/components/Button";
 import { decryptId } from "~/utils/idCrypto";
 import { useToast } from "~/components/Toast";
+import { formatDateRange } from "~/utils/dateUtils";
 
 export function Form() {
     const { eventId: rawEventId } = useParams();
@@ -74,13 +75,13 @@ export function Form() {
                     Register for {curEvent.title}
                 </h1>
                 <div className="mt-3 flex flex-wrap items-center justify-center gap-4 text-sm text-neutral-600">
-                    {curEvent.date && (
+                    {(curEvent.startDate || curEvent.date) && (
                         <div className="flex items-center gap-1.5 font-medium">
                             <svg className="h-4 w-4 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                 <rect width="18" height="18" x="3" y="4" rx="2" />
                                 <path d="M16 2v4M8 2v4M3 10h18" />
                             </svg>
-                            {curEvent.date}
+                            {formatDateRange(curEvent, { includeWeekday: true })}
                         </div>
                     )}
                     {curEvent.location && (

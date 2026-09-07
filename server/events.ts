@@ -22,6 +22,8 @@ type Event = {
     title?: string;
     description?: string;
     date?: string;
+    startDate?: string;
+    endDate?: string;
     location?: string;
     category: string;
     img: string;
@@ -50,7 +52,9 @@ const createEvent = async(event:{
     title:string;
     maxGuests: string;
     description: string;
-    date: string;
+    date?: string;
+    startDate?: string;
+    endDate?: string;
     location: string;
     category: string;
     img?: string;
@@ -85,6 +89,8 @@ const updateEvent = async (
     updates:{
         title?: string;
         date? :string;
+        startDate?: string;
+        endDate?: string;
         location?: string;
         description?: string;
         category?: string;

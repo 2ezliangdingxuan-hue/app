@@ -9,12 +9,14 @@ import { Select } from "~/components/Select";
 import { Button } from "~/components/Button";
 import { encryptId } from "~/utils/idCrypto";
 import { useToast } from "~/components/Toast";
+import { formatDateRange, validateDateTimeRange } from "~/utils/dateUtils";
 
 const initialForm = {
     title: "",
     maxGuests: "",
     description: "",
-    date: "",
+    startDate: "",
+    endDate: "",
     location: "",
     category: "",
 };
@@ -35,6 +37,18 @@ export function CreateEvent() {
         setForm((current) => ({ ...current, [name]: value }));
     };
 
+    const handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newStart = event.target.value;
+        setForm((current) => {
+            const shouldAdvanceEnd = !current.endDate || current.endDate < newStart;
+            return {
+                ...current,
+                startDate: newStart,
+                ...(shouldAdvanceEnd ? { endDate: newStart } : {}),
+            };
+        });
+    };
+
     const handleImageChange = (file: File | null) => {
         if (!file) {
             setImageDataUrl(null);
@@ -50,11 +64,27 @@ export function CreateEvent() {
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setError(null);
+
+        const validation = validateDateTimeRange(form.startDate, form.endDate);
+        if (!validation.valid) {
+            setError(validation.error || "Invalid date-time range.");
+            showToast(validation.error || "Invalid date-time range.", "error");
+            return;
+        }
+
         setIsSubmitting(true);
 
         try {
+            const formattedDate = formatDateRange(
+                { startDate: form.startDate, endDate: form.endDate },
+                { includeWeekday: true }
+            );
             const payload = await createEvent(
-                imageDataUrl ? { ...form, img: imageDataUrl } : form,
+                {
+                    ...form,
+                    date: formattedDate,
+                    ...(imageDataUrl ? { img: imageDataUrl } : {}),
+                },
                 token
             );
 
@@ -118,31 +148,43 @@ export function CreateEvent() {
                 </FormField>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <FormField label="Event Date" htmlFor="date">
+                    <FormField label="Start Date & Time" htmlFor="startDate">
                         <Input
-                            type="date"
-                            id="date"
-                            name="date"
-                            value={form.date}
-                            onChange={handleChange}
+                            type="datetime-local"
+                            id="startDate"
+                            name="startDate"
+                            value={form.startDate}
+                            onChange={handleStartDateChange}
                             required
                         />
                     </FormField>
 
-                    <FormField label="Maximum Capacity" htmlFor="maxGuests">
+                    <FormField label="End Date & Time" htmlFor="endDate">
                         <Input
-                            type="number"
-                            id="maxGuests"
-                            name="maxGuests"
-                            placeholder="e.g. 100"
-                            value={form.maxGuests}
+                            type="datetime-local"
+                            id="endDate"
+                            name="endDate"
+                            min={form.startDate}
+                            value={form.endDate}
                             onChange={handleChange}
-                            inputMode="numeric"
-                            min="1"
                             required
                         />
                     </FormField>
                 </div>
+
+                <FormField label="Maximum Capacity" htmlFor="maxGuests">
+                    <Input
+                        type="number"
+                        id="maxGuests"
+                        name="maxGuests"
+                        placeholder="e.g. 100"
+                        value={form.maxGuests}
+                        onChange={handleChange}
+                        inputMode="numeric"
+                        min="1"
+                        required
+                    />
+                </FormField>
 
                 <FormField label="Event Location / Venue" htmlFor="location">
                     <Input

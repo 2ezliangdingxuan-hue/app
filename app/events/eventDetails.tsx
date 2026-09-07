@@ -11,6 +11,7 @@ import { SaveCancelBar } from "~/components/SaveCancelBar";
 import { Button } from "~/components/Button";
 import { decryptId, encryptId } from "~/utils/idCrypto";
 import { useToast } from "~/components/Toast";
+import { formatDateRange, toDateTimeLocalInput, validateDateTimeRange } from "~/utils/dateUtils";
 
 type EditField = "date" | "location" | "capacity" | "category" | "description" | "image" | null;
 
@@ -23,8 +24,11 @@ export default function EventDetails() {
     const [editing, setEditing] = useState<EditField>(null);
     const [saving, setSaving] = useState(false);
     const [isDescExpanded, setIsDescExpanded] = useState(false);
+    const [dateError, setDateError] = useState<string | null>(null);
     const [draft, setDraft] = useState({
         date: curEvent?.date ?? "",
+        startDate: curEvent?.startDate || (curEvent?.date ? toDateTimeLocalInput(curEvent.date, "09:00") : ""),
+        endDate: curEvent?.endDate || (curEvent?.date ? toDateTimeLocalInput(curEvent.date, "17:00") : ""),
         capacity: curEvent?.maxGuests ?? "",
         category: curEvent?.category ?? "",
         location: curEvent?.location ?? "",
@@ -34,8 +38,13 @@ export default function EventDetails() {
 
     const startEdit = (field: Exclude<EditField, null>) => {
         setEditing(field);
+        setDateError(null);
+        const curStart = curEvent?.startDate || (curEvent?.date ? toDateTimeLocalInput(curEvent.date, "09:00") : "");
+        const curEnd = curEvent?.endDate || (curEvent?.date ? toDateTimeLocalInput(curEvent.date, "17:00") : "");
         setDraft({
             date: curEvent?.date ?? "",
+            startDate: curStart,
+            endDate: curEnd,
             capacity: curEvent?.maxGuests ?? "",
             category: curEvent?.category ?? "",
             location: curEvent?.location ?? "",
@@ -50,7 +59,22 @@ export default function EventDetails() {
 
         const updatePayLoad: Record<string, string> = {};
 
-        if (editing === "date") updatePayLoad.date = draft.date;
+        if (editing === "date") {
+            const validation = validateDateTimeRange(draft.startDate, draft.endDate);
+            if (!validation.valid) {
+                setDateError(validation.error || "Invalid date-time range.");
+                showToast(validation.error || "Invalid date-time range.", "error");
+                setSaving(false);
+                return;
+            }
+            const formattedDate = formatDateRange(
+                { startDate: draft.startDate, endDate: draft.endDate },
+                { includeWeekday: true }
+            );
+            updatePayLoad.startDate = draft.startDate;
+            updatePayLoad.endDate = draft.endDate;
+            updatePayLoad.date = formattedDate;
+        }
         if (editing === "capacity") updatePayLoad.maxGuests = String(draft.capacity);
         if (editing === "category") updatePayLoad.category = draft.category;
         if (editing === "location") updatePayLoad.location = draft.location;
@@ -246,25 +270,67 @@ export default function EventDetails() {
                         editing={editing === "date"}
                         onEdit={() => startEdit("date")}
                         onSave={saveEdit}
-                        onCancel={() => setEditing(null)}
+                        onCancel={() => {
+                            setEditing(null);
+                            setDateError(null);
+                        }}
                         saving={saving}
+                        stacked={true}
                         view={
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-xs font-semibold uppercase tracking-wider text-neutral-400">Date & Time</p>
-                                    <p className="mt-1 text-lg font-bold text-neutral-800">{curEvent.date || "Not set"}</p>
+                                    <p className="mt-1 text-lg font-bold text-neutral-800">
+                                        {formatDateRange(curEvent, { includeWeekday: true })}
+                                    </p>
                                 </div>
                             </div>
                         }
                         edit={
-                            <div className="flex flex-col gap-2">
-                                <label className="text-xs font-semibold uppercase text-neutral-500">Edit Date</label>
-                                <Input
-                                    type="date"
-                                    value={draft.date}
-                                    onChange={(e) => setDraft((current) => ({ ...current, date: e.target.value }))}
-                                    autoFocus
-                                />
+                            <div className="flex flex-col gap-3 w-full">
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                    <div>
+                                        <label className="text-xs font-semibold uppercase text-neutral-500 mb-1 block">
+                                            Start Date & Time
+                                        </label>
+                                        <Input
+                                            type="datetime-local"
+                                            value={draft.startDate}
+                                            onChange={(e) => {
+                                                const newStart = e.target.value;
+                                                setDateError(null);
+                                                setDraft((current) => {
+                                                    const shouldAdvanceEnd = !current.endDate || current.endDate < newStart;
+                                                    return {
+                                                        ...current,
+                                                        startDate: newStart,
+                                                        ...(shouldAdvanceEnd ? { endDate: newStart } : {}),
+                                                    };
+                                                });
+                                            }}
+                                            autoFocus
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-semibold uppercase text-neutral-500 mb-1 block">
+                                            End Date & Time
+                                        </label>
+                                        <Input
+                                            type="datetime-local"
+                                            value={draft.endDate}
+                                            min={draft.startDate}
+                                            onChange={(e) => {
+                                                setDateError(null);
+                                                setDraft((current) => ({ ...current, endDate: e.target.value }));
+                                            }}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                {dateError && (
+                                    <p className="text-xs font-medium text-danger-500">{dateError}</p>
+                                )}
                             </div>
                         }
                     />

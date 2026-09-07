@@ -7,6 +7,7 @@ import { Input } from "~/components/Input";
 import { useToast } from "~/components/Toast";
 import { useAuth } from "~/auth/AuthContext";
 import { decryptId } from "~/utils/idCrypto";
+import { formatDateRange } from "~/utils/dateUtils";
 
 type ScanStatus = "checked-in" | "duplicate" | "error";
 
@@ -223,7 +224,7 @@ export function QrScan() {
                     </option>
                     {scannableEvents.map((event) => (
                         <option key={event.id} value={event.id}>
-                            {event.title} ({event.date})
+                            {event.title} ({formatDateRange(event)})
                         </option>
                     ))}
                 </Select>

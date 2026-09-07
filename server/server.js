@@ -134,11 +134,13 @@ app.post("/api/events", (req, res) =>{
     const title = req.body?.title?.trim();
     const maxGuests = Number(req.body?.maxGuests);
     const description = req.body?.description?.trim();
-    const date = req.body?.date?.trim();
+    const startDate = req.body?.startDate?.trim();
+    const endDate = req.body?.endDate?.trim();
+    const date = req.body?.date?.trim() || (startDate && endDate ? `${startDate} to ${endDate}` : startDate);
     const location = req.body?.location?.trim();
     const category = req.body?.category?.trim();
 
-    if (!title || !maxGuests || Number.isNaN(maxGuests) || !description || !date || !location || !category){
+    if (!title || !maxGuests || Number.isNaN(maxGuests) || !description || (!date && !startDate) || !location || !category){
         return res.status(400).json({error:"All event fields are required"})
     }
 
@@ -150,6 +152,8 @@ app.post("/api/events", (req, res) =>{
         maxGuests,
         description,
         date,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
         category,
         location,
         img: 
@@ -177,6 +181,8 @@ app.put("/api/events/:eventId", (req, res) => {
 
     if(req.body?.title) event.title = req.body.title;
     if (req.body?.date) event.date = req.body.date;
+    if (req.body?.startDate !== undefined) event.startDate = req.body.startDate;
+    if (req.body?.endDate !== undefined) event.endDate = req.body.endDate;
     if (req.body?.location) event.location = req.body.location;
     if (req.body?.description) event.description = req.body.description;
     if (req.body?.category) event.category = req.body.category;
@@ -350,15 +356,18 @@ app.post("/api/events/:eventId/newguest", (req, res) => {
         createdAt: new Date().toISOString(),
     };
     event.guests[newGuestId] = guest;
-    try{
+    try {
         sendGuestInviteEmail({
-        to: guest.email,
-        guestName: guest.name,
-        guestId: newGuestId,
-        eventTitle: event.title,
-        eventId: eventId,
-        eventImage: event.img,
-    })
+            to: guest.email,
+            guestName: guest.name,
+            guestId: newGuestId,
+            eventTitle: event.title,
+            eventId: eventId,
+            eventImage: event.img,
+            eventDate: event.date,
+            eventLocation: event.location,
+            eventDescription: event.description,
+        });
     }
     catch (e){
         console.log(e)
@@ -385,15 +394,18 @@ app.post("/api/events/:eventId/:guestId/resendEmail", (req, res) => {
     }
 
 
-    try{
+    try {
         sendGuestInviteEmail({
-        to: guest.email,
-        guestName: guest.name,
-        guestId: guestId,
-        eventTitle: event.title,
-        eventId: eventId,
-        eventImage: event.img,
-    })
+            to: guest.email,
+            guestName: guest.name,
+            guestId: guestId,
+            eventTitle: event.title,
+            eventId: eventId,
+            eventImage: event.img,
+            eventDate: event.date,
+            eventLocation: event.location,
+            eventDescription: event.description,
+        });
     }
     catch (e){
         console.log(e)
@@ -456,7 +468,13 @@ app.get("/api/events/:eventId/guest/:guestId/rsvp", (req, res) => {
     res.json({
         ok: true,
         guest: { name: guest.name, rsvp: guest.rsvp ?? "Pending", rsvpAt: guest.rsvpAt ?? null },
-        event: { title: event.title, date: event.date, location: event.location },
+        event: {
+            title: event.title,
+            date: event.date,
+            startDate: event.startDate,
+            endDate: event.endDate,
+            location: event.location,
+        },
     });
 });
 
