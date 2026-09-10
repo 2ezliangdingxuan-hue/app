@@ -6,6 +6,8 @@ import { Button } from "~/components/Button";
 import { Input } from "~/components/Input";
 import { useToast } from "~/components/Toast";
 import { useAuth } from "~/auth/AuthContext";
+import { decryptId } from "~/utils/idCrypto";
+import { formatDateRange } from "~/utils/dateUtils";
 
 type ScanStatus = "checked-in" | "duplicate" | "error";
 
@@ -72,8 +74,8 @@ export function QrScan() {
 
     async function handleScan(value: string) {
         const pos = value.indexOf(":");
-        const guestEvent = value.slice(0, pos);
-        const guestId = value.slice(pos + 1);
+        const guestEvent = decryptId(value.slice(0, pos));
+        const guestId = decryptId(value.slice(pos + 1));
         const key = `${guestEvent}:${guestId}`;
 
         if (String(eventIdRef.current) !== guestEvent) {
@@ -222,7 +224,7 @@ export function QrScan() {
                     </option>
                     {scannableEvents.map((event) => (
                         <option key={event.id} value={event.id}>
-                            {event.title} ({event.date})
+                            {event.title} ({formatDateRange(event)})
                         </option>
                     ))}
                 </Select>
@@ -312,7 +314,7 @@ export function QrScan() {
 
                             {filteredManualGuests.length > 0 && (
                                 <ul className="mt-3 divide-y divide-neutral-100 rounded-xl border border-neutral-100 bg-neutral-50">
-                                    {filteredManualGuests.slice(0, 4).map(([id, guest]: [string, any]) => (
+                                    {filteredManualGuests.map(([id, guest]: [string, any]) => (
                                         <li key={id} className="flex items-center justify-between p-3">
                                             <div>
                                                 <p className="text-sm font-bold text-neutral-900">{guest.name}</p>

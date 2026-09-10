@@ -1,6 +1,5 @@
 TODO:
-
-Add invited time (?)
+Add resend qr code button
 
 
 Done:
@@ -12,6 +11,10 @@ UUID for IDs
 add description to form
 add search by email
 Add pagination
+add rsvp link to guestList
+remove rsvp page
+remove invite page
+Add invited time (?)
 
 
 route("view/:eventId", "routes/viewEvent.tsx"),

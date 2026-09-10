@@ -6,6 +6,7 @@ import { LinkButton } from "~/components/Button";
 import { CardSkeleton } from "~/components/Skeleton";
 import { useAuth } from "~/auth/AuthContext";
 import { encryptId } from "~/utils/idCrypto";
+import { formatDateRange } from "~/utils/dateUtils";
 
 interface Guest {}
 
@@ -14,6 +15,8 @@ interface Event {
     title: string;
     description: string;
     date: string;
+    startDate?: string;
+    endDate?: string;
     category: string;
     location?: string;
     img: string;
@@ -105,7 +108,7 @@ export default function Events() {
                                     href={`/events/${encryptId(event.id)}`}
                                     image={event.img}
                                     title={event.title}
-                                    date={event.date}
+                                    date={formatDateRange(event)}
                                     location={event.location}
                                 />
                             </li>

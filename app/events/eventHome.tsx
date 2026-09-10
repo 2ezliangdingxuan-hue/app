@@ -34,8 +34,8 @@ export function EventHome() {
     const tabs: TabItem[] = [
         { to: ".", label: "Overview", end: true, relative: "path" },
         { to: "guestList", label: "Guestlist", badge: guestCount > 0 ? guestCount : undefined },
-        { to: "rsvp", label: "RSVP", badge: rsvpCount > 0 ? rsvpCount : undefined },
-        { to: "invite", label: "Invite" },
+        //{ to: "rsvp", label: "RSVP", badge: rsvpCount > 0 ? rsvpCount : undefined },
+        //{ to: "invite", label: "Invite" },
         { to: "collaborators", label: "Collaborators", badge: collaboratorCount > 1 ? collaboratorCount : undefined },
     ];
 
@@ -44,7 +44,7 @@ export function EventHome() {
         setIsEditingTitle(true);
     };
 
-    const saveTitle = async () => {
+    const saveTitle = async () => { 
         if (!curEvent) return;
         setSaving(true);
         try {
@@ -63,7 +63,7 @@ export function EventHome() {
     };
 
     return (
-        <div className="mx-auto w-full max-w-5xl px-4 pt-6 sm:px-8">
+        <div className="mx-auto w-full max-w-6xl px-4 pt-6 sm:px-8">
             {/* Breadcrumb Navigation */}
             <nav className="mb-4 flex items-center gap-2 text-sm text-neutral-500" aria-label="Breadcrumb">
                 <Link to="/events" className="font-medium hover:text-brand-600 transition-colors">
@@ -85,9 +85,7 @@ export function EventHome() {
                             <h1 className="text-3xl font-extrabold capitalize tracking-tight text-neutral-900 sm:text-4xl">
                                 {curEvent?.title}
                             </h1>
-                            <span className="rounded-pill bg-brand-50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand-700">
-                                {curEvent?.category || "Event"}
-                            </span>
+                            
                         </div>
                     }
                     edit={
@@ -99,6 +97,9 @@ export function EventHome() {
                         />
                     }
                 />
+                <span className="rounded-pill bg-brand-50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand-700">
+                                {curEvent?.category || "Event"}
+                            </span>
             </div>
 
             {/* Segmented Sub-Nav */}

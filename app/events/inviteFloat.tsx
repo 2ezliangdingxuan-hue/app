@@ -4,6 +4,11 @@ import { FormField } from "~/components/FormField";
 import { Input } from "~/components/Input";
 import { Textarea } from "~/components/Textarea";
 import { Button } from "~/components/Button";
+import { Copy } from "~/components/CopyToClipboard";
+import { useParams } from "react-router";
+import { decryptId } from "~/utils/idCrypto";
+
+
 
 type GuestFormData = {
     name: string;
@@ -19,6 +24,8 @@ type InviteFormProps = {
 };
 
 export default function InviteForm({ isOpen, onClose, onSubmit }: InviteFormProps) {
+    const { eventId: rawEventId } = useParams();
+    const eventId = decryptId(rawEventId);
     const [formData, setFormData] = useState<GuestFormData>({
         name: "",
         email: "",
@@ -99,6 +106,11 @@ export default function InviteForm({ isOpen, onClose, onSubmit }: InviteFormProp
                     </Button>
                 </div>
             </form>
+
+            <div className="w-full mt-4">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-neutral-400">Shareable Public Sign-Up Link</p>
+                <Copy eventId={String(eventId) ?? ""} />
+            </div>
         </Modal>
     );
 }

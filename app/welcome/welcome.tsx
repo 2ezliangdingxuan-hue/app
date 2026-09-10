@@ -6,6 +6,7 @@ import { PageHeader } from "~/components/PageHeader";
 import { Input } from "~/components/Input";
 import { CardSkeleton } from "~/components/Skeleton";
 import { encryptId } from "~/utils/idCrypto";
+import { formatDateRange } from "~/utils/dateUtils";
 
 interface Guest {
   name: string;
@@ -17,6 +18,8 @@ interface Event {
   title: string;
   description: string;
   date: string;
+  startDate?: string;
+  endDate?: string;
   category: string;
   location?: string;
   img: string;
@@ -162,7 +165,7 @@ export function Welcome() {
                   href={`/view/${encryptId(event.id)}`}
                   image={event.img}
                   title={event.title}
-                  date={event.date}
+                  date={formatDateRange(event)}
                   location={event.location}
                 />
               </li>

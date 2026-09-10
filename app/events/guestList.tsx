@@ -1,7 +1,7 @@
 import { useOutletContext, useParams } from "react-router";
 import { useRef, useState, useEffect } from "react";
-import { read as readXlsx, utils as xlsxUtils } from "xlsx";
-import { events, checkInGuest, addGuest } from "../../server/events";
+import { read as readXlsx, utils as xlsxUtils, write as writeXlsx } from "xlsx";
+import { events, checkInGuest, addGuest, resendEmail } from "../../server/events";
 import InviteForm from "./inviteFloat";
 import { PageHeader } from "~/components/PageHeader";
 import { Button } from "~/components/Button";
@@ -10,9 +10,10 @@ import { StatTile } from "~/components/StatTile";
 import { EditIcon } from "~/components/EditIcon";
 import { IconButton } from "~/components/IconButton";
 import EditGuestFloat from "./editGuestFloat";
-import { decryptId } from "~/utils/idCrypto";
+import { decryptId, encryptId } from "~/utils/idCrypto";
 import { useToast } from "~/components/Toast";
 import { Select } from "~/components/Select";
+// import {sendGuestInviteEmail} from "../../src/services/mailer";
 
 type FilterType = "all" | "arrived" | "notArrived" | "Going" | "Declined" | "Pending";
 
@@ -45,6 +46,9 @@ export default function GuestList() {
     const [isInviteOpen, setIsInviteOpen] = useState(false);
     const [isEditGuestOpen, setIsEditGuestOpen] = useState(false);
     const [editGuestId, setEditGuestId] = useState("");
+    const [copiedId, setCopiedId] = useState<string | null>(null);
+
+    
 
     async function handleCheckInToggle(targetEventId: string, guestId: string) {
         if (!targetEventId) return;
@@ -146,6 +150,19 @@ export default function GuestList() {
         setIsEditGuestOpen(true);
     }
 
+    async function handleCopyLink(guestId: string, guestName: string) {
+        if (!eventId) return;
+        const link = `${window.location.origin}/rsvp/${encryptId(eventId)}/${encryptId(guestId)}`;
+        try {
+            await navigator.clipboard.writeText(link);
+            setCopiedId(guestId);
+            showToast(`RSVP link for ${guestName} copied!`);
+            setTimeout(() => setCopiedId(null), 2000);
+        } catch {
+            showToast("Failed to copy RSVP link.", "error");
+        }
+    }
+    
     async function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
         const file = e.target.files?.[0];
         e.target.value = "";
@@ -231,8 +248,8 @@ export default function GuestList() {
         return needsQuotes ? `"${escaped}"` : escaped;
     }
 
-    function handleExportCsv() {
-        const header = ["#", "Name", "Email", "Phone", "Remarks", "Arrival Time", "Status", "RSVP"];
+    function getGuestExportData() {
+        const header = ["#", "Name", "Email", "Phone", "Remarks", "Arrival Time", "Status", "RSVP", "Creation Time"];
         const rows = visibleGuests.map(([, guest]: [string, any], index) => [
             String(index + 1),
             guest.name ?? "",
@@ -242,7 +259,13 @@ export default function GuestList() {
             guest.arrivalTime ?? "",
             guest.status ?? "",
             guest.rsvp ?? "Pending",
+            guest.createdAt ? (isNaN(new Date(guest.createdAt).getTime()) ? guest.createdAt : new Date(guest.createdAt).toLocaleString()) : "",
         ]);
+        return { header, rows };
+    }
+
+    function handleExportCsv() {
+        const { header, rows } = getGuestExportData();
         const csv = [header, ...rows].map((row) => row.map(escapeCsvValue).join(",")).join("\n");
 
         const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -257,6 +280,27 @@ export default function GuestList() {
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
         showToast("Guestlist exported to CSV!");
+    }
+
+    function handleExportExcel() {
+        const { header, rows } = getGuestExportData();
+        const worksheet = xlsxUtils.aoa_to_sheet([header, ...rows]);
+        const workbook = xlsxUtils.book_new();
+        xlsxUtils.book_append_sheet(workbook, worksheet, "Guests");
+
+        const excelBuffer = writeXlsx(workbook, { bookType: "xlsx", type: "array" });
+        const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        const url = URL.createObjectURL(blob);
+        const fileName = `${(curEvent?.title || "guestlist").trim().replace(/\s+/g, "-").toLowerCase()}-guests.xlsx`;
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showToast("Guestlist exported to Excel!");
     }
 
     if (!curEvent) return null;
@@ -283,9 +327,21 @@ export default function GuestList() {
         setCurPage(1);
     };
 
+    async function handelResendInvite(newGuestId: string) {
+        try{
+                resendEmail(
+                    eventId,
+                    newGuestId
+            )
+            }
+            catch (e){
+                console.log(e)
+            }
+    }
+
 
     return (
-        <main className="mx-auto flex w-full max-w-5xl flex-col px-4 pb-12 pt-6 sm:px-8">
+        <main className="mx-auto flex w-full max-w-6xl flex-col px-4 pb-12 pt-6 sm:px-8">
             <PageHeader
                 title="Guestlist"
                 action={
@@ -309,6 +365,12 @@ export default function GuestList() {
                             </svg>
                             Export CSV
                         </Button>
+                        <Button variant="secondary" size="sm" onClick={handleExportExcel} disabled={visibleGuests.length === 0}>
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+                            </svg>
+                            Export Excel
+                        </Button>
                         <Button variant="primary" size="sm" onClick={() => setIsInviteOpen(true)}>
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                                 <path d="M12 5v14M5 12h14" />
@@ -318,7 +380,7 @@ export default function GuestList() {
                     </div>
                 }
                 className="mb-6"
-            />
+                />
 
             {importStatus && (
                 <div
@@ -414,25 +476,27 @@ export default function GuestList() {
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
-                        strokeWidth="2"
-                    >
+                        strokeWidth="2">
                         <circle cx="11" cy="11" r="8" />
                         <line x1="21" y1="21" x2="16.65" y2="16.65" />
                     </svg>
                 </div>
             </div>
             
-            <div className="flex flex-col"><span className="text-right mr-6">Show:</span></div>
+            <div className="flex flex-row justify-between items-center">
+                <span className="ml-11"></span>
+                <span className="text-right mr-6">Show:</span>
+            </div>
             <div className ="flex flex-row justify-between items-center mb-2">
                 <div className="items-center flex flex-row gap-7">
                     <button onClick={() => handleChangePage(-1)} disabled={curPage === 1}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8899a4" stroke-width="2" stroke-linecap="round" stroke-linejoin="arcs"><path d="M15 18l-6-6 6-6"></path></svg>
                     </button>
-                    <span className="mt-1">{curPage} of {maxPages}</span>
+                    <span className="mt-1">Page {curPage} of {maxPages}</span>
                     <button onClick={() => handleChangePage(1)} disabled={curPage === maxPages}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8899a4" stroke-width="2" stroke-linecap="round" stroke-linejoin="arcs"><path d="M9 18l6-6-6-6"></path></svg>
                     </button>
-                </div>       
+                </div>
 
                 <div>
                     <Select className="max-w-25" onChange={handleChange} defaultValue="">
@@ -451,10 +515,11 @@ export default function GuestList() {
                 </Select>
                 </div>
             </div>
+            
             {/* Desktop Table View */}
             <div className="hidden sm:block overflow-hidden rounded-xl border border-neutral-200 bg-neutral-0 shadow-card">
                 <div className="overflow-x-auto">
-                    <table className="w-full min-w-175 text-left text-sm">
+                    <table className="w-full min-w-212.5 text-left text-sm">
                         <thead className="bg-brand-500 text-xs font-semibold uppercase tracking-wider text-white">
                             <tr>
                                 <th className="py-3.5 pl-4 pr-2 w-10">#</th>
@@ -522,12 +587,44 @@ export default function GuestList() {
                                                 )}
                                             </td>
                                             <td className="py-3 px-3 text-right pr-4">
-                                                <div className="inline-flex items-center gap-2">
+                                                <div className="inline-flex items-center justify-end gap-1.5 whitespace-nowrap">
+                                                    <Button
+                                                        onClick={() => handelResendInvite(id)}
+                                                        size="sm"
+                                                        className="text-xs bg-brand-50 text-brand-700"
+                                                    >
+                                                        {"Resend Email"}
+                                                    </Button>
+                                                    <Button
+                                                        onClick={() => handleCopyLink(id, guest.name)}
+                                                        variant="secondary"
+                                                        size="sm"
+                                                        className={`min-w-25.5 justify-center transition-all ${
+                                                            copiedId === id ? "bg-brand-50 text-brand-700 font-semibold" : ""
+                                                        }`}
+                                                    >
+                                                        {copiedId === id ? (
+                                                            <>
+                                                                <svg className="h-3.5 w-3.5 text-brand-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                                </svg>
+                                                                <span>Copied!</span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <svg className="h-3.5 w-3.5 text-neutral-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                                                    <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                                                                    <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                                                                </svg>
+                                                                <span>RSVP Link</span>
+                                                            </>
+                                                        )}
+                                                    </Button>
                                                     <Button
                                                         onClick={() => handleCheckInToggle(String(eventId), id)}
                                                         variant={isArrived ? "secondary" : "primary"}
                                                         size="sm"
-                                                        className={isArrived ? "text-neutral-600 hover:text-neutral-900" : ""}
+                                                        className={`min-w-20 justify-center ${isArrived ? "text-neutral-600 hover:text-neutral-900" : ""}`}
                                                     >
                                                         {isArrived ? "Undo" : "Check In"}
                                                     </Button>
@@ -537,7 +634,7 @@ export default function GuestList() {
                                                         className="text-neutral-400 hover:text-neutral-700"
                                                         aria-label={`Edit ${guest.name}`}
                                                     >
-                                                        <EditIcon size={20} />
+                                                        <EditIcon size={18} />
                                                     </IconButton>
                                                 </div>
                                             </td>
@@ -596,22 +693,55 @@ export default function GuestList() {
                                     <span className="text-xs text-neutral-500">
                                         {isArrived ? `Arrived at ${guest.arrivalTime || "event"}` : "Not arrived yet"}
                                     </span>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-1.5">
+                                        <Button
+                                            onClick={() => handelResendInvite(id)}
+                                            size="sm"
+                                            className="text-xs text-brand-600 hover:text-brand-800"
+                                        >
+                                            {"Email"}
+                                        </Button>
+                                        <Button
+                                            onClick={() => handleCopyLink(id, guest.name)}
+                                            variant="secondary"
+                                            size="sm"
+                                            className={`text-xs px-2.5 py-1 ${
+                                                copiedId === id ? "bg-brand-50 text-brand-700 font-semibold" : ""
+                                            }`}
+                                        >
+                                            {copiedId === id ? (
+                                                <>
+                                                    <svg className="h-3 w-3 text-brand-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                    <span>Copied!</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <svg className="h-3 w-3 text-neutral-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                                        <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                                                        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                                                    </svg>
+                                                    <span>RSVP</span>
+                                                </>
+                                            )}
+                                        </Button>
+                                        <Button
+                                            onClick={() => handleCheckInToggle(String(eventId), id)}
+                                            variant={isArrived ? "secondary" : "primary"}
+                                            size="sm"
+                                            className="text-xs px-2.5 py-1"
+                                        >
+                                            {isArrived ? "Undo" : "Check In"}
+                                        </Button>
                                         <IconButton
                                             size="sm"
                                             onClick={() => handleOpenEditGuest(id)}
                                             className="text-neutral-400 hover:text-neutral-700"
                                             aria-label="Edit guest"
                                         >
-                                            <EditIcon size={20} />
+                                            <EditIcon size={18} />
                                         </IconButton>
-                                        <Button
-                                            onClick={() => handleCheckInToggle(String(eventId), id)}
-                                            variant={isArrived ? "secondary" : "primary"}
-                                            size="sm"
-                                        >
-                                            {isArrived ? "Undo" : "Check In"}
-                                        </Button>
                                     </div>
                                 </div>
                             </div>
@@ -619,7 +749,17 @@ export default function GuestList() {
                     })
                 )}
             </div>
-
+            <div className="">
+                <div className="items-center flex flex-row gap-7 mt-4">
+                    <button onClick={() => handleChangePage(-1)} disabled={curPage === 1}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8899a4" stroke-width="2" stroke-linecap="round" stroke-linejoin="arcs"><path d="M15 18l-6-6 6-6"></path></svg>
+                    </button>
+                    <span className="mt-1">Page {curPage} of {maxPages}</span>
+                    <button onClick={() => handleChangePage(1)} disabled={curPage === maxPages}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8899a4" stroke-width="2" stroke-linecap="round" stroke-linejoin="arcs"><path d="M9 18l6-6-6-6"></path></svg>
+                    </button>
+                </div>
+            </div>
             <InviteForm isOpen={isInviteOpen} onClose={() => setIsInviteOpen(false)} onSubmit={handleInviteSubmit} />
 
             <EditGuestFloat

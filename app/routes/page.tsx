@@ -16,23 +16,6 @@ const initialPieces: { name: keyof typeof colours; shape: number[][] }[] = [
 
 const delay = (ms: number) => new Promise((resolve)=> setTimeout(resolve, ms))
 
-// const clockwiseKicks = {
-//     kicks: [
-//         "0>R",
-//         "R>2",
-//         "2>L",
-//         "L>0",
-//     ]
-// }
-// const counterclockwiseKicks = {
-//     kicks: [
-//         "R>0",
-//         "2>R",
-//         "L>2",
-//         "0>L",
-//     ]
-// }
-
 const states = ["0", "R", "2", "L"]
 
 type BoardCell = 0 | keyof typeof colours;
@@ -65,19 +48,28 @@ export default function page(){
         curPiece, piecePos, boardState, playingState, pieceState, isGrounded
     }
     
+    useEffect(()=>{
+        stateRef.current = {
+            curPiece, piecePos, boardState, playingState, pieceState, isGrounded
+        }
+        setCurPiece(curPiece)
+        setPiecePos(piecePos)
+        setBoardState(boardState)
+        setPlayingState(playingState)
+        setPieceState(pieceState)
+        setIsGrounded(isGrounded)
+    }, [curPiece, piecePos, boardState, playingState, pieceState, isGrounded])
     const handleRotatePieceState = (direction:number) =>{
         const index = states.indexOf(pieceState)
         const startState = pieceState
-        //canPlace(curPiece,piecePos.x, piecePos.y,boardState)
         if(direction === 1){ //clockwise
             const nextIndex = (index + 1) % states.length;
-            //console.log(startState+">"+states[nextIndex])
 
             const table = startState+">"+states[nextIndex]
 
             const rotated = rotateClockwise(curPiece)
 
-            if (canPlace(rotated, piecePos.x, piecePos.y, boardState)){
+            if (canPlace(rotated, piecePos.x, piecePos.y)){
                 setCurPiece(rotated);
                 setPieceState(states[nextIndex])
                 return;
@@ -87,7 +79,7 @@ export default function page(){
             const kicksTable = kicks[table as keyof typeof kicks]
 
             for(const kick of kicksTable){
-                if(canPlace(rotated, piecePos.x + kick.x, piecePos.y+kick.y, boardState)){
+                if(canPlace(rotated, piecePos.x + kick.x, piecePos.y+kick.y)){
                     setCurPiece(rotated);
                     setPiecePos(p => ({x: p.x + kick.x, y: p.y+kick.y}));
                     setPieceState(states[nextIndex])
@@ -102,7 +94,7 @@ export default function page(){
 
             const rotated = rotateCounterClockwise(curPiece)
 
-            if (canPlace(rotated, piecePos.x, piecePos.y, boardState)){
+            if (canPlace(rotated, piecePos.x, piecePos.y)){
                 setCurPiece(rotated);
                 setPieceState(states[prevIndex])
                 return;
@@ -112,7 +104,7 @@ export default function page(){
             const kicksTable = kicks[table as keyof typeof kicks]
 
             for(const kick of kicksTable){
-                if(canPlace(rotated, piecePos.x + kick.x, piecePos.y+kick.y, boardState)){
+                if(canPlace(rotated, piecePos.x + kick.x, piecePos.y+kick.y)){
                     setCurPiece(rotated);
                     setPiecePos(p => ({x: p.x + kick.x, y: p.y+kick.y}));
                     setPieceState(states[prevIndex])
@@ -162,17 +154,18 @@ export default function page(){
 
     const handleTopOut = () =>{
         const nextPiece = queue[0];
-        if(!canPlace(nextPiece, overPos.x, overPos.y, boardState)){
+        if(!canPlace(nextPiece, overPos.x, overPos.y)){
             handleStop();
             return;
         }
     }
 
-     const canPlace=(
+    const canPlace=(
         piece: typeof curPiece, 
         x: number, 
         y: number, 
-        boardState: typeof gameBoard) =>{
+        ) =>{
+        const { piecePos, boardState } = stateRef.current;
         for (let dy = 0; dy < piece.shape.length; dy++){
             for(let dx = 0; dx < piece.shape[dy].length; dx++){
                 if(piece.shape[dy][dx] === 0) continue;
@@ -191,7 +184,7 @@ export default function page(){
         if(curPiece && piecePos){
             let ghostY = piecePos.y;
             
-            while(canPlace(curPiece, piecePos.x, ghostY, boardState)){
+            while(canPlace(curPiece, piecePos.x, ghostY)){
                 ghostY+=1;
             }
             curPiece.shape.forEach((row, dy) => {
@@ -231,7 +224,7 @@ export default function page(){
             const { curPiece, piecePos, boardState } = stateRef.current;
             const newY = piecePos.y + 1;
 
-            if (canPlace(curPiece, piecePos.x, newY, boardState)){
+            if (canPlace(curPiece, piecePos.x, newY)){
                 setPiecePos(prev => ({...prev, y: newY}));
             } else {
                 setIsGrounded(true);
@@ -248,14 +241,14 @@ export default function page(){
         const lockDelay = setTimeout(()=>{
             const { curPiece, piecePos, boardState } = stateRef.current;
 
-            if (!canPlace(curPiece, piecePos.x, piecePos.y + 1, boardState)) {
+            if (!canPlace(curPiece, piecePos.x, piecePos.y + 1)) {
                 handleLockPiece();
             } else {
                 setIsGrounded(false);
             }
         }, 500);    
         return () => clearTimeout(lockDelay);
-    }, [piecePos, curPiece, boardState]);
+    }, [piecePos, curPiece, boardState, isGrounded]);
 
 
 
@@ -291,7 +284,7 @@ export default function page(){
     //move left or right
     const handleMove = (direction: number) =>{
         const newX = piecePos.x + direction;
-        if (canPlace(curPiece, newX, piecePos.y, boardState)){
+        if (canPlace(curPiece, newX, piecePos.y)){
             setPiecePos(p=>({...p, x: newX}));
         }
     };
@@ -299,7 +292,7 @@ export default function page(){
     //harddrop
     const hardDrop = () => {
         let newY = piecePos.y
-        while(canPlace(curPiece, piecePos.x, newY, boardState)){
+        while(canPlace(curPiece, piecePos.x, newY)){
             newY+=1;
         }
         setPiecePos(p=>({...p, y: newY-1}))
@@ -312,7 +305,7 @@ export default function page(){
         setGhostPiece(curPiece);
         let newY = ghostPiecePos.y
         
-        while(canPlace(ghostPiece, ghostPiecePos.x, newY, boardState)){
+        while(canPlace(ghostPiece, ghostPiecePos.x, newY)){
             newY+=1;
         }
 
@@ -385,13 +378,15 @@ export default function page(){
     
     //soft drop
     const handleSoftDrop = () =>{
-        let newY = piecePos.y
         
         if (!softIntervalRef.current){
             softIntervalRef.current = setInterval(()=>{
-            newY += 1;
-            if (canPlace(curPiece, piecePos.x, newY, boardState)){
+
+            const { curPiece, piecePos, boardState } = stateRef.current;
+            const newY= piecePos.y + 1;
+            if (canPlace(curPiece, piecePos.x, newY)){
                 setPiecePos(prev => ({...prev, y: newY}));
+                stateRef.current.piecePos.y = newY;
             } else {
                 clearInterval(softIntervalRef.current!);
                 softIntervalRef.current = null;
@@ -409,20 +404,21 @@ export default function page(){
 
     //DAS
     const handleDas = (direction: number) =>{ 
-        let newX = piecePos.x;
+        //let newX = stateRef.current.piecePos.x;
  
         handleMove(direction);
 
         if (!dasIntervalRef.current){
             dasIntervalRef.current = setInterval(()=>{
-            newX += direction;
-            if (canPlace(curPiece, newX, piecePos.y, boardState)){
+
+            const { curPiece, piecePos, boardState } = stateRef.current;
+            const newX = direction + piecePos.x;
+            if (canPlace(curPiece, newX, piecePos.y)){
                 setPiecePos(prev => ({...prev, x: newX}));
-                
+                piecePos.x = newX;
             } else {
                 clearInterval(dasIntervalRef.current!);
                 dasIntervalRef.current = null;
-                
                 return;
             }
         },50)}
@@ -526,7 +522,7 @@ export default function page(){
             nextQueue = [...nextQueue, ...newItems];
         }
         
-        if(!canPlace(nextPiece, overPos.x, overPos.y, boardState)){
+        if(!canPlace(nextPiece, overPos.x, overPos.y)){
             handleStop();
             return;
         }
@@ -657,7 +653,7 @@ export default function page(){
                                 )}
                             </div>
                         ))}
-                        <div className="mt-3 flex flex-row justify-between">
+                        <div className="mt-4 flex flex-row justify-between">
                             <button onClick={handleNewGame} className="border">
                                 New
                             </button>
