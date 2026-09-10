@@ -1401,7 +1401,7 @@
       "title": "Event 2",
       "maximumGuests": 1,
       "description": "This is the second event. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-      "date": "Mon, Jul 13, 2026 • 1:00 AM – 12:00 PM",
+      "date": "Jul 13, 1:00 AM – Jul 14, 2026, 12:00 PM",
       "category": "public",
       "location": "Buckingham Palace",
       "img": "https://th.bing.com/th/id/OIP.VdDc3iT3PCrJnnsiThNzGgHaF_?w=245&h=199&c=7&r=0&o=7&pid=1.7&rm=3",
@@ -1474,11 +1474,23 @@
           "arrivalTime": null,
           "rsvp": "Pending",
           "rsvpAt": null
+        },
+        "8": {
+          "name": "testdate",
+          "email": "liangdingxuan@gmail.com",
+          "remarks": "",
+          "number": "",
+          "arrived": false,
+          "status": "Not-Arrived",
+          "arrivalTime": null,
+          "rsvp": "Pending",
+          "rsvpAt": null,
+          "createdAt": "2026-09-07T01:50:53.178Z"
         }
       },
       "maxGuests": 40,
       "startDate": "2026-07-13T01:00",
-      "endDate": "2026-07-13T12:00"
+      "endDate": "2026-07-14T12:00"
     },
     {
       "id": 3,

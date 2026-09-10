@@ -160,7 +160,7 @@ export default function page(){
         }
     }
 
-     const canPlace=(
+    const canPlace=(
         piece: typeof curPiece, 
         x: number, 
         y: number, 
