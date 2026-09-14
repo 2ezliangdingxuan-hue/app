@@ -3,9 +3,11 @@ import { useParams, Link } from "react-router";
 import { events, addGuest } from "../../server/events";
 import { Button } from "~/components/Button";
 import SignUpForm from "./signUpFloat";
+import { RichTextRenderer } from "~/components/RichTextRenderer";
 import { decryptId, encryptId } from "~/utils/idCrypto";
 import { useToast } from "~/components/Toast";
 import { formatDateRange, toGoogleCalendarDateString } from "~/utils/dateUtils";
+import { stripHtml } from "~/utils/richTextUtils";
 
 export default function EventView() {
     const { eventId: rawEventId } = useParams();
@@ -56,7 +58,7 @@ export default function EventView() {
     // Google Calendar URL generator
     const googleCalendarUrl = () => {
         const title = encodeURIComponent(curEvent.title || "Event");
-        const details = encodeURIComponent(curEvent.description || "");
+        const details = encodeURIComponent(stripHtml(curEvent.description || ""));
         const location = encodeURIComponent(curEvent.location || "");
         let dateStr = "";
         if (curEvent.startDate) {
@@ -184,13 +186,10 @@ export default function EventView() {
                     <h2 className="text-lg font-bold text-neutral-800">About this event</h2>
                 </div>
                 <div className="p-6">
-                    {curEvent.description ? (
-                        <p className="whitespace-pre-line text-base leading-7 text-neutral-600">
-                            {curEvent.description}
-                        </p>
-                    ) : (
-                        <p className="text-sm text-neutral-400">No additional description provided.</p>
-                    )}
+                    <RichTextRenderer
+                        content={curEvent.description}
+                        emptyMessage="No additional description provided."
+                    />
                 </div>
             </div>
         </div>

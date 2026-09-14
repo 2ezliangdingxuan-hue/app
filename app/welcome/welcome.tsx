@@ -7,6 +7,7 @@ import { Input } from "~/components/Input";
 import { CardSkeleton } from "~/components/Skeleton";
 import { encryptId } from "~/utils/idCrypto";
 import { formatDateRange } from "~/utils/dateUtils";
+import { stripHtml } from "~/utils/richTextUtils";
 
 interface Guest {
   name: string;
@@ -56,7 +57,7 @@ export function Welcome() {
     const matchesSearch =
       event.title.toLowerCase().includes(term) ||
       (event.location && event.location.toLowerCase().includes(term)) ||
-      (event.description && event.description.toLowerCase().includes(term));
+      (event.description && stripHtml(event.description).toLowerCase().includes(term));
     return matchesCategory && matchesSearch;
   });
 

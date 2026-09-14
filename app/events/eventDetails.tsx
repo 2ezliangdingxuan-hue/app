@@ -9,6 +9,8 @@ import { IconButton } from "~/components/IconButton";
 import { EditIcon } from "~/components/EditIcon";
 import { SaveCancelBar } from "~/components/SaveCancelBar";
 import { Button } from "~/components/Button";
+import { RichTextEditor } from "~/components/RichTextEditor";
+import { RichTextRenderer } from "~/components/RichTextRenderer";
 import { decryptId, encryptId } from "~/utils/idCrypto";
 import { useToast } from "~/components/Toast";
 import { formatDateRange, toDateTimeLocalInput, validateDateTimeRange } from "~/utils/dateUtils";
@@ -381,36 +383,19 @@ export default function EventDetails() {
                 <div className="px-5 py-5 sm:px-6">
                     {editing === "description" ? (
                         <div className="flex flex-col gap-3">
-                            <Textarea
-                                rows={6}
+                            <RichTextEditor
                                 value={draft.description}
-                                onChange={(e) => setDraft((current) => ({ ...current, description: e.target.value }))}
-                                placeholder="Write a detailed description for your attendees..."
-                                autoFocus
+                                onChange={(html) => setDraft((current) => ({ ...current, description: html }))}
+                                placeholder="Write a detailed description with custom fonts, colors, and photos..."
                             />
                             <SaveCancelBar onSave={saveEdit} onCancel={() => setEditing(null)} saving={saving} />
                         </div>
-                    ) : curEvent.description ? (
-                        <>
-                            <p
-                                className={`max-w-prose whitespace-pre-line text-base leading-7 text-neutral-600 sm:text-[17px] ${
-                                    isDescExpanded ? "" : "line-clamp-6"
-                                }`}
-                            >
-                                {curEvent.description}
-                            </p>
-                            {curEvent.description.length > 320 && (
-                                <button
-                                    type="button"
-                                    onClick={() => setIsDescExpanded((current) => !current)}
-                                    className="mt-3 text-sm font-semibold text-brand-600 hover:text-brand-700"
-                                >
-                                    {isDescExpanded ? "Show less" : "Read more"}
-                                </button>
-                            )}
-                        </>
                     ) : (
-                        <p className="text-sm text-neutral-400">No description yet. Click the edit icon to add one.</p>
+                        <RichTextRenderer
+                            content={curEvent.description}
+                            isExpandable
+                            emptyMessage="No description yet. Click the edit icon to add one."
+                        />
                     )}
                 </div>
             </div>
