@@ -109,8 +109,11 @@ export function generateInviteEmailHtml({
             `
             : "";
 
+    const isHtmlContent = eventDescription && /<[a-z][\s\S]*>/i.test(eventDescription);
     const descriptionHtml = eventDescription
-        ? `<p style="margin: 0 0 20px 0; font-size: 14px; line-height: 22px; color: #6b6155; font-style: italic;">&ldquo;${eventDescription}&rdquo;</p>`
+        ? isHtmlContent
+            ? `<div style="margin: 0 0 20px 0; font-size: 14px; line-height: 22px; color: #4c443b;">${eventDescription}</div>`
+            : `<p style="margin: 0 0 20px 0; font-size: 14px; line-height: 22px; color: #6b6155; font-style: italic;">&ldquo;${eventDescription}&rdquo;</p>`
         : "";
 
     return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -297,7 +300,18 @@ export function generateInviteEmailText({
         lines.push(`Venue: ${eventLocation}`);
     }
     if (eventDescription) {
-        lines.push(``, `"${eventDescription}"`);
+        const plainDesc = eventDescription
+            .replace(/<br\s*\/?>/gi, "\n")
+            .replace(/<\/p>/gi, "\n\n")
+            .replace(/<[^>]+>/g, "")
+            .replace(/&nbsp;/g, " ")
+            .replace(/&amp;/g, "&")
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, "'")
+            .replace(/&lt;/g, "<")
+            .replace(/&gt;/g, ">")
+            .trim();
+        lines.push(``, `"${plainDesc}"`);
     }
 
     lines.push(

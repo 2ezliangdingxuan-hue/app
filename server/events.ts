@@ -170,8 +170,6 @@ const resendEmail = async (eventId: string, guestId: string) => {
     const event = events.find((event) => String(event.id) === eventId);
     let res = null;
     if (event?.guests && String(guestId) in event.guests) {
-        event.guests[String(guestId)].arrived = true;
-        event.guests[String(guestId)].status = "Arrived"
         res = await fetch(`${API_BASE}/api/events/${eventId}/${guestId}/resendEmail`,{
             method: "POST",
             headers:{

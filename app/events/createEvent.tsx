@@ -7,6 +7,7 @@ import { Input } from "~/components/Input";
 import { Textarea } from "~/components/Textarea";
 import { Select } from "~/components/Select";
 import { Button } from "~/components/Button";
+import { RichTextEditor } from "~/components/RichTextEditor";
 import { encryptId } from "~/utils/idCrypto";
 import { useToast } from "~/components/Toast";
 import { formatDateRange, validateDateTimeRange } from "~/utils/dateUtils";
@@ -69,6 +70,12 @@ export function CreateEvent() {
         if (!validation.valid) {
             setError(validation.error || "Invalid date-time range.");
             showToast(validation.error || "Invalid date-time range.", "error");
+            return;
+        }
+
+        if (!form.description || !form.description.trim() || form.description === "<p><br></p>") {
+            setError("Please provide an event description.");
+            showToast("Please provide an event description.", "error");
             return;
         }
 
@@ -135,17 +142,19 @@ export function CreateEvent() {
                     />
                 </FormField>
 
-                <FormField label="Event Description" htmlFor="description">
-                    <Textarea
-                        rows={4}
-                        id="description"
-                        name="description"
-                        placeholder="Give attendees a detailed overview of what to expect..."
+                <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-semibold text-neutral-800">
+                        Event Description & Story <span className="text-red-500">*</span>
+                    </label>
+                    <p className="text-xs text-neutral-500">
+                        Format your event story with custom fonts, colors, headings, bullet lists, and embedded photos.
+                    </p>
+                    <RichTextEditor
                         value={form.description}
-                        onChange={handleChange}
-                        required
+                        onChange={(html) => setForm((prev) => ({ ...prev, description: html }))}
+                        placeholder="Give attendees a detailed overview of what to expect, agenda, guidelines, photos, and FAQs..."
                     />
-                </FormField>
+                </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <FormField label="Start Date & Time" htmlFor="startDate">
